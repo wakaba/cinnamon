@@ -49,12 +49,12 @@ sub task ($$) {
     Cinnamon::Config::set_task $task => $task_def;
 }
 
-sub remote (&$) {
-    my ($code, $host) = @_;
+sub remote (&$;%) {
+    my ($code, $host, %args) = @_;
 
     local $_ = Cinnamon::Remote->new(
         host => $host,
-        user => Cinnamon::Config::user,
+        user => $args{user} || Cinnamon::Config::user,
     );
 
     $code->($host);
