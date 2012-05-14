@@ -44,6 +44,33 @@ sub execute_by_sudo {
     );
 }
 
+sub execute_with_stream {
+    my ($self, @cmd) = @_;
+    my $opt = shift @cmd;
+
+    my ($stdin, $stdout, $stderr, $pid);
+    if (defined $opt && $opt->{sudo}) {
+        die "Not implemented";
+    }
+    else {
+        ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
+            stdin_pipe => 1,
+            stdout_pipe => 1,
+            stderr_pipe => 1,
+            tty => $opt->{tty},
+        }, join ' ', @cmd);
+    }
+
+    +{
+        stdin     => $stdin,
+        stdout    => $stdout,
+        stderr    => $stderr,
+        pid       => $pid,
+        has_error => !!$self->connection->error,
+        error     => $self->connection->error,
+    };
+}
+
 sub DESTROY {
     my $self = shift;
        $self->{connection} = undef;

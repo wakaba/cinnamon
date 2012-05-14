@@ -22,7 +22,7 @@ sub run {
 
     my $result = $runner->start($hosts, $task, @args);
     my (@success, @error);
-
+    
     for my $key (keys %{$result || {}}) {
         if ($result->{$key}->{error}) {
             push @error, $key;
@@ -31,7 +31,7 @@ sub run {
             push @success, $key;
         }
     }
-
+    
     log info => sprintf(
         "\n========================\n[success]: %s\n[error]: %s",
         (join(', ', @success) || ''),
