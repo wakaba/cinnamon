@@ -22,6 +22,7 @@ our @EXPORT = qw(
     run
     run_stream
     sudo
+    call
 );
 
 our $STDOUT = \*STDOUT;
@@ -48,6 +49,14 @@ sub task ($$) {
     my ($task, $task_def) = @_;
 
     Cinnamon::Config::set_task $task => $task_def;
+}
+
+sub call ($$@) {
+    my ($task, $job, @args) = @_;
+    
+    log info => "call $task";
+    my $task_def = Cinnamon::Config::get_task $task;
+    $task_def->($job, @args);
 }
 
 sub remote (&$;%) {
