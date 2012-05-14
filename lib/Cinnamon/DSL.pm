@@ -136,10 +136,28 @@ sub run_stream (@) {
         $return = $?;
         $cv->send;
     };
+    my $line_number = {};
+    my $print = sub {
+        my ($s, $handle) = @_;
+        my $type = $handle eq 'stdout' ? 'info' : 'error';
+        while ($s =~ s{([^\x0D\x0A]*)\x0D?\x0A}{}) {
+            log $type => sprintf "[%s] %d: %s",
+                $host, ++$line_number->{$_[1]}, $1;
+        }
+        if (length $s) {
+            log $type => sprintf "[%s] %d: %s",
+                $host, ++$line_number->{$_[1]}, $s;
+        }
+
+        # XXX Bug: line number counting does not work when line
+        # boundary does not match with the boundary AnyEvent::Handle's
+        # invocation of on_read gives.
+    };
     $stdout = AnyEvent::Handle->new(
         fh => $result->{stdout},
         on_read => sub {
-            print $STDOUT $_[0]->rbuf;
+            $print->($_[0]->rbuf => 'stdout');
+            substr($_[0]->{rbuf}, 0) = '';
         },
         on_eof => sub {
             undef $stdout;
@@ -156,7 +174,8 @@ sub run_stream (@) {
     $stderr = AnyEvent::Handle->new(
         fh => $result->{stderr},
         on_read => sub {
-            print $STDERR $_[0]->rbuf;
+            $print->($_[0]->rbuf => 'stderr');
+            substr($_[0]->{rbuf}, 0) = '';
         },
         on_eof => sub {
             undef $stderr;
