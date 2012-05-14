@@ -34,6 +34,7 @@ sub set ($$) {
 
 sub get ($@) {
     my ($name, @args) = @_;
+    local $_ = undef;
     Cinnamon::Config::get $name, @args;
 }
 
