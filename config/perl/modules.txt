@@ -1,0 +1,11 @@
+parent
+Term::ANSIColor
+IPC::Run
+Net::OpenSSH
+Log::Dispatch
+Class::Load
+Coro
+Term::ReadKey
+
+Test::More
+Test::Requires
