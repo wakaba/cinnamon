@@ -96,7 +96,7 @@ sub run_stream (@) {
     my (@cmd) = @_;
     my $opt;
     $opt = shift @cmd if ref $cmd[0] eq 'HASH';
-    $opt->{tty} = 1 if not exists $opt->{tty} and -t $STDOUT;
+    #$opt->{tty} = 1 if not exists $opt->{tty} and -t $STDOUT;
 
     unless (ref $_ eq 'Cinnamon::Remote') {
         die "Not implemented yet";
