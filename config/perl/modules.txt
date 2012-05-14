@@ -6,6 +6,9 @@ Log::Dispatch
 Class::Load
 Coro
 Term::ReadKey
+AnyEvent
+AnyEvent::Handle
+POSIX
 
 Test::More
 Test::Requires

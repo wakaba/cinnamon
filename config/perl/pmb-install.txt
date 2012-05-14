@@ -23,7 +23,7 @@ Sub::Exporter~0.982
 Sub::Install~0.926
 Test::Fatal~0.010
 Term::ANSIColor~3.02
-Net::OpenSSH
+Net::OpenSSH~0.57
 Sys::Syslog~0.29
 Attribute::Handlers~0.93
 ExtUtils::ParseXS~3.15

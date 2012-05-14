@@ -22,6 +22,9 @@ my $build = Module::Build->new(
         'Class::Load'     => 0,
         'Coro'            => 0,
         'Term::ReadKey'   => 0,
+        'AnyEvent'        => 0,
+        'AnyEvent::Handle' => 0,
+        'POSIX'           => 0,
     },
 
     no_index    => { 'directory' => [ 'inc' ] },
