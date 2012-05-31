@@ -1,9 +1,6 @@
 List::MoreUtils~0.33
 Params::Util~1.07
-Test::Class~0.36
-Test::Exception~0.31
 parent~0.225
-Sub::Uplevel~0.24
 Class::Load~0.19
 Dist::CheckConflicts~0.02
 Package::Stash~0.33
@@ -13,12 +10,9 @@ Log::Dispatch~2.32
 Module::Implementation~0.06
 Package::DeprecationManager~0.13
 Attribute::Params::Validate~1.07
-Algorithm::C3~0.08
-Class::C3~0.24
-Class::C3::XS~0.13
-MRO::Compat~0.11
 File::ShareDir::Install~0.04
 Term::ReadKey~2.30
+Path::Class~0.25
 inc::latest~0.40
 AE
 Coro~6.08
