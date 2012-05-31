@@ -6,7 +6,7 @@ Dist::CheckConflicts~0.02
 Package::Stash~0.33
 Package::Stash::XS~0.25
 Try::Tiny~0.11
-Log::Dispatch~2.29
+Log::Dispatch~2.32
 Module::Implementation~0.06
 Package::DeprecationManager~0.13
 Attribute::Params::Validate~1.07
@@ -24,7 +24,6 @@ Sub::Install~0.926
 Test::Fatal~0.010
 Term::ANSIColor~3.02
 Net::OpenSSH~0.57
-Sys::Syslog~0.29
 Attribute::Handlers~0.93
 ExtUtils::ParseXS~3.15
 IO::Pty~1.10
