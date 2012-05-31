@@ -23,3 +23,15 @@ generatepm: %: Makefile-setupenv
             REMOTEDEV_PERL_VERSION=$(REMOTEDEV_PERL_VERSION) \
 	    PMB_PMTAR_REPO_URL=$(PMB_PMTAR_REPO_URL) \
 	    PMB_PMPP_REPO_URL=$(PMB_PMPP_REPO_URL)
+
+# ------ Tests ------
+
+PERL_ENV = PATH=$(PERL_PATH):$(PATH) PERL5LIB=$(shell cat config/perl/libs.txt)
+PROVE = prove
+
+test: test-deps test-main
+
+test-deps: pmb-install
+
+test-main:
+	$(PERL_ENV) $(PROVE) t/*.t
