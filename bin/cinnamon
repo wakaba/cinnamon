@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!perl
 use strict;
 use warnings;
 use File::Basename;
@@ -11,5 +11,6 @@ BEGIN {
     }
 }
 use Cinnamon;
+use Cinnamon::CLI;
 
-Cinnamon->run(@ARGV);
+Cinnamon::CLI->new->run(@ARGV);

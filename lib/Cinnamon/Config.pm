@@ -102,14 +102,14 @@ sub user () {
 }
 
 sub load (@) {
-    my ($role, $task) = (shift, shift);
+    my ($role, $task, %opt) = @_;
 
     $role =~ s/^\@// if defined $role;
 
     set role => $role;
     set task => $task;
 
-    Cinnamon::Config::Loader->load(@_);
+    Cinnamon::Config::Loader->load(config => $opt{config});
 }
 
 !!1;

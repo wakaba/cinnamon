@@ -25,6 +25,13 @@ my $build = Module::Build->new(
         'AnyEvent'        => 0,
         'AnyEvent::Handle' => 0,
         'POSIX'           => 0,
+        'Getopt::Long::Parser' => 0,
+    },
+    build_requires       => {
+        'Directory::Scratch' => 0,
+        'Capture::Tiny'      => 0,
+        'Test::More'         => 0,
+        'Test::Class'        => 0,
     },
 
     no_index    => { 'directory' => [ 'inc' ] },
