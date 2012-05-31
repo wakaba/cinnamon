@@ -104,6 +104,8 @@ sub user () {
 sub load (@) {
     my ($role, $task) = (shift, shift);
 
+    $role =~ s/^\@// if defined $role;
+
     set role => $role;
     set task => $task;
 
