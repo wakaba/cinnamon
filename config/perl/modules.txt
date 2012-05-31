@@ -10,5 +10,6 @@ AnyEvent
 AnyEvent::Handle
 POSIX
 
+Test::Class
 Test::More
 Test::Requires
