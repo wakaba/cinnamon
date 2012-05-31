@@ -41,7 +41,10 @@ sub set_role ($$$) {
 }
 
 sub get_role (@) {
-    my $role  = ($_[0] || get('role')) or die "no role";
+    my $role  = ($_[0] || get('role')) or do {
+        log error => "Role is not specified";
+        return [];
+    };
 
     $lock->rdlock;
     my ($hosts, $params) = @{$ROLES{$role} or do {
@@ -71,7 +74,10 @@ sub set_task ($$) {
 sub get_task (@) {
     my ($task) = @_;
 
-    $task ||= get('task') or die "no task";
+    $task ||= get('task') or do {
+        log error => 'Task is not specified';
+        return sub { };
+    };
     my @task_path = split(':', $task);
 
     $lock->rdlock;
