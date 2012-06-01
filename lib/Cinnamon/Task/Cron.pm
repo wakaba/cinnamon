@@ -8,7 +8,7 @@ task cron => {
         my ($host, @args) = @_;
         remote {
             sudo q<sh -c 'echo; for file in $(ls /etc/cron.d/); do echo "# $file"; cat "/etc/cron.d/$file"; echo; done'>;
-        } $host;
+        } $host, user => get 'cron_user';
     },
     install => sub {
         my ($host, @args) = @_;
@@ -18,13 +18,13 @@ task cron => {
             sudo 'chown -R root:root /etc/cron.d/';
             sudo 'chmod -R 0644 /etc/cron.d/';
             sudo 'chmod 0700 /etc/cron.d/';
-        } $host;
+        } $host, user => get 'cron_user';
     },
     reload => sub {
         my ($host, @args) = @_;
         remote {
             sudo '/etc/init.d/crond reload';
-        } $host;
+        } $host, user => get 'cron_user';
 
         my $task = get 'task';
         $task =~ s/:reload$//;
@@ -34,7 +34,7 @@ task cron => {
         my ($host, @args) = @_;
         remote {
             sudo_stream 'tail -f /var/log/cron';
-        } $host;
+        } $host, user => get 'cron_user';
     },
 };
 
