@@ -22,8 +22,9 @@ task cron => {
     },
     reload => sub {
         my ($host, @args) = @_;
+        my $crond = get('cron_init') || '/etc/init.d/crond';
         remote {
-            sudo '/etc/init.d/crond reload';
+            sudo "$crond reload";
         } $host, user => get 'cron_user';
 
         my $task = get 'task';
