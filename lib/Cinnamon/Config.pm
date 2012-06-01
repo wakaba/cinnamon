@@ -94,7 +94,7 @@ sub get_task (@) {
 }
 
 sub user () {
-    get 'user' || do {
+    get('user') || do {
         my $user = qx{whoami};
         chomp $user;
         $user;

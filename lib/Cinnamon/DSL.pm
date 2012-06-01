@@ -63,9 +63,12 @@ sub call ($$@) {
 sub remote (&$;%) {
     my ($code, $host, %args) = @_;
 
+    my $user = $args{user} || Cinnamon::Config::user;
+    log info => "$user\@$host";
+
     local $_ = Cinnamon::Remote->new(
         host => $host,
-        user => $args{user} || Cinnamon::Config::user,
+        user => $user,
     );
 
     $code->($host);
@@ -205,7 +208,7 @@ sub sudo_stream (@) {
 
     my $password = Cinnamon::Config::get('password');
     unless (defined $password) {
-        print "Enter sudo password: ";
+        print "Enter sudo password for user @{[$_->user]}: ";
         ReadMode "noecho";
         chomp($password = ReadLine 0);
         Cinnamon::Config::set('password' => $password);
@@ -223,7 +226,7 @@ sub sudo (@) {
 
     my $password = Cinnamon::Config::get('password');
     unless (defined $password) {
-        print "Enter sudo password: ";
+        print "Enter sudo password for user @{[$_->user]}: ";
         ReadMode "noecho";
         chomp($password = ReadLine 0);
         Cinnamon::Config::set('password' => $password);
