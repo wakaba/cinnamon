@@ -22,6 +22,7 @@ our @EXPORT = qw(
     run
     run_stream
     sudo
+    sudo_stream
     call
 );
 
@@ -195,6 +196,26 @@ sub run_stream (@) {
     if ($return != 0) {
         log error => sprintf "[%s] Status: %d", $host, $return;
     }
+}
+
+sub sudo_stream (@) {
+    my (@cmd) = @_;
+    my $opt = {};
+    $opt = shift @cmd if ref $cmd[0] eq 'HASH';
+
+    my $password = Cinnamon::Config::get('password');
+    unless (defined $password) {
+        print "Enter sudo password: ";
+        ReadMode "noecho";
+        chomp($password = ReadLine 0);
+        Cinnamon::Config::set('password' => $password);
+        ReadMode 0;
+        print "\n";
+    }
+
+    $opt->{sudo} = 1;
+    $opt->{password} = $password;
+    run_stream $opt, @cmd;
 }
 
 sub sudo (@) {

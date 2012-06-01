@@ -48,17 +48,19 @@ sub execute_with_stream {
     my ($self, @cmd) = @_;
     my $opt = shift @cmd;
 
-    my ($stdin, $stdout, $stderr, $pid);
     if (defined $opt && $opt->{sudo}) {
-        die "Not implemented";
+        @cmd = ('sudo -Sk sh -c "' . (join ' ', @cmd) . '"'); # XXX quote
     }
-    else {
-        ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
-            stdin_pipe => 1,
-            stdout_pipe => 1,
-            stderr_pipe => 1,
-            tty => $opt->{tty},
-        }, join ' ', @cmd);
+
+    my ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
+        stdin_pipe => 1,
+        stdout_pipe => 1,
+        stderr_pipe => 1,
+        tty => $opt->{tty},
+    }, join ' ', @cmd); # XXX quote
+
+    if (defined $opt && $opt->{sudo}) {
+        print $stdin "$opt->{password}\n";
     }
 
     +{
