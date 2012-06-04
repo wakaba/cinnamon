@@ -15,6 +15,7 @@ my $build = Module::Build->new(
         perl   => "$]",
         parent => '0',
 
+        'Exporter::Lite'       => 0,
         'Term::ANSIColor'      => 0,
         'IPC::Run'             => 0,
         'Net::OpenSSH'         => 0,

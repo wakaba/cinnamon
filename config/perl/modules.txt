@@ -1,10 +1,10 @@
 parent
+Exporter::Lite
 Term::ANSIColor
 IPC::Run
 Net::OpenSSH
 Log::Dispatch
 Class::Load
-Coro
 Term::ReadKey
 AnyEvent
 AnyEvent::Handle
