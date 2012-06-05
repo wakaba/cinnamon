@@ -52,6 +52,14 @@ sub define_daemontools_tasks ($) {
                     sudo 'svc -t ' . $dir . '/' . $service->($name) . '/log';
                 } $host;
             },
+            status => sub {
+                my ($host, @args) = @_;
+                remote {
+                    my $dir = get 'daemontools_service_dir';
+                    my $service = get 'get_daemontools_service_name';
+                    sudo 'svstat ' . $dir . '/' . $service->($name) . '/log';
+                } $host;
+            },
             tail => sub {
                 my ($host, @args) = @_;
                 remote {
