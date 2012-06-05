@@ -35,6 +35,14 @@ sub define_daemontools_tasks ($) {
                 call "$task:log:tail", $host, @args;
             } $host;
         },
+        status => sub {
+            my ($host, @args) = @_;
+            remote {
+                my $dir = get 'daemontools_service_dir';
+                my $service = get 'get_daemontools_service_name';
+                sudo 'svstat ' . $dir . '/' . $service->($name);
+            } $host;
+        },
         log => {
             restart => sub {
                 my ($host, @args) = @_;
