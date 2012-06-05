@@ -48,6 +48,10 @@ sub get_role (@) {
     return $hosts;
 }
 
+sub get_role_list (;$) {
+    return \%ROLES;
+}
+
 sub set_task ($$) {
     my ($task, $task_def) = @_;
     $TASKS{$task} = $task_def;
@@ -65,6 +69,19 @@ sub get_task (@) {
     }
 
     $value;
+}
+
+sub get_task_list (;$) {
+    my ($task) = @_;
+    
+    my @task_path = defined $task ? split(':', $task) : ();
+
+    my $value = \%TASKS;
+    for (@task_path) {
+        $value = $value->{$_};
+    }
+
+    return $value;
 }
 
 sub user () {

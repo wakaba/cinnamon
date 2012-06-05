@@ -36,11 +36,15 @@ sub run {
 
 
     my ($role, $task) = @ARGV;
-    unless ($role && $task) {
-        $self->print("please specify role and task\n");
-        return $self->usage;
+    if (not defined $role) {
+        require Cinnamon::Task::Cinnamon;
+        $role = '';
+        $task = 'cinnamon:role:list';
+    } elsif (not defined $task) {
+        require Cinnamon::Task::Cinnamon;
+        $task = 'cinnamon:task:list';
     }
-
+    
     $self->cinnamon->run($role, $task, config => $self->{config});
 }
 

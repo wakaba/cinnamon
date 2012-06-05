@@ -23,9 +23,21 @@ sub run {
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
 
+    if (defined $task_def and ref $task_def eq 'HASH') {
+        require Cinnamon::Task::Cinnamon;
+        unshift @args, $task;
+        $task = 'cinnamon:task:list';
+        Cinnamon::Config::set task => $task;
+        $task_def = Cinnamon::Config::get_task;
+    }
+
     unless (defined $hosts) {
-        log 'error', "undefined role : '$role'";
-        return;
+        if ($task =~ /^cinnamon:/) {
+            $hosts = [''];
+        } else {
+            log 'error', "undefined role : '$role'";
+            return;
+        }
     }
     unless (defined $task_def) {
         log 'error', "undefined task : '$task'";
