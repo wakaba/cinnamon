@@ -23,6 +23,7 @@ sub run {
         config => ["no_ignore_case", "pass_through"],
     );
     $p->getoptions(
+        "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
         "c|config=s" => \$self->{config},
     );
@@ -45,7 +46,11 @@ sub run {
         $task = 'cinnamon:task:list';
     }
     
-    $self->cinnamon->run($role, $task, config => $self->{config});
+    $self->cinnamon->run(
+        $role, $task,
+        config => $self->{config},
+        user => $self->{user},
+    );
 }
 
 sub usage {

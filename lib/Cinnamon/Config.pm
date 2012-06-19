@@ -99,6 +99,7 @@ sub load (@) {
 
     set role => $role;
     set task => $task;
+    set user => $opt{user};
 
     Cinnamon::Config::Loader->load(config => $opt{config});
 }
