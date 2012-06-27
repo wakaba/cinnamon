@@ -6,8 +6,11 @@ use Exporter::Lite;
 
 our @EXPORT = qw(define_daemontools_tasks);
 
-sub define_daemontools_tasks ($) {
-    my $name = shift;
+sub define_daemontools_tasks ($;%) {
+    my ($name, %args) = @_;
+
+    my $onnotice = $args{onnotice} || sub { };
+
     return (
         start => sub {
             my ($host, @args) = @_;
@@ -15,6 +18,7 @@ sub define_daemontools_tasks ($) {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -u ' . $dir . '/' . $service->($name);
+                $onnotice->('svc -u');
             } $host;
         },
         stop => sub {
@@ -23,6 +27,7 @@ sub define_daemontools_tasks ($) {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -d ' . $dir . '/' . $service->($name);
+                $onnotice->('svc -d');
             } $host;
         },
         restart => sub {

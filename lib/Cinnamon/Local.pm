@@ -4,6 +4,10 @@ use warnings;
 use Carp ();
 use IPC::Run ();
 
+sub host {
+    return undef;
+}
+
 sub execute {
     my ($class, @cmd) = @_;
     my $result = IPC::Run::run \@cmd, \my $stdin, \my $stdout, \my $stderr;
