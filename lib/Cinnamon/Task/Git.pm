@@ -11,13 +11,13 @@ push @EXPORT, qw(get_git_revision);
 sub get_git_revision {
     if ($_ and $_->isa('Cinnamon::Remote')) {
         my $dir = get 'deploy_dir';
-        my ($rev) = run "cd $dir && git rev-parse HEAD";
+        my ($rev) = run "(cd $dir && git rev-parse HEAD) || true";
         chomp $rev;
-        return $rev; # or undef
+        return $rev || undef;
     } else {
-        my ($rev) = run qw(git rev-parse HEAD);
+        my ($rev) = run qw(sh -c), q(git rev-parse HEAD || true);
         chomp $rev;
-        return $rev; # or undef
+        return $rev || undef;
     }
 }
 
@@ -38,7 +38,7 @@ task git => {
         if ($result->{new_revision} ne $local_rev) {
             log error => sprintf "Remote revision is %s (local is %s)",
                 (substr $result->{new_revision}, 0, 10),
-                (substr $local_rev, 0, 10);
+                (substr $local_rev || '', 0, 10);
         }
 
         return $result;
