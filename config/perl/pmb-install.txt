@@ -45,11 +45,16 @@ Pod::Cache~1.51
 Net::SSLeay~1.48
 AE
 AnyEvent::HTTP~2.14
+JSON::XS~2.32
 common::sense~3.6
 Exporter::Lite~0.02
 Test::Builder~0.98
 UNIVERSAL::require~0.13
 Crypt::SSLeay~0.58
+AnyEvent::HTTP::Socks~0.04
+IO::Socket::Socks~0.62
+Test::Differences~0.61
+Text::Diff~1.41
 Crypt::OpenSSL::RSA~0.28
 HTML::Tagset~3.20
 Compress::Raw::Bzip2~2.052
@@ -61,8 +66,10 @@ Sub::Install~0.926
 Test::Fatal~0.010
 Term::ANSIColor~3.02
 Net::OpenSSH~0.57
+Data::Dumper~2.131
 ExtUtils::ParseXS~3.15
 IO::Socket::SSL~1.76
 IPC::Run~0.91
 Test::Requires~0.06
+Algorithm::Diff~1.1902
 Module::Runtime~0.013
