@@ -12,6 +12,7 @@ sub start {
     for my $host (@$hosts) {
         $result{$host} = +{ error => 0 };
 
+        local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
         eval { $task->($host, @args) };
 
         if ($@) {
