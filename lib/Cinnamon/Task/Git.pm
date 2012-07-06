@@ -10,7 +10,7 @@ our @EXPORT;
 push @EXPORT, qw(get_git_revision);
 sub get_git_revision {
     if ($_ and $_->isa('Cinnamon::Remote')) {
-        my $dir = get 'deploy_dir';
+        my $dir = (get 'git_deploy_dir') || (get 'deploy_dir');
         my ($rev) = run "(cd $dir && git rev-parse HEAD) || true";
         chomp $rev;
         return $rev || undef;
@@ -27,7 +27,7 @@ task git => {
         my $result = {};
         my $local_rev = get_git_revision;
         remote {
-            my $dir = get 'deploy_dir';
+            my $dir = (get 'git_deploy_dir') || (get 'deploy_dir');
             my $url = get 'git_repository';
             $result->{old_revision} = get_git_revision; # or undef
             run_stream "git clone $url $dir || (cd $dir && git pull)";
