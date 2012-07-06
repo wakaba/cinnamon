@@ -57,6 +57,7 @@ sub call ($$@) {
     
     log info => "call $task";
     my $task_def = Cinnamon::Config::get_task $task;
+    die "Task |$task| is not defined" unless $task_def;
     $task_def->($job, @args);
 }
 
