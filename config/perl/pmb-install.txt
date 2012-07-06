@@ -1,7 +1,7 @@
 Mozilla::CA~20120309
 List::MoreUtils~0.33
 Params::Util~1.07
-Test::Class~0.36
+Test::Class~0.37
 Test::Exception~0.31
 Class::ErrorHandler~0.01
 Class::Data::Accessor~0.04004
@@ -38,7 +38,6 @@ Crypt::OpenSSL::Random~0.04
 Term::ReadKey~2.30
 Class::Accessor~0.34
 Path::Class~0.26
-Module::Build~0.40
 inc::latest~0.4001
 OAuth::Lite~1.31
 Pod::Cache~1.51
@@ -68,6 +67,7 @@ Term::ANSIColor~3.02
 Net::OpenSSH~0.57
 Data::Dumper~2.131
 ExtUtils::ParseXS~3.15
+Filter::Simple~0.88
 IO::Socket::SSL~1.76
 IPC::Run~0.91
 Test::Requires~0.06
