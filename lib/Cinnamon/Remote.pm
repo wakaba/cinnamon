@@ -51,15 +51,20 @@ sub execute_with_stream {
     my $opt = shift @cmd;
 
     if (defined $opt && $opt->{sudo}) {
-        @cmd = ('sudo -Sk ' . quotemeta(join ' ', @cmd));
+        if (@cmd == 1 and not $cmd[0] =~ m{[ &<>|]}) {
+            @cmd = ('sudo', -Sk, '--', 'sh', -c => @cmd);
+        } else {
+            @cmd = ('sudo', '-Sk', '--', @cmd);
+        }
     }
 
+warn join ' ', map { quotemeta } @cmd;
     my ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
         stdin_pipe => 1,
         stdout_pipe => 1,
         stderr_pipe => 1,
         tty => $opt->{tty},
-    }, join ' ', @cmd); # XXX quote
+    }, join ' ', map { quotemeta } @cmd); # XXX quote
 
     if (defined $opt && $opt->{sudo}) {
         print $stdin "$opt->{password}\n";
