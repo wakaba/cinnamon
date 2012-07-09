@@ -2,6 +2,7 @@ package Cinnamon::Remote;
 use strict;
 use warnings;
 use Net::OpenSSH;
+use Cinnamon::Logger;
 
 sub new {
     my ($class, %args) = @_;
@@ -51,20 +52,25 @@ sub execute_with_stream {
     my $opt = shift @cmd;
 
     if (defined $opt && $opt->{sudo}) {
-        if (@cmd == 1 and not $cmd[0] =~ m{[ &<>|]}) {
+        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|]}) {
             @cmd = ('sudo', -Sk, '--', 'sh', -c => @cmd);
         } else {
             @cmd = ('sudo', '-Sk', '--', @cmd);
         }
+    } else {
+        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|]}) {
+            @cmd = ('sh', -c => @cmd);
+        }
     }
 
-warn join ' ', map { quotemeta } @cmd;
+    my $command = join ' ', map { quotemeta } @cmd;
+    #log info => $command;
     my ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
         stdin_pipe => 1,
         stdout_pipe => 1,
         stderr_pipe => 1,
         tty => $opt->{tty},
-    }, join ' ', map { quotemeta } @cmd); # XXX quote
+    }, $command);
 
     if (defined $opt && $opt->{sudo}) {
         print $stdin "$opt->{password}\n";
