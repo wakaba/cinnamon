@@ -51,7 +51,7 @@ sub execute_with_stream {
     my $opt = shift @cmd;
 
     if (defined $opt && $opt->{sudo}) {
-        @cmd = ('sudo -Sk sh -c ' . quotemeta(join ' ', @cmd));
+        @cmd = ('sudo -Sk ' . quotemeta(join ' ', @cmd));
     }
 
     my ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
