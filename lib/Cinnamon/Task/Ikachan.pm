@@ -30,12 +30,12 @@ sub ikachan_notice ($) {
 task ikachan => {
     notice => sub {
         my ($host, $message) = @_;
-        ikachan_notice sprintf '%s[%s]: @%s %s %s by %s',
+        ikachan_notice sprintf '%s[%s]: @%s %s %sby %s',
             (get 'ikachan_app_name'),
             (defined $host ? $host : undef),
             (get 'role'),
             (get 'task'),
-            $message,
+            defined $message ? $message . ' ' : '',
             (Cinnamon::Config::user);
     },
 };
