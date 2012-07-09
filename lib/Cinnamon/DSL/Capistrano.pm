@@ -110,13 +110,13 @@ sub get_remote (;%) {
 push @EXPORT, qw(run);
 sub run (@) {
     local $_ = get_remote;
-    return Cinnamon::DSL::run(@_);
+    return Cinnamon::DSL::run_stream(@_);
 }
 
 push @EXPORT, qw(sudo);
 sub sudo (@) {
     local $_ = get_remote;
-    return Cinnamon::DSL::sudo(@_);
+    return Cinnamon::DSL::sudo_stream(@_);
 }
 
 push @EXPORT, qw(stream);
