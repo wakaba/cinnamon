@@ -44,6 +44,10 @@ sub run {
         return;
     }
 
+    if (@$hosts == 0) {
+        log error => "No host found for role '$role'";
+    }
+
     Class::Load::load_class $runner;
 
     my $result = $runner->start($hosts, $task_def, @args);
