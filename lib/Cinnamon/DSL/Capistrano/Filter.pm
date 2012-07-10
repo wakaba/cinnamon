@@ -6,7 +6,8 @@ use Filter::Simple;
 
 FILTER_ONLY
     executable => sub {
-        s/\`whoami\`\.chomp/+Cinnamon::Config::user()/g;
+        # Use default user name
+        s/\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
     },
     code_no_comments => sub {
         s/(::)|:(\w+)/$1 || qq<'$2'>/ge;

@@ -97,10 +97,10 @@ our $Remote = {};
 
 sub get_remote (;%) {
     my %args = @_;
-    my $user = $args{user} || Cinnamon::DSL::get('user') || Cinnamon::Config::user;
+    my $user = $args{user} || Cinnamon::DSL::get('user');
     my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
     return $Remote->{defined $args{user} ? $args{user} : ''} ||= do {
-        log info => "$user\@$host";
+        log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
 
         Cinnamon::Remote->new(
             host => $host,
