@@ -34,6 +34,7 @@ URI~1.60
 WWW::RobotRules~6.02
 LWP~6.04
 File::ShareDir::Install~0.04
+YAML::LibYAML~0.18
 Crypt::OpenSSL::Random~0.04
 Term::ReadKey~2.30
 Class::Accessor~0.34

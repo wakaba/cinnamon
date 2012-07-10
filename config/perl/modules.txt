@@ -10,3 +10,4 @@ AnyEvent
 AnyEvent::Handle
 POSIX
 Filter::Simple
+YAML::XS
