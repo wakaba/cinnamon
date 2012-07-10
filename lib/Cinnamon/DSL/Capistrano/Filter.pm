@@ -8,6 +8,11 @@ FILTER_ONLY
     executable => sub {
         # Use default user name
         s/\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
+
+        # role :foo, *hoge("fuga") << {
+        #   ...
+        # }
+        s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
     },
     code_no_comments => sub {
         s/(::)|:(\w+)/$1 || qq<'$2'>/ge;
