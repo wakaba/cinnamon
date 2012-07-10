@@ -5,8 +5,11 @@ no warnings 'redefine';
 use Filter::Simple;
 
 FILTER_ONLY
-    code => sub {
-        s/:(\w+)/'$1'/g;
+    executable => sub {
+        s/\`whoami\`\.chomp/+Cinnamon::Config::user()/g;
+    },
+    code_no_comments => sub {
+        s/(::)|:(\w+)/$1 || qq<'$2'>/ge;
         s/\bdo\b/, sub {/g;
         s/\bend\b/}/g;
         my %declared;
@@ -87,6 +90,7 @@ sub convert {
 
 sub convert_and_run {
     my $self = shift;
+    my $args = shift;
     my $converted = $self->convert(@_);
     
     if ($ENV{CINNAMON_CAP_DEBUG}) {
@@ -96,11 +100,15 @@ sub convert_and_run {
         print STDERR "\n";
     }
 
+    my $file_name = $args->{file_name} || '(Converted from cap recipe)';
+    my $line = $args->{line} || 1;
+
     eval qq{
         package Cinnamon::DSL::Capistrano::Filter::converted;
         use strict;
         use warnings;
         use Cinnamon::DSL::Capistrano;
+#line 1 "$file_name"
         $converted;
         1;
     } or die $@;

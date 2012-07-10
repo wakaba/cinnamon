@@ -25,7 +25,9 @@ push @EXPORT, qw(load);
 sub load ($) {
     # XXX loop detection?
     my $recipe_f = file($_[0]); # XXX path resolution?
-    Cinnamon::DSL::Capistrano::Filter->convert_and_run($recipe_f->slurp);
+    Cinnamon::DSL::Capistrano::Filter->convert_and_run({
+        file_name => $recipe_f->stringify,
+    }, $recipe_f->slurp);
 }
 
 push @EXPORT, qw(after);
@@ -97,7 +99,7 @@ sub get_remote (;%) {
     my %args = @_;
     my $user = $args{user} || Cinnamon::DSL::get('user') || Cinnamon::Config::user;
     my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
-    return $Remote->{$args{user}} ||= do {
+    return $Remote->{defined $args{user} ? $args{user} : ''} ||= do {
         log info => "$user\@$host";
 
         Cinnamon::Remote->new(
