@@ -65,7 +65,9 @@ FILTER_ONLY
     },
     string => sub {
         s/\@/\\@/g;
-        s/#\{(\w+)\}/\@{[get '$1']}/g;
+        s/#\{getuname\}/@{[Cinnamon::Config::user]}/g;
+        s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
+        s/#\{ENV\['ROLES'\]\}/@{[Cinnamon::Config::get 'role']}/g;
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
     };
 
