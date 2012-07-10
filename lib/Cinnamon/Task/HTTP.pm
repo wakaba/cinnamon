@@ -8,6 +8,8 @@ use Cinnamon::Logger;
 
 our @EXPORT = qw(http_get http_post http_post_data);
 
+Web::UserAgent::Functions->check_socksify;
+
 our $DEBUG = $ENV{CINNAMON_HTTP_DEBUG};
 
 sub _with_proxy ($$) {
@@ -34,7 +36,7 @@ sub _with_proxy ($$) {
             warn "<$url> does not match /$pattern/ ($_->{target_hostname})\n" if $DEBUG;
         }
     }
-    
+
     if ($socks_url) {
         local $Web::UserAgent::Functions::SocksProxyURL = $socks_url;
         return $code->();
