@@ -1,7 +1,7 @@
 package Cinnamon::Config;
 use strict;
 use warnings;
-
+use Carp;
 use Cinnamon::Config::Loader;
 use Cinnamon::Logger;
 
@@ -46,6 +46,10 @@ sub get_role (@) {
     $hosts = ref $hosts eq 'ARRAY' ? $hosts : [$hosts];
 
     return $hosts;
+}
+
+sub set_role_alias ($$) {
+    $ROLES{$_[0]} = $ROLES{$_[1]} || croak "Role |$_[1]| is not defined";
 }
 
 sub get_role_list (;$) {
