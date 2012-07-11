@@ -13,6 +13,10 @@ FILTER_ONLY
         #   ...
         # }
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
+        s/^(\s*role\s*\S+)\s*,\s*\*(.*?)$/$1, sub { $2 }/gm;
+        s/\broles\[([^\[\]]+)\]\s*=\s*roles\[([^\[\]]+)\]/Cinnamon::Config::set_role_alias($1, $2)/g;
+        s/%Q\b/qq/g;
+        s/%q\b/q/g;
     },
     code_no_comments => sub {
         s/(::)|:(\w+)/$1 || qq<'$2'>/ge;
@@ -63,7 +67,7 @@ FILTER_ONLY
         }
         $_ = join '', @value;
     },
-    string => sub {
+    quotelike => sub {
         s/\@/\\@/g;
         s/#\{getuname\}/@{[Cinnamon::Config::user]}/g;
         s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
