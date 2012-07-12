@@ -18,6 +18,7 @@ sub get ($) {
 
 push @EXPORT, qw(set);
 sub set ($$) {
+    my $name = $_[0];
     return &Cinnamon::DSL::set(@_);
 }
 
@@ -137,6 +138,12 @@ push @EXPORT, qw(system);
 sub system (@) {
     local $_ = undef;
     return Cinnamon::DSL::run(@_);
+}
+
+push @EXPORT, qw(application);
+sub application (@) {
+    local $_ = undef;
+    return Cinnamon::DSL::get 'application';
 }
 
 sub chomp {
