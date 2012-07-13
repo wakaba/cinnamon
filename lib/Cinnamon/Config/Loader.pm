@@ -8,17 +8,17 @@ sub load {
     my ($class, %args) = @_;
     my $config = $args{config};
 
-    do $config;
+    do $config or do {
+        if ($@) {
+            log error => $@;
+            exit 1;
+        }
 
-    if ($@) {
-        log error => $@;
-        exit 1;
-    }
-
-    if ($!) {
-        log error => $!;
-        exit 1;
-    }
+        if ($!) {
+            log error => $!;
+            exit 1;
+        }
+    };
 }
 
 !!1;
