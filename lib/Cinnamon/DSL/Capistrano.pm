@@ -139,6 +139,11 @@ sub system (@) {
     return Cinnamon::DSL::run(@_);
 }
 
+push @EXPORT, qw(application);
+sub application () {
+    return get 'application';
+}
+
 sub chomp {
     my (undef, $s) = @_;
     CORE::chomp $s;

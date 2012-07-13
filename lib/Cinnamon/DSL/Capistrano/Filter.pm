@@ -12,6 +12,7 @@ FILTER_ONLY
         # role :foo, *hoge("fuga") << {
         #   ...
         # }
+        s/^(\s*role)\s*\*\[(.+)\]\s*$/$1 $2/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)$/$1, sub { $2 }/gm;
         s/\broles\[([^\[\]]+)\]\s*=\s*roles\[([^\[\]]+)\]/Cinnamon::Config::set_role_alias($1, $2)/g;
@@ -73,6 +74,9 @@ FILTER_ONLY
         s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
         s/#\{ENV\['ROLES'\]\}/@{[Cinnamon::Config::get 'role']}/g;
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
+    },
+    all => sub {
+        s/(\s+#.+);$/;$1/gm;
     };
 
 my $orig_import = \&import;
