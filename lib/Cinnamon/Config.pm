@@ -89,11 +89,13 @@ sub get_task_list (;$) {
 }
 
 sub user () {
-    get('user') || do {
-        my $user = qx{whoami};
-        chomp $user;
-        $user;
-    };
+    get('user') || real_user();
+}
+
+sub real_user () {
+    my $user = qx{whoami};
+    chomp $user;
+    return $user;
 }
 
 sub load (@) {

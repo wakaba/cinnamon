@@ -18,6 +18,7 @@ sub get ($) {
 
 push @EXPORT, qw(set);
 sub set ($$) {
+    my $name = $_[0];
     return &Cinnamon::DSL::set(@_);
 }
 

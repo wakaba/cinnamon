@@ -7,11 +7,13 @@ use Filter::Simple;
 FILTER_ONLY
     executable => sub {
         # Use default user name
+        s/\bENV\['SSHNAME'\]\s*\|\|\s*\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
         s/\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
 
         # role :foo, *hoge("fuga") << {
         #   ...
         # }
+        s/\brole\s*\*\[([^\[\]]+)\]/role $1/g;
         s/^(\s*role)\s*\*\[(.+)\]\s*$/$1 $2/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)$/$1, sub { $2 }/gm;
@@ -45,7 +47,7 @@ FILTER_ONLY
             } elsif ($v =~ /\x0A/) {
                 if ($prev ne "\x0A" &&
                     length $prev &&
-                    $prev !~ /[{,]\s*$/) {
+                    $prev !~ /[{\[,]\s*$/) {
                     if ($line =~ /^\s*(?>[\w']|$;)+\s*=>\s*(?>[\w']|$;)+\s*$/) {
                         $line = '';
                         $prev = "\x0A";
@@ -70,7 +72,7 @@ FILTER_ONLY
     },
     quotelike => sub {
         s/\@/\\@/g;
-        s/#\{getuname\}/@{[Cinnamon::Config::user]}/g;
+        s/#\{getuname\}/@{[Cinnamon::Config::real_user || Cinnamon::Config::user]}/g;
         s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
         s/#\{ENV\['ROLES'\]\}/@{[Cinnamon::Config::get 'role']}/g;
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
