@@ -15,7 +15,9 @@ my $build = Module::Build->new(
         perl   => "$]",
         parent => '0',
 
+        'Cwd' => 0,
         'Exporter::Lite'       => 0,
+        'File::Basename' => 0,
         'Term::ANSIColor'      => 0,
         'IPC::Run'             => 0,
         'Net::OpenSSH'         => 0,
@@ -26,8 +28,9 @@ my $build = Module::Build->new(
         'AnyEvent::Handle' => 0,
         'POSIX'           => 0,
         'Getopt::Long::Parser' => 0,
-        'AnyEvent'             => 0,
         'POSIX'                => 0,
+        'YAML::XS' => 0,
+        'JSON::Functions::XS' => 0,
         'Web::UserAgent::Functions' => 0,
     },
     build_requires       => {

@@ -1,5 +1,7 @@
 parent
+Cwd
 Exporter::Lite
+File::Basename
 Term::ANSIColor
 IPC::Run
 Net::OpenSSH
