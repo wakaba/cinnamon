@@ -1,9 +1,9 @@
 package Cinnamon;
 use strict;
 use warnings;
-use 5.008008;
+use 5.010_001;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Class::Load ();
 
@@ -61,10 +61,14 @@ sub run {
             push @success, $key;
         }
     }
-    
-    log info => sprintf(
-        "\n========================\n[success]: %s\n[error]: %s",
+
+    log success => sprintf(
+        "\n========================\n[success]: %s",
         (join(', ', @success) || ''),
+    );
+
+    log error => sprintf(
+        "[error]: %s",
         (join(', ', @error)   || ''),
     );
 }
