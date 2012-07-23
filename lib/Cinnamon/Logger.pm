@@ -14,7 +14,7 @@ our @EXPORT = qw(
 my %COLOR = (
     success => 'green',
     error   => 'red',
-    info    => 'white',
+    info    => '',
 );
 
 sub log ($$) {
