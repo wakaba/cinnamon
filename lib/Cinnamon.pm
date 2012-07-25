@@ -71,7 +71,7 @@ sub run {
         (join(', ', @error)   || ''),
     );
 
-    return @error == 0;
+    return @error != 0;
 }
 
 !!1;
