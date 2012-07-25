@@ -1,6 +1,7 @@
 package Cinnamon::KeyChain::CLI;
 use strict;
 use warnings;
+use Encode;
 use AnyEvent;
 use Term::ReadKey;
 
@@ -24,7 +25,7 @@ sub get_password_as_cv {
         print "Enter your sudo password: ";
     }
     ReadMode "noecho";
-    chomp(my $password = ReadLine 0);
+    chomp(my $password = decode 'utf-8', ReadLine 0);
     ReadMode 0;
     print "\n";
 

@@ -1,6 +1,7 @@
 package Cinnamon::KeyChain::Pipe;
 use strict;
 use warnings;
+use Encode;
 use AnyEvent;
 use AnyEvent::Handle;
 use Scalar::Util qw(weaken);
@@ -44,12 +45,13 @@ sub get_password_as_cv {
         return $cv;
     }
 
-    $user = defined $user ? encode_base64url $user : '';
+    $user = defined $user ? encode_base64url encode 'utf-8', $user : '';
     $self->{write_handle}->push_write("password $user\n");
     weaken($self = $self);
     $self->{read_handle}->push_read(line => sub {
         if ($_[1] =~ /^password \Q$user\E (\S*)$/) {
-            $cv->send($self->{password}->{defined $user ? $user : ''} = decode_base64url $1);
+            $cv->send($self->{password}->{defined $user ? $user : ''}
+                          = decode 'utf-8', decode_base64url $1);
         }
     });
 
