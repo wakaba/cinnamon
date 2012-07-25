@@ -70,6 +70,8 @@ sub run {
         "[error]: %s",
         (join(', ', @error)   || ''),
     );
+
+    return @error == 0;
 }
 
 !!1;
