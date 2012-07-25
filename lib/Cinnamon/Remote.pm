@@ -119,7 +119,8 @@ sub execute {
     $cv->recv;
 
     if ($exitcode != 0) {
-        log error => sprintf "[%s] Status: %d", $host, $exitcode;
+        log error => my $msg = sprintf "[%s] Status: %d", $host, $exitcode;
+        die $msg;
     }
 
     +{

@@ -188,7 +188,8 @@ sub run_stream (@) {
     $cv->recv;
     
     if ($return != 0) {
-        log error => sprintf "[%s] Status: %d", $host, $return;
+        log error => my $msg = sprintf "[%s] Status: %d", $host, $return;
+        die "$msg\n";
     }
 }
 
