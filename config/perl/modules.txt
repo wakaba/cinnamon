@@ -4,6 +4,7 @@ Exporter::Lite
 File::Basename
 Term::ANSIColor
 IPC::Run
+MIME::Base64
 Net::OpenSSH
 Log::Dispatch
 Class::Load
@@ -11,5 +12,6 @@ Term::ReadKey
 AnyEvent
 AnyEvent::Handle
 POSIX
+Scalar::Util
 Filter::Simple
 YAML::XS

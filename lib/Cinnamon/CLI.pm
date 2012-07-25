@@ -26,6 +26,7 @@ sub run {
         "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
         "c|config=s" => \$self->{config},
+        "key-chain-fds=s" => \(my $key_chain_fds),
     );
     return $self->usage if $self->{help};
 
@@ -45,11 +46,21 @@ sub run {
         require Cinnamon::Task::Cinnamon;
         $task = 'cinnamon:task:list';
     }
+
+    my $keychain;
+    if ($key_chain_fds and $key_chain_fds =~ /^([0-9]+),([0-9]+)$/) {
+        require Cinnamon::KeyChain::Pipe;
+        $keychain = Cinnamon::KeyChain::Pipe->new_from_fds($1, $2);
+    } else {
+        require Cinnamon::KeyChain::CLI;
+        $keychain = Cinnamon::KeyChain::CLI->new;
+    }
     
     $self->cinnamon->run(
         $role, $task,
         config => $self->{config},
         user => $self->{user},
+        keychain => $keychain,
     );
 }
 
