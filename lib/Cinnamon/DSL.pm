@@ -200,6 +200,7 @@ sub sudo_stream (@) {
 
     my $password = Cinnamon::Config::get('password');
     unless (defined $password) {
+        local $| = 1;
         my $user = $_->user;
         if (defined $user) {
             print "Enter sudo password for user $user: ";
@@ -223,6 +224,7 @@ sub sudo (@) {
 
     my $password = Cinnamon::Config::get('password');
     unless (defined $password) {
+        local $| = 1;
         print "Enter sudo password for user @{[$_->user]}: ";
         ReadMode "noecho";
         chomp($password = ReadLine 0);
