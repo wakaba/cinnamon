@@ -225,7 +225,12 @@ sub sudo (@) {
     my $password = Cinnamon::Config::get('password');
     unless (defined $password) {
         local $| = 1;
-        print "Enter sudo password for user @{[$_->user]}: ";
+        my $user = $_->user;
+        if (defined $user) {
+            print "Enter sudo password for user $user: ";
+        } else {
+            print "Enter your sudo password: ";
+        }
         ReadMode "noecho";
         chomp($password = ReadLine 0);
         Cinnamon::Config::set('password' => $password);
