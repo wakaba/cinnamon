@@ -37,7 +37,7 @@ sub define_daemontools_tasks ($;%) {
                 $task =~ s/:restart$//;
                 call "$task:stop", $host, @args;
                 call "$task:start", $host, @args;
-                call "$task:log:tail", $host, @args;
+                #call "$task:log:tail", $host, @args;
             } $host;
         },
         status => sub {
