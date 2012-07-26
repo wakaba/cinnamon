@@ -13,4 +13,4 @@ BEGIN {
 use Cinnamon;
 use Cinnamon::CLI;
 
-exit Cinnamon::CLI->new->run(@ARGV);
+exit Cinnamon::CLI->new->run(@ARGV) || 0;

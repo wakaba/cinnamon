@@ -36,12 +36,12 @@ sub run {
             $hosts = [''];
         } else {
             log 'error', "undefined role : '$role'";
-            return;
+            return 1;
         }
     }
     unless (defined $task_def) {
         log 'error', "undefined task : '$task'";
-        return;
+        return 1;
     }
 
     if (@$hosts == 0) {
