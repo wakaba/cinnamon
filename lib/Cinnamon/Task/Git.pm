@@ -42,6 +42,7 @@ task git => {
             log error => sprintf "Remote revision is %s (local is %s)",
                 (substr $result->{new_revision}, 0, 10),
                 (substr $local_rev || '', 0, 10);
+            $result->{error}->{revision_mismatch} = 1;
         }
 
         return $result;
