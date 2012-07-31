@@ -17,7 +17,8 @@ sub new {
 
 sub run {
     my ($self, $role, $task, %opts)  = @_;
-    my @args     = Cinnamon::Config::load $role, $task, %opts;
+    Cinnamon::Config::load $role, $task, %opts;
+    my $args = $opts{args};
     my $hosts    = Cinnamon::Config::get_role;
     $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
@@ -26,7 +27,7 @@ sub run {
 
     if (defined $task_def and ref $task_def eq 'HASH') {
         require Cinnamon::Task::Cinnamon;
-        unshift @args, $task;
+        unshift @$args, $task;
         $task = 'cinnamon:task:list';
         Cinnamon::Config::set task => $task;
         $task_def = Cinnamon::Config::get_task;
@@ -60,7 +61,7 @@ sub run {
 
     Class::Load::load_class $runner;
 
-    my $result = $runner->start($hosts, $task_def, @args);
+    my $result = $runner->start($hosts, $task_def, @$args);
     my (@success, @error);
     
     for my $key (keys %{$result || {}}) {

@@ -37,8 +37,8 @@ sub run {
         return $self->usage;
     }
 
-
-    my ($role, $task) = @ARGV;
+    my $role = shift @ARGV;
+    my $task = shift @ARGV;
     if (not defined $role) {
         require Cinnamon::Task::Cinnamon;
         $role = '';
@@ -67,6 +67,7 @@ sub run {
         user => $self->{user},
         keychain => $keychain,
         hosts => $hosts,
+        args => \@ARGV,
     );
 }
 
