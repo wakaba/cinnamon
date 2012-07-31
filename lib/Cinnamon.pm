@@ -46,16 +46,16 @@ sub run {
 
     if (@$hosts == 0) {
         log error => "No host found for role '$role'";
-    }
+    } elsif (@$hosts > 1 or $hosts->[0] ne '') {
+        {
+            my %found;
+            $hosts = [grep { not $found{$_}++ } @$hosts];
+        }
 
-    {
-        my %found;
-        $hosts = [grep { not $found{$_}++ } @$hosts];
+        log info => sprintf 'Host%s %s (%s)',
+            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role;
+        log info => sprintf 'call %s', $task;
     }
-
-    log info => sprintf 'Host%s %s (%s)',
-        @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role;
-    log info => sprintf 'call %s', $task;
 
     Class::Load::load_class $runner;
 
