@@ -18,7 +18,7 @@ sub new {
 sub run {
     my ($self, $role, $task, %opts)  = @_;
     my @args     = Cinnamon::Config::load $role, $task, %opts;
-    my $hosts    = Cinnamon::Config::get_role;
+    my $hosts    = $opts{hosts} || Cinnamon::Config::get_role;
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
     Cinnamon::Config::set(keychain => $opts{keychain});
@@ -47,6 +47,15 @@ sub run {
     if (@$hosts == 0) {
         log error => "No host found for role '$role'";
     }
+
+    {
+        my %found;
+        $hosts = [grep { not $found{$_}++ } @$hosts];
+    }
+
+    log info => sprintf 'Host%s %s (%s)',
+        @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role;
+    log info => sprintf 'call %s', $task;
 
     Class::Load::load_class $runner;
 

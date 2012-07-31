@@ -25,6 +25,7 @@ sub run {
     $p->getoptions(
         "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
+        "hosts=s"    => \(my $hosts),
         "c|config=s" => \$self->{config},
         "key-chain-fds=s" => \(my $key_chain_fds),
     );
@@ -56,11 +57,16 @@ sub run {
         $keychain = Cinnamon::KeyChain::CLI->new;
     }
     
+    if (defined $hosts) {
+        $hosts = [grep { length } split /\s*,\s*/, $hosts];
+    }
+    
     $self->cinnamon->run(
         $role, $task,
         config => $self->{config},
         user => $self->{user},
         keychain => $keychain,
+        hosts => $hosts,
     );
 }
 
