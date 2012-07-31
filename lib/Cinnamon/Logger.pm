@@ -2,7 +2,7 @@ package Cinnamon::Logger;
 use strict;
 use warnings;
 use parent qw(Exporter);
-
+use IO::Handle;
 use Term::ANSIColor ();
 
 use Cinnamon::Config;
@@ -30,5 +30,8 @@ sub log ($$) {
 
     return;
 }
+
+STDOUT->autoflush(1);
+STDERR->autoflush(1);
 
 !!1;

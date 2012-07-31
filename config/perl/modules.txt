@@ -3,6 +3,7 @@ Cwd
 Exporter::Lite
 File::Basename
 Term::ANSIColor
+IO::Handle
 IPC::Run
 MIME::Base64
 Net::OpenSSH
