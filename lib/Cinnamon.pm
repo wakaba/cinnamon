@@ -18,7 +18,8 @@ sub new {
 sub run {
     my ($self, $role, $task, %opts)  = @_;
     my @args     = Cinnamon::Config::load $role, $task, %opts;
-    my $hosts    = $opts{hosts} || Cinnamon::Config::get_role;
+    my $hosts    = Cinnamon::Config::get_role;
+    $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
     Cinnamon::Config::set(keychain => $opts{keychain});
