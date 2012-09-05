@@ -33,7 +33,7 @@ task git => {
             $branch =~ s{^origin/}{};
             $result->{old_revision} = get_git_revision; # or undef
             run_stream "git clone $url $dir || true";
-            run_stream "cd $dir && (git checkout $branch || git checkout -b $branch origin/$branch) && git pull";
+            run_stream "cd $dir && (git checkout $branch || (git pull && git checkout -b $branch origin/$branch)) && git pull";
             run_stream "cd $dir && git submodule update --init";
             $result->{new_revision} = get_git_revision; # or undef
         } $host, user => get 'git_clone_user';
