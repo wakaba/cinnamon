@@ -25,7 +25,9 @@ sub run {
     $p->getoptions(
         "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
+        "hosts=s"    => \(my $hosts),
         "c|config=s" => \$self->{config},
+        "key-chain-fds=s" => \(my $key_chain_fds),
     );
     return $self->usage if $self->{help};
 
@@ -35,8 +37,8 @@ sub run {
         return $self->usage;
     }
 
-
-    my ($role, $task) = @ARGV;
+    my $role = shift @ARGV;
+    my $task = shift @ARGV;
     if (not defined $role) {
         require Cinnamon::Task::Cinnamon;
         $role = '';
@@ -45,11 +47,27 @@ sub run {
         require Cinnamon::Task::Cinnamon;
         $task = 'cinnamon:task:list';
     }
+
+    my $keychain;
+    if ($key_chain_fds and $key_chain_fds =~ /^([0-9]+),([0-9]+)$/) {
+        require Cinnamon::KeyChain::Pipe;
+        $keychain = Cinnamon::KeyChain::Pipe->new_from_fds($1, $2);
+    } else {
+        require Cinnamon::KeyChain::CLI;
+        $keychain = Cinnamon::KeyChain::CLI->new;
+    }
+    
+    if (defined $hosts) {
+        $hosts = [grep { length } split /\s*,\s*/, $hosts];
+    }
     
     $self->cinnamon->run(
         $role, $task,
         config => $self->{config},
         user => $self->{user},
+        keychain => $keychain,
+        hosts => $hosts,
+        args => \@ARGV,
     );
 }
 

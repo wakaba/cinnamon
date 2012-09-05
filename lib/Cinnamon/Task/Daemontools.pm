@@ -33,11 +33,9 @@ sub define_daemontools_tasks ($;%) {
         restart => sub {
             my ($host, @args) = @_;
             remote {
-                my $task = get 'task';
-                $task =~ s/:restart$//;
-                call "$task:stop", $host, @args;
-                call "$task:start", $host, @args;
-                call "$task:log:tail", $host, @args;
+                call "$name:stop", $host, @args;
+                call "$name:start", $host, @args;
+                #call "$name:log:tail", $host, @args;
             } $host;
         },
         status => sub {

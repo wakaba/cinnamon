@@ -17,14 +17,17 @@ sub new {
 
 sub run {
     my ($self, $role, $task, %opts)  = @_;
-    my @args     = Cinnamon::Config::load $role, $task, %opts;
+    Cinnamon::Config::load $role, $task, %opts;
+    my $args = $opts{args};
     my $hosts    = Cinnamon::Config::get_role;
+    $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
+    Cinnamon::Config::set(keychain => $opts{keychain});
 
     if (defined $task_def and ref $task_def eq 'HASH') {
         require Cinnamon::Task::Cinnamon;
-        unshift @args, $task;
+        unshift @$args, $task;
         $task = 'cinnamon:task:list';
         Cinnamon::Config::set task => $task;
         $task_def = Cinnamon::Config::get_task;
@@ -35,21 +38,30 @@ sub run {
             $hosts = [''];
         } else {
             log 'error', "undefined role : '$role'";
-            return;
+            return 1;
         }
     }
     unless (defined $task_def) {
         log 'error', "undefined task : '$task'";
-        return;
+        return 1;
     }
 
     if (@$hosts == 0) {
         log error => "No host found for role '$role'";
+    } elsif (@$hosts > 1 or $hosts->[0] ne '') {
+        {
+            my %found;
+            $hosts = [grep { not $found{$_}++ } @$hosts];
+        }
+
+        log info => sprintf 'Host%s %s (%s)',
+            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role;
+        log info => sprintf 'call %s', $task;
     }
 
     Class::Load::load_class $runner;
 
-    my $result = $runner->start($hosts, $task_def, @args);
+    my $result = $runner->start($hosts, $task_def, @$args);
     my (@success, @error);
     
     for my $key (keys %{$result || {}}) {

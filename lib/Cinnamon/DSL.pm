@@ -7,7 +7,6 @@ use Cinnamon::Config;
 use Cinnamon::Local;
 use Cinnamon::Remote;
 use Cinnamon::Logger;
-use Term::ReadKey;
 use AnyEvent;
 use AnyEvent::Handle;
 use POSIX;
@@ -189,7 +188,8 @@ sub run_stream (@) {
     $cv->recv;
     
     if ($return != 0) {
-        log error => sprintf "[%s] Status: %d", $host, $return;
+        log error => my $msg = sprintf "[%s] Status: %d", $host, $return;
+        die "$msg\n";
     }
 }
 
@@ -197,42 +197,16 @@ sub sudo_stream (@) {
     my (@cmd) = @_;
     my $opt = {};
     $opt = shift @cmd if ref $cmd[0] eq 'HASH';
-
-    my $password = Cinnamon::Config::get('password');
-    unless (defined $password) {
-        local $| = 1;
-        my $user = $_->user;
-        if (defined $user) {
-            print "Enter sudo password for user $user: ";
-        } else {
-            print "Enter your sudo password: ";
-        }
-        ReadMode "noecho";
-        chomp($password = ReadLine 0);
-        Cinnamon::Config::set('password' => $password);
-        ReadMode 0;
-        print "\n";
-    }
-
     $opt->{sudo} = 1;
-    $opt->{password} = $password;
+    $opt->{password} = Cinnamon::Config::get('keychain')
+        ->get_password_as_cv($_->user)->recv;
     run_stream $opt, @cmd;
 }
 
 sub sudo (@) {
     my (@cmd) = @_;
-
-    my $password = Cinnamon::Config::get('password');
-    unless (defined $password) {
-        local $| = 1;
-        print "Enter sudo password for user @{[$_->user]}: ";
-        ReadMode "noecho";
-        chomp($password = ReadLine 0);
-        Cinnamon::Config::set('password' => $password);
-        ReadMode 0;
-        print "\n";
-    }
-
+    my $password = Cinnamon::Config::get('keychain')
+        ->get_password_as_cv($_->user)->recv;
     run {sudo => 1, password => $password}, @cmd;
 }
 

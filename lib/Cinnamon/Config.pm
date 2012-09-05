@@ -2,7 +2,6 @@ package Cinnamon::Config;
 use strict;
 use warnings;
 use Carp;
-use Cinnamon::Config::Loader;
 use Cinnamon::Logger;
 
 my %CONFIG;
@@ -107,7 +106,20 @@ sub load (@) {
     set task => $task;
     set user => $opt{user};
 
-    Cinnamon::Config::Loader->load(config => $opt{config});
+    return do {
+        package Cinnamon::Config::Script;
+        do $opt{config};
+    } || do {
+        if ($@) {
+            log error => $@;
+            exit 1;
+        }
+
+        if ($!) {
+            log error => $!;
+            exit 1;
+        }
+    };
 }
 
 !!1;
