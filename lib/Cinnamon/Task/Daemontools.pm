@@ -71,6 +71,18 @@ sub define_daemontools_tasks ($;%) {
                 } $host;
             },
         },
+        uninstall => sub {
+            my ($host, @args) = @_;
+            remote {
+                my $dir = get 'daemontools_service_dir';
+                my $service = get 'get_daemontools_service_name';
+                sudo 'mv ' . $dir . '/' . $service->($name) . ' ' . $dir . '/.' . $service->($name);
+                sudo 'svc -dx ' . $dir . '/.' . $service->($name);
+                sudo 'svc -dx ' . $dir . '/.' . $service->($name) . '/log';
+                sudo 'rm ' . $dir . '/.' . $service->($name);
+                $onnotice->('svc -x');
+            } $host;
+        },
     );
 }
 
