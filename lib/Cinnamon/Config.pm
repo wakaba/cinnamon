@@ -42,7 +42,7 @@ sub get_role (@) {
 
     $hosts = $hosts->() if ref $hosts eq 'CODE';
     $hosts = [] unless defined $hosts;
-    $hosts = ref $hosts eq 'ARRAY' ? $hosts : [$hosts];
+    $hosts = ref $hosts eq 'ARRAY' ? $hosts : UNIVERSAL::can($hosts, 'to_a') ? $hosts->to_a : [$hosts];
 
     return $hosts;
 }
