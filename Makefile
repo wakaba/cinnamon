@@ -34,7 +34,7 @@ local/bin/pmbp.pl: always
 pmb-install: pmbp-install
 
 pmbp-install: local/bin/pmbp.pl
-	$(PMBP) --root-dir-name . \
+	PATH=$(PERL_PATH):$(PATH) $(PMBP) --root-dir-name . \
 	    --install-modules-by-list \
 	    --write-libs-txt config/perl/libs.txt
 
