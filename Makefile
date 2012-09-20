@@ -27,7 +27,7 @@ generatepm: %: Makefile-setupenv
 CURL = curl
 PMBP = $(PERL) local/bin/pmbp.pl
 
-local/bin/pmbp.pl:
+local/bin/pmbp.pl: always
 	mkdir -p local/bin
 	curl https://raw.github.com/wakaba/perl-setupenv/master/bin/pmbp.pl > $@
 
@@ -51,3 +51,5 @@ test-deps: deps
 
 test-main:
 	$(PERL_ENV) $(PROVE) t/*.t
+
+always:
