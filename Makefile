@@ -16,13 +16,29 @@ Makefile.setupenv:
 	$(WGET) -O $@ https://raw.github.com/wakaba/perl-setupenv/master/Makefile.setupenv
 
 lperl local-perl perl-version perl-exec \
-pmb-update pmb-install \
+pmb-update \
 generatepm: %: Makefile-setupenv
 	$(MAKE) --makefile Makefile.setupenv $@ \
             REMOTEDEV_HOST=$(REMOTEDEV_HOST) \
             REMOTEDEV_PERL_VERSION=$(REMOTEDEV_PERL_VERSION) \
 	    PMB_PMTAR_REPO_URL=$(PMB_PMTAR_REPO_URL) \
 	    PMB_PMPP_REPO_URL=$(PMB_PMPP_REPO_URL)
+
+CURL = curl
+PMBP = $(PERL) local/bin/pmbp.pl
+
+local/bin/pmbp.pl: always
+	mkdir -p local/bin
+	curl https://raw.github.com/wakaba/perl-setupenv/master/bin/pmbp.pl > $@
+
+pmb-install: pmbp-install
+
+pmbp-install: local/bin/pmbp.pl
+	PATH=$(PERL_PATH):$(PATH) $(PMBP) --root-dir-name . \
+	    --install-modules-by-list \
+	    --write-libs-txt config/perl/libs.txt
+
+deps: pmbp-install
 
 # ------ Tests ------
 
@@ -31,7 +47,9 @@ PROVE = prove
 
 test: test-deps test-main
 
-test-deps: pmb-install
+test-deps: deps
 
 test-main:
 	$(PERL_ENV) $(PROVE) t/*.t
+
+always:
