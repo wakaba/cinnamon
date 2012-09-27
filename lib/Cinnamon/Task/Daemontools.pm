@@ -27,6 +27,7 @@ sub define_daemontools_tasks ($;%) {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -d ' . $dir . '/' . $service->($name);
+                sudo 'svc -d ' . $dir . '/' . $service->($name);
                 $onnotice->('svc -d');
             } $host;
         },
