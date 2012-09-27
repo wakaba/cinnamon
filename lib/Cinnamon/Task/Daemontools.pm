@@ -8,6 +8,7 @@ our @EXPORT = qw(define_daemontools_tasks);
 
 sub define_daemontools_tasks ($;%) {
     my ($name, %args) = @_;
+    my $task_ns = $args{namespace} || $name;
 
     my $onnotice = $args{onnotice} || sub { };
 
@@ -34,9 +35,9 @@ sub define_daemontools_tasks ($;%) {
         restart => sub {
             my ($host, @args) = @_;
             remote {
-                call "$name:stop", $host, @args;
-                call "$name:start", $host, @args;
-                #call "$name:log:tail", $host, @args;
+                call "$task_ns:stop", $host, @args;
+                call "$task_ns:start", $host, @args;
+                #call "$task_ns:log:tail", $host, @args;
             } $host;
         },
         status => sub {

@@ -47,6 +47,7 @@ sub _with_proxy ($$) {
 
 sub http_get (%) {
     my %args = @_;
+    die "sync mode is not supported" unless $args{anyevent};
     
     return _with_proxy $args{url}, sub {
         return Web::UserAgent::Functions::http_get(%args);
@@ -55,6 +56,7 @@ sub http_get (%) {
 
 sub http_post (%) {
     my %args = @_;
+    die "sync mode is not supported" unless $args{anyevent};
     
     return _with_proxy $args{url}, sub {
         return Web::UserAgent::Functions::http_post(%args);
@@ -63,6 +65,7 @@ sub http_post (%) {
 
 sub http_postdata (%) {
     my %args = @_;
+    die "sync mode is not supported" unless $args{anyevent};
     
     return _with_proxy $args{url}, sub {
         return Web::UserAgent::Functions::http_postdata(%args);
