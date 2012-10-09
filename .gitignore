@@ -14,10 +14,11 @@ ppport.h
 /META.yml
 /MYMETA.*
 /META.json
-/META.yml
 *~
 /config/perl/libs.txt
 /perl
 /prove
 /local/
 /deps/
+/plackup
+/cin
