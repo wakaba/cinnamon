@@ -4,6 +4,7 @@ all:
 # ------ Setup ------
 
 WGET = wget
+GIT = git
 
 local/bin/pmbp.pl: always
 	mkdir -p local/bin
@@ -24,7 +25,10 @@ pmbp-install: pmbp-upgrade
 	    --create-perl-command-shortcut perl \
 	    --create-perl-command-shortcut prove
 
-deps: pmbp-install
+git-submodules:
+	$(GIT) submodule update --init
+
+deps: git-submodules pmbp-install
 
 # ------ Tests ------
 
