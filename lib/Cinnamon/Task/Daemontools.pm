@@ -15,65 +15,73 @@ sub define_daemontools_tasks ($;%) {
     return (
         start => sub {
             my ($host, @args) = @_;
+            my $user = get 'daemontools_user';
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -u ' . $dir . '/' . $service->($name);
                 $onnotice->('svc -u');
-            } $host;
+            } $host, user => $user;
         },
         stop => sub {
             my ($host, @args) = @_;
+            my $user = get 'daemontools_user';
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -d ' . $dir . '/' . $service->($name);
                 $onnotice->('svc -d');
-            } $host;
+            } $host, user => $user;
         },
         restart => sub {
             my ($host, @args) = @_;
+            my $user = get 'daemontools_user';
             remote {
                 call "$task_ns:stop", $host, @args;
                 call "$task_ns:start", $host, @args;
                 #call "$task_ns:log:tail", $host, @args;
-            } $host;
+            } $host, user => $user;
         },
         status => sub {
             my ($host, @args) = @_;
+            my $user = get 'daemontools_user';
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svstat ' . $dir . '/' . $service->($name);
-            } $host;
+            } $host, user => $user;
         },
         log => {
             restart => sub {
                 my ($host, @args) = @_;
+                my $user = get 'daemontools_user';
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
                     sudo 'svc -t ' . $dir . '/' . $service->($name) . '/log';
-                } $host;
+                } $host, user => $user;
             },
             status => sub {
                 my ($host, @args) = @_;
+                my $user = get 'daemontools_user';
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
                     sudo 'svstat ' . $dir . '/' . $service->($name) . '/log';
-                } $host;
+                } $host, user => $user;
             },
             tail => sub {
                 my ($host, @args) = @_;
+                my $user = get 'daemontools_user';
                 remote {
                     my $file_name = get 'get_daemontools_log_file_name';
                     run_stream "tail --follow=name " . $file_name->($name);
-                } $host;
+                } $host, user => $user;
             },
         },
         uninstall => sub {
             my ($host, @args) = @_;
+            my $user = (get 'daemontools_uninstall_user') || get 'daemontools_user';
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
@@ -82,7 +90,7 @@ sub define_daemontools_tasks ($;%) {
                 sudo 'svc -dx ' . $dir . '/.' . $service->($name) . '/log';
                 sudo 'rm ' . $dir . '/.' . $service->($name);
                 $onnotice->('svc -x');
-            } $host;
+            } $host, user => $user;
         },
     );
 }
