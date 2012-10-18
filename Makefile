@@ -13,6 +13,7 @@ local/bin/pmbp.pl: always
 local-perl: pmbp-install
 pmb-update: pmbp-update
 pmb-install: pmbp-install
+lperl: pmbp-install
 
 pmbp-upgrade: local/bin/pmbp.pl
 	perl local/bin/pmbp.pl --update-pmbp-pl
