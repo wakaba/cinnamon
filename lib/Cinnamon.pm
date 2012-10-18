@@ -19,7 +19,7 @@ sub run {
     my ($self, $role, $task, %opts)  = @_;
     Cinnamon::Config::load $role, $task, %opts;
     my $args = $opts{args};
-    my $hosts    = Cinnamon::Config::get_role;
+    my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
     $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
@@ -33,9 +33,9 @@ sub run {
         $task_def = Cinnamon::Config::get_task;
     }
 
-    unless (defined $hosts) {
+    unless (defined $orig_hosts) {
         if ($task =~ /^cinnamon:/) {
-            $hosts = [''];
+            $hosts ||= [''];
         } else {
             log 'error', "undefined role : '$role'";
             return 1;
