@@ -79,6 +79,12 @@ task git => {
 
         return $result;
     },
+    show_revision => sub {
+        my ($host, $rev, @args) = @_;
+        remote {
+            print get_git_revision;
+        } $host;
+    },
 };
 
 !!1;
