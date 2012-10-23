@@ -6,6 +6,18 @@ use Exporter::Lite;
 
 our @EXPORT = qw(define_daemontools_tasks);
 
+sub get_svstat ($) {
+    my $service = shift;
+    my ($status) = sudo 'svstat', $service;
+    if ($status =~ /.+: (up) \(pid ([0-9]+)\) ([0-9]+) seconds/) {
+        return {status => $1, pid => $2, seconds => $3};
+    } elsif ($status =~ /.+: (down) ([0-9]+) seconds/) {
+        return {status => $1, seconds => $2};
+    } else {
+        return {status => 'unknown'};
+    }
+}
+
 sub define_daemontools_tasks ($;%) {
     my ($name, %args) = @_;
     my $task_ns = $args{namespace} || $name;
@@ -21,6 +33,15 @@ sub define_daemontools_tasks ($;%) {
                 my $service = get 'get_daemontools_service_name';
                 sudo 'svc -u ' . $dir . '/' . $service->($name);
                 $onnotice->('svc -u');
+
+                my $status1 = get_svstat $dir . '/' . $service->($name);
+                die "svc -u failed\n" unless $status1->{status} eq 'up';
+
+                sleep 1;
+                my $status2 = get_svstat $dir . '/' . $service->($name);
+                die "svc -u failed\n" unless $status2->{status} eq 'up';
+                die "svc -u likely failed\n"
+                    if $status1->{pid} != $status2->{pid};
             } $host, user => $user;
         },
         stop => sub {
