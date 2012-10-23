@@ -1,6 +1,7 @@
 package Cinnamon::Task::Git;
 use strict;
 use warnings;
+use Path::Class;
 use Cinnamon::DSL;
 use Cinnamon::Logger;
 use Exporter::Lite;
@@ -80,9 +81,15 @@ task git => {
         return $result;
     },
     show_revision => sub {
-        my ($host, $rev, @args) = @_;
+        my ($host, $file_name, @args) = @_;
         remote {
-            print get_git_revision;
+            if (defined $file_name) {
+                my $f = file($file_name);
+                $f->dir->mkpath;
+                print { $f->openw } get_git_revision;
+            } else {
+                print get_git_revision;
+            }
         } $host;
     },
 };
