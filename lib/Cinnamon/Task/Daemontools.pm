@@ -50,9 +50,22 @@ sub define_daemontools_tasks ($;%) {
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
-                sudo 'svc -d ' . $dir . '/' . $service->($name);
-                sudo 'svc -d ' . $dir . '/' . $service->($name);
+                sudo 'svc', '-d', $dir . '/' . $service->($name);
                 $onnotice->('svc -d');
+
+                my $timeout = 10;
+                my $i = 0;
+                {
+                    my $status = get_svstat $dir . '/' . $service->($name);
+                    last if $status->{status} eq 'down';
+                    if ($i < $timeout) {
+                        sleep 1;
+                        $i++;
+                        redo;
+                    } else {
+                        die "svc -d failed\n";
+                    }
+                }
             } $host, user => $user;
         },
         restart => sub {
