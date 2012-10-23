@@ -1,8 +1,7 @@
 package Cinnamon::DSL;
 use strict;
 use warnings;
-use parent qw(Exporter);
-
+use Exporter::Lite;
 use Cinnamon::Config;
 use Cinnamon::Local;
 use Cinnamon::Remote;

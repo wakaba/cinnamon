@@ -1,33 +1,30 @@
 package Cinnamon::Logger;
 use strict;
 use warnings;
-use parent qw(Exporter);
+use Exporter::Lite;
 use IO::Handle;
-use Term::ANSIColor ();
-
-use Cinnamon::Config;
 
 our @EXPORT = qw(
     log
 );
 
-my %COLOR = (
-    success => 'green',
-    error   => 'red',
-    info    => '',
-);
+our $Logger;
+our $LoggerClass = 'Cinnamon::Logger::PlainText';
+
+sub init_logger {
+    if (-t STDOUT) {
+        $LoggerClass = 'Cinnamon::Logger::TTY';
+    }
+    eval qq{ require $LoggerClass } or die $@;
+    $Logger = $LoggerClass->new(
+        stdout => \*STDOUT,
+        stderr => \*STDERR,
+    );
+}
 
 sub log ($$) {
     my ($type, $message) = @_;
-    my $color ||= $COLOR{$type};
-
-    $message = Term::ANSIColor::colored $message, $color if $color;
-    $message .= "\n";
-
-    my $fh = $type eq 'error' ? *STDERR : *STDOUT;
-
-    print $fh $message;
-
+    $Logger->log($type, $message);
     return;
 }
 

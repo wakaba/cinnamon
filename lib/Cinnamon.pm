@@ -17,6 +17,8 @@ sub new {
 
 sub run {
     my ($self, $role, $task, %opts)  = @_;
+    Cinnamon::Logger->init_logger;
+
     Cinnamon::Config::load $role, $task, %opts;
     my $args = $opts{args};
     my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
