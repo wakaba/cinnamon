@@ -9,8 +9,12 @@ our @EXPORT = qw(define_daemontools_tasks);
 sub get_svstat ($) {
     my $service = shift;
     my ($status) = sudo 'svstat', $service;
-    if ($status =~ /.+: (up) \(pid ([0-9]+)\) ([0-9]+) seconds/) {
-        return {status => $1, pid => $2, seconds => $3};
+
+    # /service/hoge: down 1 seconds, normally up
+    # /service/hoge: up (pid 1486) 0 seconds
+
+    if ($status =~ /.+: (up) \(pid ([0-9]+)\) ([0-9]+) seconds(?:, (want (?:down|up)))?/) {
+        return {status => $1, pid => $2, seconds => $3, additional => $4};
     } elsif ($status =~ /.+: (down) ([0-9]+) seconds/) {
         return {status => $1, seconds => $2};
     } else {
@@ -58,6 +62,12 @@ sub define_daemontools_tasks ($;%) {
                 {
                     my $status = get_svstat $dir . '/' . $service->($name);
                     last if $status->{status} eq 'down';
+                    if ($i > 2 and
+                        (not $status->{additional} or
+                         $status->{additional} ne 'want down')) {
+                        sudo 'svc', '-d', $dir . '/' . $service->($name);
+                        $onnotice->('svc -d');
+                    }
                     if ($i < $timeout) {
                         sleep 1;
                         $i++;
