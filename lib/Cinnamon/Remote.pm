@@ -9,6 +9,7 @@ use AnyEvent::Handle;
 use POSIX;
 
 use Cinnamon::Logger;
+use Cinnamon::Logger::Channel;
 
 sub new {
     my ($class, %args) = @_;
@@ -63,17 +64,17 @@ sub execute {
         $cv->send;
     };
 
+    my $out_logger = Cinnamon::Logger::Channel->new(
+        type => 'info',
+        label => "$host o",
+    );
+    my $err_logger = Cinnamon::Logger::Channel->new(
+        type => 'error',
+        label => "$host e",
+    );
     my $print = sub {
         my ($s, $handle) = @_;
-        my $type = $handle eq 'stdout' ? 'info' : 'error';
-        while ($s =~ s{([^\x0D\x0A]*)\x0D?\x0A}{}) {
-            log $type => sprintf "[%s :: %s] %s",
-                $host, $handle, $1;
-        }
-        if (length $s) {
-            log $type => sprintf "[%s :: %s] %s",
-                $host, $handle, $s;
-        }
+        ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
     };
 
     $fhout = AnyEvent::Handle->new(
@@ -89,7 +90,7 @@ sub execute {
         },
         on_error => sub {
             my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s] STDOUT: %s (%d)", $host, $message, $!
+            log error => sprintf "[%s o]: %s (%d)", $host, $message, $!
                 unless $! == POSIX::EPIPE;
             undef $stdout;
             $end->() if not $stdout and not $stderr;
@@ -109,7 +110,7 @@ sub execute {
         },
         on_error => sub {
             my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s] STDERR: %s (%d)", $host, $message, $!
+            log error => sprintf "[%s e]: %s (%d)", $host, $message, $!
                 unless $! == POSIX::EPIPE;
             undef $stderr;
             $end->() if not $stdout and not $stderr;

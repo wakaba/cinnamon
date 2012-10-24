@@ -14,15 +14,22 @@ sub new {
     return bless {@_}, $class;
 }
 
-sub log {
+sub print {
     my ($self, $type, $message) = @_;
     my $color ||= $COLOR{$type};
 
     $message = Term::ANSIColor::colored $message, $color if $color;
-    $message .= "\n";
+
+    if ($self->{last_type} and $self->{last_type} ne $type) {
+        if (not $self->{has_newline}) {
+            $message = "\n" . $message;
+        }
+    }
+    $self->{last_type} = $type;
+    $self->{has_newline} = $message =~ /\n$/;
 
     my $fh = $type eq 'error' ? $self->{stderr} : $self->{stdout};
-    print $fh $message;
+    CORE::print $fh $message;
 }
 
 1;

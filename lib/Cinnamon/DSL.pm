@@ -6,6 +6,7 @@ use Cinnamon::Config;
 use Cinnamon::Local;
 use Cinnamon::Remote;
 use Cinnamon::Logger;
+use Cinnamon::Logger::Channel;
 use AnyEvent;
 use AnyEvent::Handle;
 use POSIX;
@@ -130,22 +131,17 @@ sub run_stream (@) {
         $return = $?;
         $cv->send;
     };
-    my $line_number = {};
+    my $out_logger = Cinnamon::Logger::Channel->new(
+        type => 'info',
+        label => "$host o",
+    );
+    my $err_logger = Cinnamon::Logger::Channel->new(
+        type => 'error',
+        label => "$host e",
+    );
     my $print = sub {
         my ($s, $handle) = @_;
-        my $type = $handle eq 'stdout' ? 'info' : 'error';
-        while ($s =~ s{([^\x0D\x0A]*)\x0D?\x0A}{}) {
-            log $type => sprintf "[%s] %d: %s",
-                $host, ++$line_number->{$_[1]}, $1;
-        }
-        if (length $s) {
-            log $type => sprintf "[%s] %d: %s",
-                $host, ++$line_number->{$_[1]}, $s;
-        }
-
-        # XXX Bug: line number counting does not work when line
-        # boundary does not match with the boundary AnyEvent::Handle's
-        # invocation of on_read gives.
+        ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
     };
     $stdout = AnyEvent::Handle->new(
         fh => $result->{stdout},
@@ -159,7 +155,7 @@ sub run_stream (@) {
         },
         on_error => sub {
             my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s] STDOUT: %s (%d)", $host, $message, $!
+            log error => sprintf "[%s o] %s (%d)", $host, $message, $!
                 unless $! == POSIX::EPIPE;
             undef $stdout;
             $end->() if not $stdout and not $stderr;
@@ -177,7 +173,7 @@ sub run_stream (@) {
         },
         on_error => sub {
             my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s] STDERR: %s (%d)", $host, $message, $!
+            log error => sprintf "[%s e] %s (%d)", $host, $message, $!
                 unless $! == POSIX::EPIPE;
             undef $stderr;
             $end->() if not $stdout and not $stderr;

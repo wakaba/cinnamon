@@ -7,8 +7,18 @@ sub new {
     return bless {@_}, $class;
 }
 
-sub log {
-    print { $_[0]->{stdout} } $_[2] . "\n";
+sub print {
+    my ($self, $type, $message) = @_;
+
+    if ($self->{last_type} and $self->{last_type} ne $type) {
+        if (not $self->{has_newline}) {
+            $message = "\n" . $message;
+        }
+    }
+    $self->{last_type} = $type;
+    $self->{has_newline} = $message =~ /\n$/;
+
+    CORE::print { $self->{stdout} } $message;
 }
 
 1;
