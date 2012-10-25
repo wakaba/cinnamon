@@ -12,6 +12,7 @@ sub get_svstat ($) {
 
     # /service/hoge: down 1 seconds, normally up
     # /service/hoge: up (pid 1486) 0 seconds
+    # /service/hoge: up (pid 11859) 6001 seconds, want down
 
     if ($status =~ /.+: (up) \(pid ([0-9]+)\) ([0-9]+) seconds(?:, (want (?:down|up)))?/) {
         return {status => $1, pid => $2, seconds => $3, additional => $4};
@@ -59,14 +60,18 @@ sub define_daemontools_tasks ($;%) {
 
                 my $timeout = 10;
                 my $i = 0;
+                my $d_mode;
                 {
                     my $status = get_svstat $dir . '/' . $service->($name);
                     last if $status->{status} eq 'down';
                     if ($i > 2 and
                         (not $status->{additional} or
                          $status->{additional} ne 'want down')) {
+                        $d_mode = 1;
+                    }
+                    if ($d_mode) {
                         sudo 'svc', '-d', $dir . '/' . $service->($name);
-                        $onnotice->('svc -d');
+                        $onnotice->("svc -d ($i)");
                     }
                     if ($i < $timeout) {
                         sleep 1;
