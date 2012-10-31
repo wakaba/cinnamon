@@ -94,9 +94,24 @@ sub define_daemontools_tasks ($;%) {
             my ($host, @args) = @_;
             my $user = get 'daemontools_user';
             remote {
-                call "$task_ns:stop", $host, @args;
-                call "$task_ns:start", $host, @args;
-                #call "$task_ns:log:tail", $host, @args;
+                my $dir = get 'daemontools_service_dir';
+                my $service = get 'get_daemontools_service_name';
+                sudo 'svc', '-t', $dir . '/' . $service->($name);
+                $onnotice->('svc -t');
+
+                my $status1 = get_svstat $dir . '/' . $service->($name);
+                if (not defined $status1->{status} or
+                    $status1->{status} ne 'up' or
+                    ($status1->{additional} || '') eq 'want down') {
+                    sudo 'svc', '-u', $dir . '/' . $service->($name);
+                    $onnotice->('svc -u');
+                }
+                sleep 1;
+
+                my $status2 = get_svstat $dir . '/' . $service->($name);
+                die "svc -u failed\n" unless $status2->{status} eq 'up';
+                die "svc -u likely failed\n"
+                    if $status1->{pid} != $status2->{pid};
             } $host, user => $user;
         },
         status => sub {
