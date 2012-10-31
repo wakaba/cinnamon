@@ -99,18 +99,21 @@ sub define_daemontools_tasks ($;%) {
                 sudo 'svc', '-t', $dir . '/' . $service->($name);
                 $onnotice->('svc -t');
 
-                my $status1 = get_svstat $dir . '/' . $service->($name);
-                if (not defined $status1->{status} or
-                    $status1->{status} ne 'up' or
-                    ($status1->{additional} || '') eq 'want down') {
+                my $status0 = get_svstat $dir . '/' . $service->($name);
+                if (not defined $status0->{status} or
+                    $status0->{status} ne 'up' or
+                    ($status0->{additional} || '') eq 'want down') {
                     sudo 'svc', '-u', $dir . '/' . $service->($name);
                     $onnotice->('svc -u');
                 }
-                sleep 1;
 
+                my $status1 = get_svstat $dir . '/' . $service->($name);
+                die "svc -t/-u failed\n" unless $status1->{status} eq 'up';
+
+                sleep 1;
                 my $status2 = get_svstat $dir . '/' . $service->($name);
-                die "svc -u failed\n" unless $status2->{status} eq 'up';
-                die "svc -u likely failed\n"
+                die "svc -t/-u failed\n" unless $status2->{status} eq 'up';
+                die "svc -t/-u likely failed\n"
                     if $status1->{pid} != $status2->{pid};
             } $host, user => $user;
         },
