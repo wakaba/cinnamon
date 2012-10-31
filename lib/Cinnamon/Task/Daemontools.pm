@@ -68,6 +68,8 @@ sub define_daemontools_tasks ($;%) {
                         (not $status->{additional} or
                          $status->{additional} ne 'want down')) {
                         $mode = $i > 5 ? 'k' : 'd';
+                    } elsif ($i > 7) {
+                        $mode = 'k';
                     }
                     if ($mode) {
                         if ($mode eq 'd') {
