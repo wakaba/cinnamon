@@ -96,25 +96,62 @@ sub define_daemontools_tasks ($;%) {
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
-                sudo 'svc', '-t', $dir . '/' . $service->($name);
-                $onnotice->('svc -t');
+                my $service_dir = $dir . '/' . $service->($name);
 
-                my $status0 = get_svstat $dir . '/' . $service->($name);
-                if (not defined $status0->{status} or
-                    $status0->{status} ne 'up' or
-                    ($status0->{additional} || '') eq 'want down') {
-                    sudo 'svc', '-u', $dir . '/' . $service->($name);
-                    $onnotice->('svc -u');
+                my $status0 = get_svstat $service_dir;
+                if ($status0->{status} eq 'down' or
+                    $status0->{status} eq 'unknown') {
+                    call "$task_ns:start", $host, @args;
+                } else {
+                    $status0->{pid} ||= 0;
+
+                    sudo 'svc', '-t', $service_dir;
+                    $onnotice->('svc -t');
+
+                    my $restarted;
+                    my $stable;
+                    my $i = 0;
+                    my $status1;
+                    {
+                        $status1 = get_svstat $service_dir;
+                        if ($status1->{status} eq 'up' and
+                            $status1->{pid} != $status0->{pid}) {
+                            $restarted = 1;
+                        }
+                        sleep 1;
+                    }
+                    {
+                        my $status2 = get_svstat $service_dir;
+                        if ($status2->{status} eq 'up' and
+                            $status2->{pid} != $status0->{pid}) {
+                            $restarted = 1;
+                        }
+                        if ($restarted and
+                            $status1->{pid} == $status2->{pid}) {
+                            $stable = 1;
+                            last;
+                        }
+                        $status1 = $status2;
+                        $i++;
+                        if ($status2->{status} eq 'up' and
+                            $status0->{pid} == $status2->{pid}) {
+                            if ($i > 5) {
+                                sudo 'svc', '-k', $service_dir;
+                                $onnotice->("svc -k ($i)");
+                            } elsif ($i > 2) {
+                                sudo 'svc', '-t', $service_dir;
+                                $onnotice->("svc -t ($i)");
+                            }
+                            last if $i > 20;
+                        } else {
+                            last if $i > 10;
+                        }
+                        sleep 1;
+                        redo;
+                    }
+
+                    die "svc -t failed\n" unless $restarted and $stable;
                 }
-
-                my $status1 = get_svstat $dir . '/' . $service->($name);
-                die "svc -t/-u failed\n" unless $status1->{status} eq 'up';
-
-                sleep 1;
-                my $status2 = get_svstat $dir . '/' . $service->($name);
-                die "svc -t/-u failed\n" unless $status2->{status} eq 'up';
-                die "svc -t/-u likely failed\n"
-                    if $status1->{pid} != $status2->{pid};
             } $host, user => $user;
         },
         status => sub {
