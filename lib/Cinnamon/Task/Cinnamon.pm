@@ -13,6 +13,15 @@ task 'cinnamon' => {
             log info => "Available roles:\n" .
                 join "", map { "- " . $_ . "\n" } sort { $a cmp $b } keys %$role_defs;
         },
+        hosts => sub {
+            my ($task, $hosts, $file_name) = @_;
+            my $file = \*STDOUT;
+            if (defined $file_name) {
+                undef $file;
+                open $file, '>', $file_name or die "$0: $task: $file_name: $!";
+            }
+            print $file join ',', @$hosts;
+        },
     },
     task => {
         list => sub {

@@ -9,6 +9,7 @@ use Class::Load ();
 use Cinnamon::Config;
 use Cinnamon::Runner;
 use Cinnamon::Logger;
+use Cinnamon::Task::Cinnamon;
 
 sub new {
     my $class = shift;
@@ -28,11 +29,15 @@ sub run {
     Cinnamon::Config::set(keychain => $opts{keychain});
 
     if (defined $task_def and ref $task_def eq 'HASH') {
-        require Cinnamon::Task::Cinnamon;
         unshift @$args, $task;
         $task = 'cinnamon:task:list';
         Cinnamon::Config::set task => $task;
         $task_def = Cinnamon::Config::get_task;
+    }
+
+    if ($task eq 'cinnamon:role:hosts') {
+        unshift @$args, $hosts || [];
+        $hosts = [''];
     }
 
     unless (defined $orig_hosts) {
