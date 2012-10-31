@@ -29,6 +29,21 @@ sub set_role ($$$) {
     $ROLES{$role} = [$hosts, $params];
 }
 
+sub _get_hosts {
+    my $v = shift;
+    if (not defined $v) {
+        return ();
+    } elsif (ref $v eq 'CODE') {
+        return _get_hosts($v->());
+    } elsif (ref $v eq 'ARRAY') {
+        return map { _get_hosts($_) } @$v;
+    } elsif (UNIVERSAL::can($v, 'to_a')) {
+        return map { _get_hosts($_) } @{$v->to_a};
+    } else {
+        return $v;
+    }
+}
+
 sub get_role (@) {
     my $role  = ($_[0] || get('role'));
 
@@ -40,11 +55,8 @@ sub get_role (@) {
         set $key => $params->{$key};
     }
 
-    $hosts = $hosts->() if ref $hosts eq 'CODE';
-    $hosts = [] unless defined $hosts;
-    $hosts = ref $hosts eq 'ARRAY' ? $hosts : UNIVERSAL::can($hosts, 'to_a') ? $hosts->to_a : [$hosts];
-
-    return $hosts;
+    my $found = {};
+    return [grep { not $found->{$_}++ } _get_hosts $hosts];
 }
 
 sub set_role_alias ($$) {
