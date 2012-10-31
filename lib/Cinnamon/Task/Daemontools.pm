@@ -60,18 +60,23 @@ sub define_daemontools_tasks ($;%) {
 
                 my $timeout = 10;
                 my $i = 0;
-                my $d_mode;
+                my $mode;
                 {
                     my $status = get_svstat $dir . '/' . $service->($name);
                     last if $status->{status} eq 'down';
                     if ($i > 2 and
                         (not $status->{additional} or
                          $status->{additional} ne 'want down')) {
-                        $d_mode = 1;
+                        $mode = $i > 5 ? 'k' : 'd';
                     }
-                    if ($d_mode) {
-                        sudo 'svc', '-d', $dir . '/' . $service->($name);
-                        $onnotice->("svc -d ($i)");
+                    if ($mode) {
+                        if ($mode eq 'd') {
+                            sudo 'svc', '-d', $dir . '/' . $service->($name);
+                            $onnotice->("svc -d ($i)");
+                        } elsif ($mode eq 'k') {
+                            sudo 'svc', '-k', $dir . '/' . $service->($name);
+                            $onnotice->("svc -k ($i)");
+                        }
                     }
                     if ($i < $timeout) {
                         sleep 1;
