@@ -58,7 +58,7 @@ sub define_daemontools_tasks ($;%) {
                 sudo 'svc', '-d', $dir . '/' . $service->($name);
                 $onnotice->('svc -d');
 
-                my $timeout = 10;
+                my $timeout = 20;
                 my $i = 0;
                 my $mode;
                 {
