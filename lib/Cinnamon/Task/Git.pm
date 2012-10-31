@@ -62,6 +62,9 @@ task git => {
                 chomp $newer;
                 if ($newer) {
                     warn "Remote commit ($result->{old_revision}) is newer; skipped\n";
+                    $result->{new_revision} = $result->{old_revision};
+                    $result->{error}->{older} = 1;
+                    return;
                 }
             }
             run_stream "git clone $url $dir || (cd $dir && git fetch)";
@@ -70,7 +73,8 @@ task git => {
             $result->{new_revision} = get_git_revision; # or undef
         } $host, user => get 'git_clone_user';
 
-        if ($result->{new_revision} ne $rev and
+        if (not $result->{error} and
+            $result->{new_revision} ne $rev and
             $result->{new_revision} !~ /^\Q$rev\E/) {
             log error => sprintf "Remote revision is %s (expected is %s)",
                 (substr $result->{new_revision}, 0, 10),
