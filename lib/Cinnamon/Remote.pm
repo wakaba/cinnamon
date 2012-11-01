@@ -72,7 +72,7 @@ sub execute {
         type => 'error',
         label => "$host e",
     );
-    my $print = sub {
+    my $print = $opt->{hide_output} ? sub { } : sub {
         my ($s, $handle) = @_;
         ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
     };
