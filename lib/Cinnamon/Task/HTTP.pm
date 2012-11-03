@@ -3,10 +3,11 @@ use strict;
 use warnings;
 use Exporter::Lite;
 use Web::UserAgent::Functions ();
+use JSON::Functions::XS qw(perl2json_bytes);
 use Cinnamon::Config::User;
 use Cinnamon::Logger;
 
-our @EXPORT = qw(http_get http_post http_post_data);
+our @EXPORT = qw(http_get http_post http_post_data http_post_json);
 
 Web::UserAgent::Functions->check_socksify;
 
@@ -63,12 +64,25 @@ sub http_post (%) {
     };
 }
 
-sub http_postdata (%) {
+sub http_post_data (%) {
     my %args = @_;
     die "sync mode is not supported" unless $args{anyevent};
     
     return _with_proxy $args{url}, sub {
-        return Web::UserAgent::Functions::http_postdata(%args);
+        return Web::UserAgent::Functions::http_post_data(%args);
+    };
+}
+
+sub http_post_json (%) {
+    my %args = @_;
+    die "sync mode is not supported" unless $args{anyevent};
+    $args{header_fields}->{'Content-Type'} = 'application/json';
+    
+    return _with_proxy $args{url}, sub {
+        return Web::UserAgent::Functions::http_post_data(
+            %args,
+            content => perl2json_bytes $args{content},
+        );
     };
 }
 
