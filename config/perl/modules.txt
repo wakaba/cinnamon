@@ -1,5 +1,6 @@
 parent
 Cwd
+DBI
 Exporter::Lite
 File::Basename
 Term::ANSIColor
