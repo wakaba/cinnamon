@@ -1,6 +1,7 @@
 parent
 Cwd
 DBI
+Digest::SHA1
 Exporter::Lite
 File::Basename
 Term::ANSIColor

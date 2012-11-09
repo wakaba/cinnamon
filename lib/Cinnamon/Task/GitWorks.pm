@@ -8,7 +8,7 @@ use AnyEvent;
 task gitworks => {
     cennel => {
         add_operations => sub {
-            my ($host, @args) = @_;
+            my ($host, $op_set_name, @args) = @_;
             my $gw_host = get 'gw_host';
             my $rev = `git rev-parse HEAD` or die "Can't get git commit\n";
             chomp $rev;
@@ -29,7 +29,7 @@ task gitworks => {
                     after => $rev,
                     hook_args => {
                         action_type => 'cennel.add-operations',
-                        action_args => {},
+                        action_args => {operation_set_name => $op_set_name},
                     },
                 },
                 anyevent => 1,

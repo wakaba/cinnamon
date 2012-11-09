@@ -8,6 +8,7 @@ Test::Requires~0.06
 parent~0.225
 Cwd~3.33
 DBI~1.622
+Digest::SHA1~2.13
 Exporter::Lite~0.02
 Term::ANSIColor~3.02
 IO::Handle~1.28
