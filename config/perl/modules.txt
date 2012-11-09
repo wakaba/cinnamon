@@ -1,5 +1,6 @@
 parent
 Cwd
+Digest::SHA1
 Exporter::Lite
 File::Basename
 Term::ANSIColor
