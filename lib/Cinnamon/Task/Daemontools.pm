@@ -70,18 +70,26 @@ sub define_daemontools_tasks ($;%) {
                 $onnotice->('svc -u');
 
                 my $status1 = get_svstat $dir . '/' . $service->($name);
-                die "svc -u failed\n" unless $status1->{status} eq 'up';
-
-                sleep 1;
-                my $status2 = get_svstat $dir . '/' . $service->($name);
-                die "svc -u failed\n" unless $status2->{status} eq 'up';
-                if ($status1->{pid} != $status2->{pid}) {
+                my $stable;
+                my $i = 0;
+                {
                     sleep 1;
+                    my $status2 = get_svstat $dir . '/' . $service->($name);
+                    if ($status2->{status} eq 'up' and
+                        $status1->{status} eq 'up' and
+                        $status1->{pid} == $status2->{pid}) {
+                        $stable = 1;
+                        last;
+                    }
+
+                    last if $i++ > 5;
+                    sudo 'svc -u ' . $dir . '/' . $service->($name);
+                    $onnotice->("svc -u ($i)");
                     $status1 = $status2;
-                    $status2 = get_svstat $dir . '/' . $service->($name);
+                    redo;
                 }
                 die "svc -u likely failed\n"
-                    if $status1->{pid} != $status2->{pid};
+                    unless $status1->{status} eq 'up' and $stable;
             } $host, user => $user;
         },
         stop => sub {
