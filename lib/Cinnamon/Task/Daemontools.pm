@@ -75,6 +75,11 @@ sub define_daemontools_tasks ($;%) {
                 sleep 1;
                 my $status2 = get_svstat $dir . '/' . $service->($name);
                 die "svc -u failed\n" unless $status2->{status} eq 'up';
+                if ($status1->{pid} != $status2->{pid}) {
+                    sleep 1;
+                    $status1 = $status2;
+                    $status2 = get_svstat $dir . '/' . $service->($name);
+                }
                 die "svc -u likely failed\n"
                     if $status1->{pid} != $status2->{pid};
             } $host, user => $user;
