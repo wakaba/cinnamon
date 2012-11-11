@@ -117,11 +117,22 @@ sub execute {
         },
     );
 
+    my $sigs = {};
+    $sigs->{TERM} = AE::signal TERM => sub {
+        kill 'TERM', $pid;
+        undef $sigs;
+    };
+    $sigs->{INT} = AE::signal INT => sub {
+        kill 'INT', $pid;
+        undef $sigs;
+    };
+
     $cv->recv;
+    undef $sigs;
 
     if ($exitcode != 0) {
-        log error => my $msg = sprintf "[%s] Status: %d", $host, $exitcode;
-        die $msg;
+        log error => my $msg = "Exit with status $exitcode";
+        die "$msg\n";
     }
 
     +{

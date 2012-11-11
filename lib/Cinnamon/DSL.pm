@@ -180,10 +180,21 @@ sub run_stream (@) {
         },
     );
 
+    my $sigs = {};
+    $sigs->{TERM} = AE::signal TERM => sub {
+        kill 'TERM', $result->{pid};
+        undef $sigs;
+    };
+    $sigs->{INT} = AE::signal INT => sub {
+        kill 'INT', $result->{pid};
+        undef $sigs;
+    };
+
     $cv->recv;
+    undef $sigs;
     
     if ($return != 0) {
-        log error => my $msg = sprintf "[%s] Status: %d", $host, $return;
+        log error => my $msg = "Exit with status $return";
         die "$msg\n";
     }
 }
