@@ -1,5 +1,6 @@
 parent
 Cwd
+DBD::mysql
 DBI
 Digest::SHA1
 Exporter::Lite
