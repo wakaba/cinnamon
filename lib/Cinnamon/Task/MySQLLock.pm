@@ -21,7 +21,8 @@ sub new_from_dsn_and_name {
 sub dbh {
     require DBI;
     my $self = shift;
-    return $self->{dbh} ||= DBI->connect($self->{dsn}, undef, undef, {
+    return $self->{dbh} if $self->{dbh} and $self->{dbh}->ping;
+    return $self->{dbh} = DBI->connect($self->{dsn}, undef, undef, {
         RaiseError => 1,
     });
 }
