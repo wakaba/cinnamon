@@ -85,7 +85,7 @@ sub define_kcss_tasks ($;%) {
         },
         avail => sub {
             my ($host, @args) = @_;
-            remote {
+            {
                 my $port = (get 'get_kcss_port')->($name);
                 my $auth = (get 'get_kcss_basic_auth')->($name);
                 my $cv = AE::cv;
@@ -103,7 +103,7 @@ sub define_kcss_tasks ($;%) {
                 } else {
                     log error => $host . ': ' . $res->code . ' (' . $res->content . ")\n";
                 }
-            } $host;
+            };
         },
     );
 }
