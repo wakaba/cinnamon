@@ -302,11 +302,13 @@ sub define_daemontools_tasks ($;%) {
 }
 
 task daemontools => {
-    start_daemontools => sub {
-        my ($host, @args) = @_;
-        remote {
-            sudo '/etc/init.d/svscan', 'start';
-        } $host;
+    svscan => {
+        start => sub {
+            my ($host, @args) = @_;
+            remote {
+                sudo '/etc/init.d/svscan', 'start';
+            } $host;
+        },
     },
 };
 
