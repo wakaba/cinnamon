@@ -96,6 +96,13 @@ task git => {
             }
         } $host;
     },
+    show_url => sub {
+        my ($host, $file_name, @args) = @_;
+        remote {
+            my $dir = get 'deploy_dir';
+            run "cd \Q$dir\E && git config remote.origin.url";
+        } $host;
+    },
 };
 
 !!1;
