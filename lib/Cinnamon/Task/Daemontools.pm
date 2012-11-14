@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Cinnamon::DSL;
 use Cinnamon::Logger;
+use Cinnamon::Task::Process;
 use Exporter::Lite;
 
 our @EXPORT = qw(define_daemontools_tasks);
@@ -22,35 +23,6 @@ sub get_svstat ($) {
     } else {
         return {status => 'unknown'};
     }
-}
-
-sub ps (;) {
-    my ($ps) = run {hide_output => 1},
-        'ps', '-eo', 'pid,ppid,command';
-    my $processes = {};
-    for (split /\n/, $ps) {
-        if (/^\s*(\d+)\s+(\d+)\s+(.+)/) {
-            $processes->{$1} = {pid => $1, ppid => $2, command => $3};
-        }
-    }
-    return $processes;
-}
-
-sub kill_descendant ($$) {
-    my ($signal, $pid) = @_;
-    my @pid = ($pid);
-    my $processes = ps;
-    my @search = ($pid);
-    while (@search) {
-        my $id = shift @search;
-        for (values %$processes) {
-            if ($_->{ppid} == $id) {
-                unshift @pid, $_->{pid};
-                push @search, $_->{pid};
-            }
-        }
-    }
-    run 'kill', "-$signal", @pid;
 }
 
 sub define_daemontools_tasks ($;%) {
@@ -119,10 +91,10 @@ sub define_daemontools_tasks ($;%) {
                             sudo 'svc', '-d', $dir . '/' . $service->($name);
                             $onnotice->("svc -d ($i)");
                         } elsif ($mode eq 't') {
-                            kill_descendant 15, $status->{pid};
+                            kill_process_descendant 15, $status->{pid};
                             $onnotice->("SIGTERM ($i)");
                         } elsif ($mode eq 'k') {
-                            kill_descendant 9, $status->{pid};
+                            kill_process_descendant 9, $status->{pid};
                             $onnotice->("SIGKILL ($i)");
                         }
                     }
@@ -182,10 +154,10 @@ sub define_daemontools_tasks ($;%) {
                         if ($status2->{status} eq 'up' and
                             $status0->{pid} == $status2->{pid}) {
                             if ($i > 8) {
-                                kill_descendant 9, $status2->{pid};
+                                kill_process_descendant 9, $status2->{pid};
                                 $onnotice->("SIGKILL ($i)");
                             } elsif ($i > 5) {
-                                kill_descendant 15, $status2->{pid};
+                                kill_process_descendant 15, $status2->{pid};
                                 $onnotice->("SIGTERM ($i)");
                             } elsif ($i > 2) {
                                 sudo 'svc', '-t', $service_dir;

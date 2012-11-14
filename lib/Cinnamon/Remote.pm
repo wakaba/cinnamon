@@ -132,7 +132,7 @@ sub execute {
 
     if ($exitcode != 0) {
         log error => my $msg = "Exit with status $exitcode";
-        die "$msg\n";
+        die "$msg\n" unless $opt->{ignore_error};
     }
 
     +{
