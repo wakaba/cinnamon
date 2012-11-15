@@ -268,7 +268,7 @@ sub define_daemontools_tasks ($;%) {
                 sudo 'mv ' . $dir . '/' . $service->($name) . ' ' . $dir . '/.' . $service->($name);
                 sudo 'svc -dx ' . $dir . '/.' . $service->($name);
                 sudo 'svc -dx ' . $dir . '/.' . $service->($name) . '/log';
-                sudo 'rm ' . $dir . '/.' . $service->($name);
+                sudo 'rm', '-fr', $dir . '/.' . $service->($name);
                 $onnotice->('svc -x');
             } $host, user => $user;
         },
