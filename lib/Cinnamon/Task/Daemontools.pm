@@ -287,7 +287,9 @@ sub define_daemontools_tasks ($;%) {
         },
         uninstall => sub {
             my ($host, @args) = @_;
-            my $user = (get 'daemontools_uninstall_user') || get 'daemontools_user';
+            my $user = get 'daemontools_setup_user';
+            $user = get 'daemontools_user' if not defined $user;
+            undef $user if defined $user and not length $user;
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
