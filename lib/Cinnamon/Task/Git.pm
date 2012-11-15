@@ -34,7 +34,7 @@ task git => {
             $branch =~ s{^origin/}{};
             $result->{old_revision} = get_git_revision; # or undef
             run_stream "git clone $url $dir || (cd $dir && git fetch)";
-            run_stream "cd $dir && (git checkout $branch || (git pull && git checkout -b $branch origin/$branch)) && git pull";
+            run_stream "cd $dir && (git checkout $branch || ((git pull || git pull) && git checkout -b $branch origin/$branch)) && (git pull || git pull)";
             run_stream "cd $dir && git submodule update --init";
             $result->{new_revision} = get_git_revision; # or undef
         } $host, user => get 'git_clone_user';
@@ -67,7 +67,7 @@ task git => {
                     return;
                 }
             }
-            run_stream "git clone $url $dir || (cd $dir && git fetch)";
+            run_stream "git clone $url $dir || (cd $dir && (git fetch || git fetch))";
             run_stream "cd $dir && git checkout \Q$rev\E";
             run_stream "cd $dir && git submodule update --init";
             $result->{new_revision} = get_git_revision; # or undef
@@ -94,6 +94,13 @@ task git => {
             } else {
                 print get_git_revision;
             }
+        } $host;
+    },
+    show_url => sub {
+        my ($host, $file_name, @args) = @_;
+        remote {
+            my $dir = get 'deploy_dir';
+            run "cd \Q$dir\E && git config remote.origin.url";
         } $host;
     },
 };
