@@ -1,7 +1,7 @@
 package Cinnamon::CLI;
 use strict;
 use warnings;
-
+use Encode;
 use Getopt::Long;
 use Cinnamon;
 
@@ -67,7 +67,7 @@ sub run {
         user => $self->{user},
         keychain => $keychain,
         hosts => $hosts,
-        args => \@ARGV,
+        args => [map { decode 'utf-8', $_ } @ARGV],
     );
 }
 
