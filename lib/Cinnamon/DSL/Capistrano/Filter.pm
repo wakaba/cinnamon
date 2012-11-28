@@ -32,6 +32,7 @@ FILTER_ONLY
         s/\b(@{[join '|', map { quotemeta } keys %declared]})\b/\$$1/g
             if keys %declared;
         s/my \$\$/my \$/g;
+        s{\b(\w+(?:\.\w+)+)\b}{my $v = $1; $v =~ tr/\./:/; "&Cinnamon::DSL::call('$v', \@_)"}ge;
 
         my $prev = '';
         my $line = '';
