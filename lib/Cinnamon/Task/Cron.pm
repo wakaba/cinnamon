@@ -26,10 +26,6 @@ task cron => {
         remote {
             sudo "$crond reload";
         } $host, user => get 'cron_user';
-
-        my $task = get 'task';
-        $task =~ s/:reload$//;
-        call "$task:log", $host, @args;
     },
     log => sub {
         my ($host, @args) = @_;
