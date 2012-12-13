@@ -276,12 +276,31 @@ sub define_daemontools_tasks ($;%) {
 }
 
 task daemontools => {
+    yum_install => sub {
+        my ($host, @args) = @_;
+        my $package = (get 'daemontools_rpm_package') || 'daemontools-toaster';
+        remote {
+            sudo 'yum', 'install', '-y', $package;
+            sudo '/sbin/chkconfig', 'svscan', 'on';
+        } $host, user => get 'daemontools_setup_user';
+    },
     svscan => {
         start => sub {
             my ($host, @args) = @_;
             remote {
                 sudo '/etc/init.d/svscan', 'start';
-            } $host;
+            } $host, user => get 'daemontools_setup_user';
+        },
+        stop => sub {
+            my ($host, @args) = @_;
+            remote {
+                sudo '/etc/init.d/svscan', 'stop';
+            } $host, user => get 'daemontools_setup_user';
+        },
+        restart => sub {
+            my ($host, @args) = @_;
+            call 'daemontools:svscan:stop', $host, @args;
+            call 'daemontools:svscan:start', $host, @args;
         },
     },
 };
