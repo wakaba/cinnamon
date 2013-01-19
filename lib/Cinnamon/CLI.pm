@@ -27,7 +27,7 @@ sub run {
         "h|help"     => \$self->{help},
         "hosts=s"    => \(my $hosts),
         "c|config=s" => \$self->{config},
-        "s|set=s"    => \$self->{vars},
+        "s|set=s"    => \$self->{override_settings},
         "key-chain-fds=s" => \(my $key_chain_fds),
     );
     return $self->usage if $self->{help};
@@ -68,7 +68,7 @@ sub run {
         user => $self->{user},
         keychain => $keychain,
         hosts => $hosts,
-        vars => $self->{vars},
+        override_settings => $self->{override_settings},
         args => [map { decode 'utf-8', $_ } @ARGV],
     );
 }
