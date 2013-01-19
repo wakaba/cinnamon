@@ -132,6 +132,10 @@ sub load (@) {
             exit 1;
         }
     };
+
+    for my $key (keys %{ $opt{vars} }) {
+        set $key => $opt{vars}->{$key};
+    }
 }
 
 !!1;

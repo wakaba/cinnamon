@@ -27,6 +27,7 @@ sub run {
         "h|help"     => \$self->{help},
         "hosts=s"    => \(my $hosts),
         "c|config=s" => \$self->{config},
+        "s|set=s"    => \$self->{vars},
         "key-chain-fds=s" => \(my $key_chain_fds),
     );
     return $self->usage if $self->{help};
@@ -67,6 +68,7 @@ sub run {
         user => $self->{user},
         keychain => $keychain,
         hosts => $hosts,
+        vars => $self->{vars},
         args => [map { decode 'utf-8', $_ } @ARGV],
     );
 }
