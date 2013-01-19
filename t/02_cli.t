@@ -6,7 +6,6 @@ use lib file(__FILE__)->dir->file('lib')->stringify;
 
 use base qw(Test::Class);
 
-
 use Test::Cinnamon::CLI;
 
 sub _help : Tests {
