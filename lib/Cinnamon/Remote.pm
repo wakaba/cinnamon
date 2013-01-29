@@ -132,14 +132,10 @@ sub execute {
         die "$msg\n" unless $opt->{ignore_error};
     }
 
-    if ($exitcode != 0) {
-        log error => sprintf "[%s] Status: %d", $host, $exitcode;
-    }
-
     +{
         stdout    => $stdout_str,
         stderr    => $stderr_str,
-        has_error => !!$exitcode,
+        has_error => $exitcode > 0,
         error     => $exitcode,
     };
 }
