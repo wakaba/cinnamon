@@ -18,9 +18,9 @@ sub new {
 
 sub connection {
     my $self = shift;
-    return Net::OpenSSH->new(
-        $self->{host}, user => $self->{user},
-    );
+       $self->{connection} ||= Net::OpenSSH->new(
+           $self->{host}, user => $self->{user}
+       );
 }
 
 sub host { $_[0]->{host} }
