@@ -7,8 +7,6 @@ use Cinnamon::Logger;
 use AnyEvent;
 use AnyEvent::Handle;
 
-use POSIX;
-
 sub new {
     my ($class, %args) = @_;
     bless \%args, $class;
@@ -48,8 +46,8 @@ sub start_async_read {
             },
             on_error => sub {
                 my $msg = $_[2];
-                log error => sprintf "[%s :: %s] %s", $self->{host}, $name, $msg
-                    unless $! == POSIX::EPIPE;
+                log error => sprintf "[%s :: %s] %s",
+                    $self->{host}, $name, $msg;
                 $cv->end;
             },
         );
