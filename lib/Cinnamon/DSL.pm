@@ -94,6 +94,10 @@ sub run (@) {
         $result = Cinnamon::Local->execute(@cmd);
     }
 
+    if ($result->{has_error}) {
+        die sprintf "error status: %d", $result->{error};
+    }
+
     return ($result->{stdout}, $result->{stderr});
 }
 
