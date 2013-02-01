@@ -1,0 +1,34 @@
+説明
+~~~~
+
+* role の説明
+
+role には desc オプションを指定することで短い説明を付けられます。
+
+  role myproxy => 'myproxy.host.example', {
+    ...
+  }, desc => 'The proxy of my application';
+
+この説明は role 一覧やタスク実行時に表示されます。
+
+  $ ./cin
+  Available roles:
+  - myproxy  - The proxy of my application
+  - myworker - The worker of my application
+
+* task の説明
+
+task には taskdef を使って desc オプションを指定することで短い説明を
+付けられます。
+
+  task mytask => taskdef {
+    my ($host, @args) = @_;
+    ...
+  } {desc => 'My simple task'};
+
+この説明は task 一覧やタスク実行時に表示されます。
+
+  $ ./cin @myproxy
+  Available tasks:
+  - mytask   - My simple task
+  - yourtask - Your complex task
