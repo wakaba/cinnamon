@@ -18,4 +18,5 @@ AnyEvent::Handle
 POSIX
 Scalar::Util
 Filter::Simple
+YAML
 YAML::XS
