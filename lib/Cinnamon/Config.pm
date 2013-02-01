@@ -78,6 +78,10 @@ sub get_role_desc ($) {
     if (defined $desc and ref $desc eq 'CODE') {
         return $desc->();
     }
+    if (not defined $desc) {
+        my $code = get 'get_role_desc_for';
+        $desc = $code->($_[0]) if $code;
+    }
     return $desc;
 }
 
