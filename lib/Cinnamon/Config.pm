@@ -74,7 +74,11 @@ sub get_role_list (;$) {
 }
 
 sub get_role_desc ($) {
-    return $ROLES{$_[0]}->[2]->{desc};
+    my $desc = $ROLES{$_[0]}->[2]->{desc};
+    if (defined $desc and ref $desc eq 'CODE') {
+        return $desc->();
+    }
+    return $desc;
 }
 
 sub set_task ($$) {

@@ -1,6 +1,7 @@
 package Cinnamon::Logger::TTY;
 use strict;
 use warnings;
+use Encode;
 use Term::ANSIColor ();
 
 my %COLOR = (
@@ -29,7 +30,7 @@ sub print {
     $self->{has_newline} = $message =~ /\n$/;
 
     my $fh = $type eq 'error' ? $self->{stderr} : $self->{stdout};
-    CORE::print $fh $message;
+    CORE::print $fh encode 'utf-8', $message;
 }
 
 1;

@@ -59,10 +59,11 @@ sub taskdef (&$) {
 
 sub call ($$@) {
     my ($task, $job, @args) = @_;
-    
-    log info => "call $task";
     my $task_def = Cinnamon::Config::get_task $task;
     die "Task |$task| is not defined" unless $task_def;
+    #my $task_desc = ref $task_def eq 'Cinnamon::TaskDef' ? $task_def->get_param('desc') : undef;
+    log info => sprintf "call %s%s",
+        $task, ''; #defined $task_desc ? " ($task_desc)" : '';
     $task_def->($job, @args);
 }
 

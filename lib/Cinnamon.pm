@@ -47,11 +47,12 @@ sub run {
         $hosts = [''];
     }
 
+    $role =~ s/^\@//;
     unless (defined $orig_hosts) {
         if ($task =~ /^cinnamon:/) {
             $hosts ||= [''];
         } else {
-            log 'error', "undefined role : '$role'";
+            log 'error', "undefined role : '\@$role'";
             return 1;
         }
     }
@@ -61,16 +62,20 @@ sub run {
     }
 
     if (@$hosts == 0) {
-        log error => "No host found for role '$role'";
+        log error => "No host found for role '\@$role'";
     } elsif (@$hosts > 1 or $hosts->[0] ne '') {
         {
             my %found;
             $hosts = [grep { not $found{$_}++ } @$hosts];
         }
 
-        log info => sprintf 'Host%s %s (%s)',
-            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role;
-        log info => sprintf 'call %s', $task;
+        my $desc = Cinnamon::Config::get_role_desc $role;
+        log info => sprintf 'Host%s %s (@%s%s)',
+            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role,
+            defined $desc ? ' ' . $desc : '';
+        my $task_desc = ref $task_def eq 'Cinnamon::TaskDef' ? $task_def->get_param('desc') : undef;
+        log info => sprintf 'call %s%s',
+            $task, defined $task_desc ? " ($task_desc)" : '';
     }
 
     Class::Load::load_class $runner;

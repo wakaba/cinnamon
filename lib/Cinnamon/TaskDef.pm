@@ -11,7 +11,7 @@ sub new_from_code_and_args {
 
 sub get_param {
     my $value = $_[0]->[1]->{$_[1]};
-    return defined $value ? $value : $_[2];
+    return defined $value ? ref $value eq 'CODE' ? $value->() : $value : $_[2];
 }
 
 1;
