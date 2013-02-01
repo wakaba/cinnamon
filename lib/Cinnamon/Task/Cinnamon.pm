@@ -11,7 +11,10 @@ task 'cinnamon' => {
             my ($task, @args) = @_;
             my $role_defs = Cinnamon::Config::get_role_list;
             log info => "Available roles:\n" .
-                join "", map { "- " . $_ . "\n" } sort { $a cmp $b } keys %$role_defs;
+                join "", map {
+                    my $desc = Cinnamon::Config::get_role_desc($_);
+                    "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
+                } sort { $a cmp $b } keys %$role_defs;
         },
         hosts => sub {
             my ($task, $hosts, $file_name) = @_;
@@ -30,7 +33,13 @@ task 'cinnamon' => {
             $prefix .= ':' if length $prefix and not $prefix =~ /:\z/;
             my $task_defs = Cinnamon::Config::get_task_list $prefix;
             log info => "Available tasks:\n" .
-                join "", map { "- $prefix" . $_ . (ref $task_defs->{$_} eq 'CODE' ? '' : ':') . "\n" } sort { $a cmp $b } keys %$task_defs;
+                join "", map {
+                    my $def = $task_defs->{$_};
+                    "- $prefix" . $_ . (
+                        ref $def eq 'Cinnamon::TaskDef' ?
+                            "\t- " . $def->get_param('desc') :
+                        ref $def eq 'CODE' ? '' : ':') . "\n";
+                } sort { $a cmp $b } keys %$task_defs;
         },
     },
 };

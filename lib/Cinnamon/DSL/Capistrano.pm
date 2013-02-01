@@ -7,6 +7,7 @@ use Cinnamon::Logger;
 use Cinnamon::Config ();
 use Cinnamon::DSL ();
 use Cinnamon::DSL::Capistrano::Filter ();
+use Cinnamon::TaskDef;
 use Exporter::Lite;
 
 our @EXPORT;
@@ -80,11 +81,12 @@ sub desc ($) {
 push @EXPORT, qw(task);
 sub task ($$) {
     my ($name, $code) = @_;
+    $code = Cinnamon::TaskDef->new_from_code_and_args($code, {desc => $LastDesc}) if defined $LastDesc;
     if ($Tasks) {
         # XXX $LastDesc
         $Tasks->{$name} = $code;
     } else {
-        &Cinnamon::DSL::task($name => $code, summary => $LastDesc);
+        &Cinnamon::DSL::task($name => $code);
     }
     undef $LastDesc;
 }

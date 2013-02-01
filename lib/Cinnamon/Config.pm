@@ -29,10 +29,10 @@ sub get ($@) {
     $value;
 }
 
-sub set_role ($$$) {
-    my ($role, $hosts, $params) = @_;
+sub set_role ($$$;%) {
+    my ($role, $hosts, $params, %args) = @_;
 
-    $ROLES{$role} = [$hosts, $params];
+    $ROLES{$role} = [$hosts, $params, \%args];
 }
 
 sub _get_hosts {
@@ -71,6 +71,10 @@ sub set_role_alias ($$) {
 
 sub get_role_list (;$) {
     return \%ROLES;
+}
+
+sub get_role_desc ($) {
+    return $ROLES{$_[0]}->[2]->{desc};
 }
 
 sub set_task ($$) {

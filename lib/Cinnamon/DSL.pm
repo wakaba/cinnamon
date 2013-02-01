@@ -7,6 +7,7 @@ use Cinnamon::Local;
 use Cinnamon::Remote;
 use Cinnamon::Logger;
 use Cinnamon::Logger::Channel;
+use Cinnamon::TaskDef;
 use AnyEvent;
 use AnyEvent::Handle;
 use POSIX;
@@ -16,6 +17,7 @@ our @EXPORT = qw(
     get
     role
     task
+    taskdef
 
     remote
     run
@@ -39,16 +41,20 @@ sub get ($@) {
     Cinnamon::Config::get $name, @args;
 }
 
-sub role ($$;$) {
-    my ($name, $hosts, $params) = @_;
+sub role ($$;$%) {
+    my ($name, $hosts, $params, %args) = @_;
     $params ||= {};
-    Cinnamon::Config::set_role $name => $hosts, $params;
+    Cinnamon::Config::set_role $name => $hosts, $params, %args;
 }
 
-sub task ($$) {
+sub task ($$;%) {
     my ($task, $task_def) = @_;
 
     Cinnamon::Config::set_task $task => $task_def;
+}
+
+sub taskdef (&$) {
+    return Cinnamon::TaskDef->new_from_code_and_args($_[0], $_[1]);
 }
 
 sub call ($$@) {
