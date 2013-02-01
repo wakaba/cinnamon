@@ -8,6 +8,12 @@ my %CONFIG;
 my %ROLES;
 my %TASKS;
 
+sub reset () {
+    %CONFIG = ();
+    %ROLES  = ();
+    %TASKS  = ();
+}
+
 sub set ($$) {
     my ($key, $value) = @_;
 
@@ -135,6 +141,20 @@ sub load (@) {
 
     for my $key (keys %{ $opt{override_settings} }) {
         set $key => $opt{override_settings}->{$key};
+    }
+}
+
+sub info {
+    my $self  = shift;
+    my %roles = map {
+        my ($hosts, $params) = @{$ROLES{$_}};
+        $hosts = $hosts->() if ref $hosts eq 'CODE';
+        $_ => { hosts => $hosts, params => $params };
+    } keys %ROLES;
+
+    +{
+        roles => \%roles,
+        tasks => \%TASKS,
     }
 }
 

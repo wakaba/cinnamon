@@ -2,8 +2,9 @@ package Cinnamon;
 use strict;
 use warnings;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
+use YAML ();
 use Class::Load ();
 
 use Cinnamon::Config;
@@ -21,6 +22,12 @@ sub run {
     Cinnamon::Logger->init_logger;
 
     Cinnamon::Config::load $role, $task, %opts;
+
+    if ($opts{info}) {
+        log 'info', YAML::Dump(Cinnamon::Config::info);
+        return;
+    }
+
     my $args = $opts{args};
     my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
     $hosts = $opts{hosts} if $opts{hosts};

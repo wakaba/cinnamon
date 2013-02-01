@@ -26,6 +26,7 @@ sub run {
         "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
         "hosts=s"    => \(my $hosts),
+        "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
         "s|set=s"    => \$self->{override_settings},
         "key-chain-fds=s" => \(my $key_chain_fds),
@@ -63,20 +64,22 @@ sub run {
     }
     
     $self->cinnamon->run(
-        $role, $task,
-        config => $self->{config},
-        user => $self->{user},
-        keychain => $keychain,
-        hosts => $hosts,
+        $role,
+        $task,
+        config            => $self->{config},
         override_settings => $self->{override_settings},
-        args => [map { decode 'utf-8', $_ } @ARGV],
+        info              => $self->{info},
+        user              => $self->{user},
+        keychain          => $keychain,
+        hosts             => $hosts,
+        args              => [map { decode 'utf-8', $_ } @ARGV],
     );
 }
 
 sub usage {
     my $self = shift;
     my $msg = <<"HELP";
-Usage: cinnamon [--config=<path>] [--help] <role> <task>
+Usage: cinnamon [--config=<path>] [--help] [--info] <role> <task>
 HELP
     $self->print($msg);
 }
@@ -86,4 +89,4 @@ sub print {
     print STDERR $msg;
 }
 
-1;
+!!1;
