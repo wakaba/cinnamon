@@ -27,11 +27,18 @@ task git => {
         my ($host, @args) = @_;
         my $result = {};
         my $local_rev = get_git_revision;
+        my $branch = (get 'git_branch') || 'master';
+        if (get 'git_use_current_branch') {
+            ($branch) = run qw(sh -c), q(git name-rev --name-only HEAD || true);
+            chomp $branch;
+            $branch =~ s/~\d+$//;
+            $branch = 'master' unless defined $branch and length $branch;
+        }
+        $branch =~ s{^origin/}{};
+        $result->{branch} = $branch;
         remote {
             my $dir = (get 'git_deploy_dir') || (get 'deploy_dir');
             my $url = get 'git_repository';
-            my $branch = (get 'git_branch') || 'master';
-            $branch =~ s{^origin/}{};
             $result->{old_revision} = get_git_revision; # or undef
             run_stream "git clone $url $dir || (cd $dir && git fetch)";
             run_stream "cd $dir && (git checkout $branch || ((git pull || git pull) && git checkout -b $branch origin/$branch)) && (git pull || git pull)";

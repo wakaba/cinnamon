@@ -25,6 +25,8 @@ FILTER_ONLY
         s/(::)|:(\w+)/$1 || qq<'$2'>/ge;
         s/\bdo\b/, sub {/g;
         s/\bend\b/}/g;
+        s/\btrue\b/1/g;
+        s/\bfalse\b/0/g;
         my %declared;
         s/^(\s*)(\w+)(\s*=\s*)/$1@{[ $declared{$2} ? '' : do { $declared{$2} = 1; 'my ' } ]}\$$2$3/gm;
         s/^(\s*)(\w+)\s*\.\s*chomp\!\s*$/$1chomp $2/gm;
