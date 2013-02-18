@@ -4,7 +4,6 @@ use warnings;
 
 our $VERSION = '0.05';
 
-use YAML ();
 use Class::Load ();
 
 use Cinnamon::Config;
@@ -24,6 +23,7 @@ sub run {
     Cinnamon::Config::load $role, $task, %opts;
 
     if ($opts{info}) {
+        require YAML;
         log 'info', YAML::Dump(Cinnamon::Config::info);
         return;
     }
