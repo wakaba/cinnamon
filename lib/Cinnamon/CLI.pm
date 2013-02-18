@@ -22,10 +22,11 @@ sub run {
     my $p = Getopt::Long::Parser->new(
         config => ["no_ignore_case", "pass_through"],
     );
+    my $hosts = $ENV{HOSTS};
     $p->getoptions(
         "u|user=s"   => \$self->{user},
         "h|help"     => \$self->{help},
-        "hosts=s"    => \(my $hosts),
+        "hosts=s"    => \$hosts,
         "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
         "s|set=s"    => \$self->{override_settings},
