@@ -29,6 +29,7 @@ sub run {
         "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
         "s|set=s"    => \$self->{override_settings},
+        "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
     );
     return $self->usage if $self->{help};
@@ -40,14 +41,14 @@ sub run {
     }
 
     my $role = shift @ARGV;
-    my $task = shift @ARGV;
+    my @tasks = @ARGV;
     if (not defined $role) {
         require Cinnamon::Task::Cinnamon;
         $role = '';
         $task = 'cinnamon:role:list';
-    } elsif (not defined $task) {
+    } elsif (not @task) {
         require Cinnamon::Task::Cinnamon;
-        $task = 'cinnamon:task:list';
+        @task = ('cinnamon:task:list');
     }
 
     my $keychain;
@@ -63,23 +64,27 @@ sub run {
         $hosts = [grep { length } split /\s*,\s*/, $hosts];
     }
     
-    $self->cinnamon->run(
-        $role,
-        $task,
-        config            => $self->{config},
-        override_settings => $self->{override_settings},
-        info              => $self->{info},
-        user              => $self->{user},
-        keychain          => $keychain,
-        hosts             => $hosts,
-        args              => [map { decode 'utf-8', $_ } @ARGV],
-    );
+    for my $task (@tasks) {
+        my ($success, $error) = $self->cinnamon->run(
+            $role,
+            $task,
+            config            => $self->{config},
+            override_settings => $self->{override_settings},
+            info              => $self->{info},
+            user              => $self->{user},
+            keychain          => $keychain,
+            hosts             => $hosts,
+        );
+        last if (!defined $success || $self->{info});
+        last if ($error && @$error > 0 && !$self->{ignore_errors});
+        print "\n";
+    }
 }
 
 sub usage {
     my $self = shift;
     my $msg = <<"HELP";
-Usage: cinnamon [--config=<path>] [--help] [--info] <role> <task>
+Usage: cinnamon [--config=<path>] [--help] [--info] <role> <task ...>
 HELP
     $self->print($msg);
 }

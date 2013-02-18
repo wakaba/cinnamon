@@ -102,7 +102,7 @@ sub run {
         (join(', ', @error)   || ''),
     );
 
-    return @error != 0;
+    return (\@success, \@error);
 }
 
 !!1;
