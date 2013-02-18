@@ -41,14 +41,14 @@ sub run {
     }
 
     my $role = shift @ARGV;
-    my @tasks = @ARGV;
+    my @tasks = map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV;
     if (not defined $role) {
         require Cinnamon::Task::Cinnamon;
         $role = '';
-        $task = 'cinnamon:role:list';
-    } elsif (not @task) {
+        @tasks = (['cinnamon:role:list']);
+    } elsif (not @tasks) {
         require Cinnamon::Task::Cinnamon;
-        @task = ('cinnamon:task:list');
+        @tasks = (['cinnamon:task:list']);
     }
 
     my $keychain;
@@ -64,16 +64,17 @@ sub run {
         $hosts = [grep { length } split /\s*,\s*/, $hosts];
     }
     
-    for my $task (@tasks) {
+    for my $t (@tasks) {
         my ($success, $error) = $self->cinnamon->run(
             $role,
-            $task,
+            $t->[0],
             config            => $self->{config},
             override_settings => $self->{override_settings},
             info              => $self->{info},
             user              => $self->{user},
             keychain          => $keychain,
             hosts             => $hosts,
+            args              => [@$t[1..$#$t]],
         );
         last if (!defined $success || $self->{info});
         last if ($error && @$error > 0 && !$self->{ignore_errors});
