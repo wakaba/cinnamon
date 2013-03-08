@@ -70,7 +70,8 @@ sub call ($$@) {
 sub remote (&$;%) {
     my ($code, $host, %args) = @_;
 
-    my $user = $args{user} || get 'user';
+    my $user = defined $args{user} ? length $args{user} ? $args{user} : undef
+                                   : get 'user';
     log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
 
     local $_ = Cinnamon::Remote->new(
