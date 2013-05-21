@@ -84,8 +84,6 @@ sub run {
     Class::Load::load_class $runner;
 
     my $result = Cinnamon::Config::with_local_config {
-        use Data::Dumper;
-        warn Dumper %Cinnamon::Config::CONFIG;
         $runner->start($hosts, $task_def, @$args);
     };
     my (@success, @error);
