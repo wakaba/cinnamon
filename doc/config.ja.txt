@@ -1,0 +1,35 @@
+設定
+~~~~
+
+タスクの定義が場合によって変わり得る時は、定数のようなものを使う
+ことができます。値の取得や設定はそれぞれ get, set で行います。
+
+  $dir = get 'deploy_dir';
+  set deploy_dir => '/home/httpd/apps/MyApp';
+
+既に値が設定されていない (undef である) 時のみ値を指定したい時は
+set_default を使います。
+
+  set_default deploy_dir => '/home/httpd/apps/default';
+
+set, set_default に coderef を指定すると、 get のたびに実行して
+結果を返します。
+
+  set deploy_dir => sub {
+    return '/home/httpd/apps/' . get 'app_name';
+  };
+
+coderef 自体を値として使いたい時は coderef を返す coderef を指定
+してください。
+
+値の名前に特別な命名規則はありませんが、 Git に関する値なら git_user
+といったようにそれっぽい接頭辞を付けると衝突の心配がありません。
+
+いくつかの値は自動的に設定されています。
+
+  user       SSH ログインに使うユーザー (起動時の --user オプション)
+             (deploy.pl で必要に応じて上書きする想定)
+  input_user SSH ログインに使うユーザー (起動時の --user オプション)
+             (上書きしない想定)
+  role       起動時に指定された role (@ を除去したもの)
+  task       起動時に指定された task
