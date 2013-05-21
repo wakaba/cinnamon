@@ -15,11 +15,11 @@ sub execute {
     chomp for ($stdout, $stderr);
 
     for my $line (split "\n", $stdout) {
-        log info => sprintf "[localhost :: stdout] %s",
+        log info => sprintf "[localhost o] %s",
             $line;
     }
     for my $line (split "\n", $stderr) {
-        log info => sprintf "[localhost :: stdout] %s",
+        log info => sprintf "[localhost e] %s",
             $line;
     }
 

@@ -14,6 +14,7 @@ use POSIX;
 
 our @EXPORT = qw(
     set
+    set_default
     get
     role
     task
@@ -33,6 +34,11 @@ our $STDERR = \*STDERR;
 sub set ($$) {
     my ($name, $value) = @_;
     Cinnamon::Config::set $name => $value;
+}
+
+sub set_default ($$) {
+    my ($name, $value) = @_;
+    Cinnamon::Config::set_default $name => $value;
 }
 
 sub get ($@) {
@@ -72,6 +78,7 @@ sub remote (&$;%) {
 
     my $user = defined $args{user} ? length $args{user} ? $args{user} : undef
                                    : get 'user';
+    undef $user unless defined $user and length $user;
     log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
 
     local $_ = Cinnamon::Remote->new(
@@ -93,7 +100,9 @@ sub run (@) {
     my $is_remote = ref $_ eq 'Cinnamon::Remote';
     my $host = $is_remote ? $_->host : 'localhost';
 
-    log info => sprintf "[%s :: executing] %s", $host, join(' ', @cmd);
+    my $user = $is_remote ? $_->user : undef;
+    $user = defined $user ? $user . '@' : '';
+    log info => "[$user$host] \$ " . join ' ', @cmd;
 
     if (ref $_ eq 'Cinnamon::Remote') {
         $result = $_->execute($opt, @cmd);
@@ -122,9 +131,9 @@ sub run_stream (@) {
     my $host = $_->host;
     my $result;
 
-    my $message = sprintf "[%s] %s",
-        $host, join ' ', @cmd;
-    log info => $message;
+    my $user = $_->user;
+    $user = defined $user ? $user . '@' : '';
+    log info => "[$user$host] \$ " . join ' ', @cmd;
     
     $result = $_->execute_with_stream($opt, @cmd);
     if ($result->{has_error}) {
@@ -145,11 +154,11 @@ sub run_stream (@) {
     };
     my $out_logger = Cinnamon::Logger::Channel->new(
         type => 'info',
-        label => "$host o",
+        label => "$user$host o",
     );
     my $err_logger = Cinnamon::Logger::Channel->new(
         type => 'error',
-        label => "$host e",
+        label => "$user$host e",
     );
     my $print = $opt->{hide_output} ? sub { } : sub {
         my ($s, $handle) = @_;

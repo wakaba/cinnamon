@@ -7,8 +7,8 @@ use Filter::Simple;
 FILTER_ONLY
     executable => sub {
         # Use default user name
-        s/\bENV\['SSHNAME'\]\s*\|\|\s*\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
-        s/\`whoami\`\.chomp/+Cinnamon::DSL::get('cap_orig_user')/g;
+        s/\bENV\['SSHNAME'\]\s*\|\|\s*\`whoami\`\.chomp/q{PERLDO { my $v = Cinnamon::DSL::get('input_user'); defined $v ? $v : '' }}/ge;
+        s/\`whoami\`\.chomp/q{PERLDO { my $v = Cinnamon::DSL::get('input_user'); defined $v ? $v : '' }}/ge;
 
         # role :foo, *hoge("fuga") << {
         #   ...
@@ -24,6 +24,7 @@ FILTER_ONLY
     code_no_comments => sub {
         s/(::)|:(\w+)/$1 || qq<'$2'>/ge;
         s/\bdo\b/, sub {/g;
+        s/\bPERLDO\b/do/g;
         s/\bend\b/}/g;
         s/\btrue\b/1/g;
         s/\bfalse\b/0/g;
@@ -34,7 +35,7 @@ FILTER_ONLY
         s/\b(@{[join '|', map { quotemeta } keys %declared]})\b/\$$1/g
             if keys %declared;
         s/my \$\$/my \$/g;
-        s{\b(\w+(?:\.\w+)+)\b}{my $v = $1; $v =~ tr/\./:/; "&Cinnamon::DSL::call('$v', \@_)"}ge;
+        s{\b(\w+(?:\.\w+)+)\b}{my $v = $1; $v =~ tr/\./:/; "call('$v', \@_)"}ge;
 
         my $prev = '';
         my $line = '';

@@ -4,6 +4,7 @@ use warnings;
 use Encode;
 use Getopt::Long;
 use Cinnamon;
+use Cinnamon::Config;
 
 sub new {
     my $class = shift;
@@ -65,6 +66,8 @@ sub run {
         $hosts = [grep { length } split /\s*,\s*/, $hosts];
     }
     
+    Cinnamon::Config::set user => $self->{user};
+    Cinnamon::Config::set keychain => $keychain;
     for my $t (@tasks) {
         my ($success, $error) = $self->cinnamon->run(
             $role,
@@ -72,8 +75,6 @@ sub run {
             config            => $self->{config},
             override_settings => $self->{override_settings},
             info              => $self->{info},
-            user              => $self->{user},
-            keychain          => $keychain,
             hosts             => $hosts,
             args              => [@$t[1..$#$t]],
         );

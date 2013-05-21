@@ -61,13 +61,15 @@ sub execute {
         $cv->send;
     };
 
+    my $user = $self->user;
+    $user = defined $user ? $user . '@' : '';
     my $out_logger = Cinnamon::Logger::Channel->new(
         type => 'info',
-        label => "$host o",
+        label => "$user$host o",
     );
     my $err_logger = Cinnamon::Logger::Channel->new(
         type => 'error',
-        label => "$host e",
+        label => "$user$host e",
     );
     my $print = $opt->{hide_output} ? sub { } : sub {
         my ($s, $handle) = @_;

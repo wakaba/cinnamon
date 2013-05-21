@@ -4,7 +4,7 @@ use warnings;
 use Carp;
 use Cinnamon::Logger;
 
-my %CONFIG;
+our %CONFIG; # Must not be accessed from outside of this module!
 my %ROLES;
 my %TASKS;
 
@@ -14,10 +14,21 @@ sub reset () {
     %TASKS  = ();
 }
 
+sub with_local_config (&) {
+    local %CONFIG = %CONFIG;
+    return $_[0]->();
+}
+
 sub set ($$) {
     my ($key, $value) = @_;
 
     $CONFIG{$key} = $value;
+}
+
+sub set_default ($$) {
+    my ($key, $value) = @_;
+
+    $CONFIG{$key} = $value if not defined $CONFIG{$key};
 }
 
 sub get ($@) {
@@ -129,12 +140,6 @@ sub real_user () {
 
 sub load (@) {
     my ($role, $task, %opt) = @_;
-
-    $role =~ s/^\@// if defined $role;
-
-    set role => $role;
-    set task => $task;
-    set user => $opt{user};
 
     return do {
         package Cinnamon::Config::Script;

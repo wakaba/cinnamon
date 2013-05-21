@@ -20,6 +20,11 @@ sub run {
     my ($self, $role, $task, %opts)  = @_;
     Cinnamon::Logger->init_logger;
 
+    $role =~ s/^\@// if defined $role;
+    Cinnamon::Config::set role => $role;
+    Cinnamon::Config::set task => $task;
+
+    # XXX This should not be executed more than once by ./cin @role task1 task2
     Cinnamon::Config::load $role, $task, %opts;
 
     if ($opts{info}) {
@@ -33,7 +38,6 @@ sub run {
     $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
-    Cinnamon::Config::set(keychain => $opts{keychain});
 
     if (defined $task_def and ref $task_def eq 'HASH') {
         unshift @$args, $task;
@@ -47,7 +51,6 @@ sub run {
         $hosts = [''];
     }
 
-    $role =~ s/^\@//;
     unless (defined $orig_hosts) {
         if ($task =~ /^cinnamon:/) {
             $hosts ||= [''];
@@ -80,7 +83,11 @@ sub run {
 
     Class::Load::load_class $runner;
 
-    my $result = $runner->start($hosts, $task_def, @$args);
+    my $result = Cinnamon::Config::with_local_config {
+        use Data::Dumper;
+        warn Dumper %Cinnamon::Config::CONFIG;
+        $runner->start($hosts, $task_def, @$args);
+    };
     my (@success, @error);
     
     for my $key (keys %{$result || {}}) {

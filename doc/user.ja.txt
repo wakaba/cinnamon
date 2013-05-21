@@ -1,0 +1,15 @@
+ユーザー
+~~~~~~~~
+
+SSH 接続時のユーザーは次の優先順位で定まります。
+
+1. Cinnamon::DSL::remote への user 引数 (空文字列なら 1., 2. をスキップ)
+2. get 'user'
+3. OpenSSH の既定値 (ログインユーザー)
+
+コマンドライン引数の --user は set 'user'; set 'input_user' と等価です。
+
+Cinnamon::DSL::Capistrano::Filter を使っている場合、
+  ENV['SSHNAME'] || `whoami`.chomp
+  `whoami`.chomp
+は get 'input_user' // '' に置き換えられます。
