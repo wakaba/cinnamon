@@ -46,7 +46,7 @@ sub define_kcss_tasks ($;%) {
                     $cv->recv;
                     die "up failed\n" unless $res->code == 200;
                 }
-                $onnotice->();
+                $onnotice->("$name up");
             } $host;
         },
         down => sub {
@@ -80,7 +80,7 @@ sub define_kcss_tasks ($;%) {
                     $cv->recv;
                     warn "down failed\n" unless $res->code >= 500;
                 }
-                $onnotice->();
+                $onnotice->("$name down");
             } $host;
         },
         avail => sub {
