@@ -253,7 +253,7 @@ sub define_daemontools_tasks ($;%) {
                 my $user = get 'daemontools_user';
                 remote {
                     my $file_name = get 'get_daemontools_log_file_name';
-                    run_stream "tail --follow=name " . $file_name->($name);
+                    run_stream 'tail', '--follow=name', ($file_name->($name));
                 } $host, user => $user;
             },
         },
