@@ -27,11 +27,13 @@ task cron => {
             sudo "$crond reload";
         } $host, user => get 'cron_user';
     },
-    log => sub {
-        my ($host, @args) = @_;
-        remote {
-            sudo_stream 'tail -f /var/log/cron';
-        } $host, user => get 'cron_user';
+    log => {
+        tail => sub {
+            my ($host, @args) = @_;
+            remote {
+                sudo_stream 'tail -f /var/log/cron';
+            } $host, user => get 'cron_user';
+        },
     },
 };
 
