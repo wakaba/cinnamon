@@ -40,9 +40,20 @@ task git => {
             my $dir = (get 'git_deploy_dir') || (get 'deploy_dir');
             my $url = get 'git_repository';
             $result->{old_revision} = get_git_revision; # or undef
-            run_stream "git clone $url $dir || (cd $dir && git fetch)";
-            run_stream "cd $dir && (git checkout $branch || ((git pull || git pull) && git checkout -b $branch origin/$branch)) && (git pull || git pull)";
-            run_stream "cd $dir && git submodule update --init";
+
+            if (get 'git_pull_by_rsync') {
+                my $path = get 'git_repository_path';
+                run "mkdir -p $dir/.git";
+                run "rsync -az $path/ $dir/.git";
+                run "git config -f $dir/.git/config core.bare false";
+                run "cd $dir && (git checkout $branch || git checkout -b $branch origin/$branch) && git reset --hard";
+                run "cd $dir && git submodule init && git submodule update";
+            } else {
+                run_stream "git clone $url $dir || (cd $dir && git fetch)";
+                run_stream "cd $dir && (git checkout $branch || ((git pull || git pull) && git checkout -b $branch origin/$branch)) && (git pull || git pull)";
+                run_stream "cd $dir && git submodule update --init";
+            }
+
             $result->{new_revision} = get_git_revision; # or undef
         } $host, user => get 'git_clone_user';
 
