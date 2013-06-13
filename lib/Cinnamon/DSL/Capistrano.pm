@@ -23,13 +23,23 @@ sub set ($$) {
     return &Cinnamon::DSL::set(@_);
 }
 
+my $LoadHandlers = {};
 push @EXPORT, qw(load);
 sub load ($) {
-    # XXX loop detection?
-    my $recipe_f = file($_[0]); # XXX path resolution?
-    Cinnamon::DSL::Capistrano::Filter->convert_and_run({
-        file_name => $recipe_f->stringify,
-    }, $recipe_f->slurp);
+    if ($LoadHandlers->{$_[0]}) {
+        $LoadHandlers->{$_[0]}->();
+    } else {
+        # XXX loop detection?
+        my $recipe_f = file($_[0]); # XXX path resolution?
+        Cinnamon::DSL::Capistrano::Filter->convert_and_run({
+            file_name => $recipe_f->stringify,
+        }, $recipe_f->slurp);
+    }
+}
+
+push @EXPORT, qw(set_load_handler);
+sub set_load_handler ($$) {
+    $LoadHandlers->{$_[0]} = $_[1];
 }
 
 push @EXPORT, qw(after);
