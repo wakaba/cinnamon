@@ -18,6 +18,7 @@ FILTER_ONLY
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)$/$1, sub { $2 }/gm;
         s/\broles\[([^\[\]]+)\]\s*=\s*roles\[([^\[\]]+)\]/Cinnamon::Config::set_role_alias($1, $2)/g;
+        s{if\s*(\S+)\s+(\S+)\s+(\S+)\s+then}{if ($1 @{[{'==' => 'eq'}->{$2} || $2]} $3) \{}g;
         s/%Q\b/qq/g;
         s/%q\b/q/g;
     },
@@ -36,6 +37,7 @@ FILTER_ONLY
             if keys %declared;
         s/my \$\$/my \$/g;
         s{\b(\w+(?:\.\w+)+)\b}{my $v = $1; $v =~ tr/\./:/; "call('$v', \@_)"}ge;
+        s{^\s*(\w+)\s*$}{my $v = $1; $v =~ tr/\./:/; "call('$v', \@_)"}gem;
 
         my $prev = '';
         my $line = '';
