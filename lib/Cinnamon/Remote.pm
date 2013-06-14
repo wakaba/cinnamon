@@ -53,6 +53,7 @@ sub execute {
     my $stdout_str = '';
     my $stderr_str = '';
 
+    my $start_time = time;
     my $end = sub {
         undef $fhout;
         undef $fherr;
@@ -129,9 +130,10 @@ sub execute {
     $cv->recv;
     undef $sigs;
 
-    if ($exitcode != 0) {
-        log error => my $msg = "Exit with status $exitcode";
-        die "$msg\n" unless $opt->{ignore_error};
+    my $time = time - $start_time;
+    if ($exitcode != 0 or $time > 1.0) {
+        log error => my $msg = "Exit with status $exitcode ($time s)";
+        die "$msg\n" if not $opt->{ignore_error} and $exitcode != 0;
     }
 
     +{

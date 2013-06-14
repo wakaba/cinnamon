@@ -145,6 +145,7 @@ sub run_stream (@) {
     my $stdout;
     my $stderr;
     my $return;
+    my $start_time = time;
     my $end = sub {
         undef $stdout;
         undef $stderr;
@@ -213,10 +214,11 @@ sub run_stream (@) {
 
     $cv->recv;
     undef $sigs;
-    
-    if ($return != 0) {
-        log error => my $msg = "Exit with status $return";
-        die "$msg\n";
+
+    my $time = time - $start_time;
+    if ($return != 0 or $time > 1.0) {
+        log error => my $msg = "Exit with status $return ($time s)";
+        die "$msg\n" if $return != 0;
     }
 }
 
