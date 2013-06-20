@@ -48,11 +48,11 @@ task git => {
                 run "git config -f $dir/.git/config core.bare false";
                 run "cd $dir && git remote add origin $url";
                 run "cd $dir && (git checkout $branch || git checkout -b $branch origin/$branch) && git reset --hard && git pull origin $branch";
-                run "cd $dir && git submodule init && git submodule update";
+                run "cd $dir && git submodule init && git submodule sync && git submodule update";
             } else {
                 run_stream "git clone $url $dir || (cd $dir && git fetch)";
                 run_stream "cd $dir && (git checkout $branch || ((git pull || git pull) && git checkout -b $branch origin/$branch)) && (git pull || git pull)";
-                run_stream "cd $dir && git submodule update --init";
+                run_stream "cd $dir && git submodule init && git submodule sync && git submodule update";
             }
 
             $result->{new_revision} = get_git_revision; # or undef
