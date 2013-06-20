@@ -47,7 +47,7 @@ task git => {
                 run "rsync -az $path/ $dir/.git";
                 run "git config -f $dir/.git/config core.bare false";
                 run "cd $dir && git remote add origin $url";
-                run "cd $dir && (git checkout $branch || git checkout -b $branch origin/$branch) && git reset --hard";
+                run "cd $dir && (git checkout $branch || git checkout -b $branch origin/$branch) && git reset --hard && git pull origin $branch";
                 run "cd $dir && git submodule init && git submodule update";
             } else {
                 run_stream "git clone $url $dir || (cd $dir && git fetch)";
