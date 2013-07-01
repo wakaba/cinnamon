@@ -13,4 +13,5 @@ BEGIN {
 use Cinnamon;
 use Cinnamon::CLI;
 
-exit Cinnamon::CLI->new->run(@ARGV) || 0;
+my $exit_status = Cinnamon::CLI->new->run(@ARGV);
+exit $exit_status;

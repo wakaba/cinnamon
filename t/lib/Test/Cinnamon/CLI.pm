@@ -4,16 +4,17 @@ use warnings;
 
 our @EXPORT = qw(cli);
 
-use Test::Requires qw(Directory::Scratch);
+use Test::Requires qw(Directory::Scratch Cwd::Guard);
 
 use Cinnamon::CLI;
 
 sub cli {
     my $dir = Directory::Scratch->new();
-    chdir $dir;
+    my $guard = Cwd::Guard::cwd_guard $dir;
     $dir->mkdir('config');
 
     my $app = Test::Cinnamon::CLI::App->new(dir => $dir);
+    $app->{_cwd_guard} = $guard;
     return $app;
 }
 
@@ -37,9 +38,11 @@ sub dir {
 
 sub run {
     my ($self, @args) = @_;
+    my $success;
     ($self->{system_output}, $self->{system_error}) = capture {
-        Cinnamon::CLI->new->run(@args);
+        $success = Cinnamon::CLI->new->run(@args);
     };
+    return $success;
 }
 
 sub system_output {

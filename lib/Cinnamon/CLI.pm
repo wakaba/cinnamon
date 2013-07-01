@@ -6,6 +6,8 @@ use Getopt::Long;
 use Cinnamon;
 use Cinnamon::Config;
 
+use constant { SUCCESS => 0, ERROR => 1 };
+
 sub new {
     my $class = shift;
     bless { }, $class;
@@ -34,14 +36,22 @@ sub run {
         "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
     );
-    return $self->usage if $self->{help};
 
+    # --help option
+    if ($self->{help}) {
+        $self->usage;
+        return SUCCESS;
+    }
+
+    # check config exists
     $self->{config} ||= 'config/deploy.pl';
     if (!-e $self->{config}) {
         $self->print("cannot find config file for deploy : $self->{config}\n");
-        return $self->usage;
+        $self->usage;
+        return ERROR;
     }
 
+    # check role and task exists
     my $role = shift @ARGV;
     my @tasks = map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV;
     if (not defined $role) {
@@ -67,6 +77,7 @@ sub run {
     }
     
     Cinnamon::Config::set user => $self->{user};
+    my $error_occured = 0;
     Cinnamon::Config::set keychain => $keychain;
     for my $t (@tasks) {
         my ($success, $error) = $self->cinnamon->run(
@@ -78,10 +89,17 @@ sub run {
             hosts             => $hosts,
             args              => [@$t[1..$#$t]],
         );
-        last if (!defined $success || $self->{info});
-        last if ($error && @$error > 0 && !$self->{ignore_errors});
+        last if ($self->{info});
+
+        # check execution error
+        $error_occured ||= ! defined $success;
+        $error_occured ||= scalar @$error > 0;
+
+        last if ($error_occured && !$self->{ignore_errors});
         print "\n";
     }
+
+    return $error_occured ? ERROR : SUCCESS;
 }
 
 sub usage {
