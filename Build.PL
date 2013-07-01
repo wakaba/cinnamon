@@ -33,6 +33,7 @@ my $build = Module::Build->new(
         'YAML::XS'        => 0,
         'JSON::Functions::XS' => 0,
         'Web::UserAgent::Functions' => 0,
+        'Coro'            => 0,
     },
     build_requires       => {
         'Directory::Scratch' => 0,
