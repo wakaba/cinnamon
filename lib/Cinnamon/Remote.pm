@@ -28,7 +28,8 @@ sub host { $_[0]->{host} }
 sub user { $_[0]->{user} }
 
 sub execute {
-    my ($self, $opt, @cmd) = @_;
+    my ($self, @cmd) = @_;
+    my $opt = shift @cmd;
     my $host = $self->host || '';
     my $conn = $self->connection;
     my $exec_opt = {};

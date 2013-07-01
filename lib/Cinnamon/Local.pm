@@ -10,7 +10,7 @@ sub host {
 }
 
 sub execute {
-    my ($class, $opt, @cmd) = @_;
+    my ($class, @cmd) = @_;
     my $result = IPC::Run::run \@cmd, \my $stdin, \my $stdout, \my $stderr;
     chomp for ($stdout, $stderr);
 
