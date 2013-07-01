@@ -2,7 +2,7 @@ package Cinnamon;
 use strict;
 use warnings;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use Class::Load ();
 
@@ -346,7 +346,7 @@ C<$stderr>, as strings.
 
   my ($stdout, $stdout) = sudo '/path/to/httpd', 'restart';
 
-Execultes a command as well, but under I<suod> environment.
+Executes a command as well, but under I<sudo> environment.
 
 =back
 

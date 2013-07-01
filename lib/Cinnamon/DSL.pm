@@ -81,10 +81,15 @@ sub remote (&$;%) {
     undef $user unless defined $user and length $user;
     log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
 
-    local $_ = Cinnamon::Remote->new(
+    my $remote = Cinnamon::Remote->new(
         host => $host,
         user => $user,
     );
+
+    no strict 'refs';
+    no warnings 'redefine';
+    local *_host    = sub { $remote->host };
+    local *_execute = sub { $remote->execute(@_) };
 
     $code->($host);
 }
@@ -104,12 +109,7 @@ sub run (@) {
     $user = defined $user ? $user . '@' : '';
     log info => "[$user$host] \$ " . join ' ', @cmd;
 
-    if (ref $_ eq 'Cinnamon::Remote') {
-        $result = $_->execute($opt, @cmd);
-    }
-    else {
-        $result = Cinnamon::Local->execute(@cmd);
-    }
+    $result = _execute($opt, @cmd);
 
     if ($result->{has_error}) {
         die sprintf "error status: %d", $result->{error};
@@ -239,5 +239,8 @@ sub sudo (@) {
     my $tty = Cinnamon::Config::get('tty');
     run {sudo => 1, password => $password, tty => !! $tty}, @cmd;
 }
+
+sub _host    { 'localhost' }
+sub _execute { Cinnamon::Local->execute(@_) }
 
 !!1;
