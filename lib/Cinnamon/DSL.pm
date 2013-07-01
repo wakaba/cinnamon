@@ -236,7 +236,8 @@ sub sudo (@) {
     my (@cmd) = @_;
     my $password = Cinnamon::Config::get('keychain')
         ->get_password_as_cv($_->user)->recv;
-    run {sudo => 1, password => $password}, @cmd;
+    my $tty = Cinnamon::Config::get('tty');
+    run {sudo => 1, password => $password, tty => !! $tty}, @cmd;
 }
 
 !!1;
