@@ -22,3 +22,6 @@ ppport.h
 /deps/
 /plackup
 /cin
+/Cinnamon-*
+/.build
+/_build_params
