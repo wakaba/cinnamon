@@ -5,6 +5,7 @@ use Encode;
 use Getopt::Long;
 use Cinnamon;
 use Cinnamon::Config;
+use Cinnamon::Logger;
 
 use constant { SUCCESS => 0, ERROR => 1 };
 
@@ -15,7 +16,10 @@ sub new {
 
 sub cinnamon {
     my $self = shift;
-    $self->{cinnamon} ||= Cinnamon->new;
+    $self->{cinnamon} ||= do {
+        $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
+        Cinnamon->new;
+    };
 }
 
 sub run {
@@ -35,6 +39,7 @@ sub run {
         "s|set=s"    => \$self->{override_settings},
         "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
+        "no-color"        => \$self->{no_color},
     );
 
     # --help option

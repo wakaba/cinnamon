@@ -17,7 +17,7 @@ sub new {
 
 sub print {
     my ($self, $type, $message) = @_;
-    my $color ||= $COLOR{$type};
+    my $color = !!$Cinnamon::Logger::OUTPUT_COLOR ? $COLOR{$type} : 0;
 
     $message = Term::ANSIColor::colored $message, $color if $color;
 
