@@ -36,7 +36,7 @@ sub start_async_read {
         my $handle; $handle = AnyEvent::Handle->new(
             fh => $info->{fh},
             on_read => sub {
-                $handle->push_read(line => qr|\r?\n|, sub {
+                $handle->push_read(line => qr|\x0D?\x0A|, sub {
                     my $line = $_[1];
                     push @{$info->{output_lines}}, $line;
                     log info => sprintf "[%s :: %s] %s",
