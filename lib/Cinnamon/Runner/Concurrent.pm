@@ -1,6 +1,8 @@
 package Cinnamon::Runner::Concurrent;
 use strict;
 use warnings;
+use Cinnamon::Runner;
+push our @ISA, qw(Cinnamon::Runner);
 
 use Cinnamon::Logger;
 use Cinnamon::Config;

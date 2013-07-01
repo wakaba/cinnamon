@@ -7,7 +7,6 @@ our $VERSION = '0.13_02';
 use Class::Load ();
 
 use Cinnamon::Config;
-use Cinnamon::Runner;
 use Cinnamon::Logger;
 use Cinnamon::Task::Cinnamon;
 
@@ -37,7 +36,7 @@ sub run {
     my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
     $hosts = $opts{hosts} if $opts{hosts};
     my $task_def = Cinnamon::Config::get_task;
-    my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner';
+    my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner::Simple';
 
     if (defined $task_def and ref $task_def eq 'HASH') {
         unshift @$args, $task;
