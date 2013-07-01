@@ -5,29 +5,51 @@ use warnings;
 use Cinnamon::Logger;
 use Cinnamon::Config;
 
+use Coro;
+use Coro::Select;
+
 sub start {
     my ($class, $hosts, $task, @args) = @_;
+    my $all_results = {};
+    $hosts = [ @$hosts ];
 
-    my %result;
-    for my $host (@$hosts) {
-        $result{$host} = +{ error => 0 };
+    my $task_name           = Cinnamon::Config::get('task');
+    my $concurrency_setting = Cinnamon::Config::get('max_concurrency') || {};
+    my $concurrency         = $concurrency_setting->{$task_name} || scalar @$hosts;
+
+    while (my @target_hosts = splice @$hosts, 0, $concurrency) {
+        my @coros;
 
         local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
-        eval { $task->($host, @args) };
+        for my $host (@target_hosts) {
+            my $coro = async {
+                my $result = $class->execute($host, $task, @args);
+                $all_results->{$host} = $result;
+            };
 
-        if ($@) {
-            chomp $@;
-            log error => sprintf '[%s] %s', $host, $@;
-            $result{$host}->{error}++ ;
+            push @coros, $coro;
         }
+
+        $_->join for @coros;
     }
 
-    \%result;
+    return $all_results;
 }
 
 sub execute {
     my ($class, $host, $task, @args) = @_;
-    $task->($host, @args);
+
+    my $result = { host => $host, error => 0 };
+
+    local $@;
+    eval { $task->($host, @args) };
+    if ($@) {
+        chomp $@;
+        log error => sprintf '[%s] %s', $host, $@;
+        $result->{error} = 1;
+    }
+
+    return $result;
 }
 
-!!1;
+1;
