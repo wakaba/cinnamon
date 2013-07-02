@@ -29,7 +29,7 @@ sub run {
     if ($opts{info}) {
         require YAML;
         log 'info', YAML::Dump(Cinnamon::Config::info);
-        return;
+        return ([], []);
     }
 
     my $args = $opts{args};
@@ -54,13 +54,13 @@ sub run {
         if ($task =~ /^cinnamon:/) {
             $hosts ||= [''];
         } else {
-            log 'error', "undefined role : '\@$role'";
-            return 1;
+            log 'error', "Role |\@$role| is not defined";
+            return ([], ['undefined role']);
         }
     }
     unless (defined $task_def) {
-        log 'error', "undefined task : '$task'";
-        return 1;
+        log 'error', "Task |$task| is not defined";
+        return ([], ['undefined task']);
     }
 
     if (@$hosts == 0) {
