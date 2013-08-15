@@ -10,7 +10,6 @@ BEGIN {
         unshift @INC, split /:/, <$file>;
     }
 }
-use Cinnamon;
 use Cinnamon::CLI;
 
 my $exit_status = Cinnamon::CLI->new->run(@ARGV);

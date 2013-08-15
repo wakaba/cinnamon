@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Encode;
 use Getopt::Long;
-use Cinnamon;
+use Cinnamon::Context;
 use Cinnamon::Config;
 use Cinnamon::Logger;
 
@@ -12,14 +12,6 @@ use constant { SUCCESS => 0, ERROR => 1 };
 sub new {
     my $class = shift;
     bless { }, $class;
-}
-
-sub cinnamon {
-    my $self = shift;
-    $self->{cinnamon} ||= do {
-        $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
-        Cinnamon->new;
-    };
 }
 
 sub run {
@@ -84,8 +76,10 @@ sub run {
     Cinnamon::Config::set user => $self->{user};
     my $error_occured = 0;
     Cinnamon::Config::set keychain => $keychain;
+    $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
+    my $context = Cinnamon::Context->new;
     for my $t (@tasks) {
-        my ($success, $error) = $self->cinnamon->run(
+        my ($success, $error) = $context->run(
             $role,
             $t->[0],
             config            => $self->{config},
