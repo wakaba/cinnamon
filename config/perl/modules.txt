@@ -1,4 +1,5 @@
 parent
+Capture::Tiny
 Coro
 Cwd
 DBD::mysql

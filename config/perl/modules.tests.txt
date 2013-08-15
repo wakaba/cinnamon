@@ -1,3 +1,5 @@
+Cwd::Guard
+Directory::Scratch
 Path::Class
 Test::Class
 Test::More
