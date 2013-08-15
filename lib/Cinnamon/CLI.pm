@@ -78,6 +78,7 @@ sub run {
     Cinnamon::Config::set keychain => $keychain;
     $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
     my $context = Cinnamon::Context->new;
+    local $Cinnamon::Context::CTX = $context;
     for my $t (@tasks) {
         my ($success, $error) = $context->run(
             $role,

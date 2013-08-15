@@ -1,11 +1,12 @@
 package Cinnamon::Context;
 use strict;
 use warnings;
-
+use Carp qw(croak);
 use Class::Load ();
 
 use Cinnamon::Config;
 use Cinnamon::Logger;
+use Cinnamon::Role;
 use Cinnamon::Task::Cinnamon;
 
 our $CTX;
@@ -27,8 +28,7 @@ sub run {
     Cinnamon::Config::load $role, $task, %opts;
 
     if ($opts{info}) {
-        require YAML;
-        log 'info', YAML::Dump(Cinnamon::Config::info);
+        $self->dump_info;
         return ([], []);
     }
 
@@ -107,6 +107,68 @@ sub run {
     );
 
     return (\@success, \@error);
+}
+
+sub set_role {
+    my ($self, $name, $hosts, $params, $args) = @_;
+    $self->{roles}->{$name} = Cinnamon::Role->new(
+        name => $name,
+        hosts => $hosts,
+        params => $params,
+        args => $args,
+    );
+}
+
+sub set_role_alias {
+    my ($self, $n1 => $n2) = @_;
+    $self->{roles}->{$n1} = $self->{roles}->{$n2} || croak "Role |$n2| is not defined";
+}
+
+sub get_role {
+    my ($self, $name) = @_;
+    return $self->{roles}->{$name}; # or undef
+}
+
+sub get_role_hosts {
+    my ($self, $name) = @_;
+    my $role = $self->{roles}->{$name} or return undef;
+    my $hosts = $role->get_hosts;
+
+    my $params = $role->params;
+    for my $key (keys %$params) {
+        Cinnamon::Config::set $key => $params->{$key};
+    }
+
+    return $hosts;
+}
+
+sub get_role_desc {
+    my ($self, $name) = @_;
+    my $desc = $self->{roles}->{$name}->get_desc;
+    if (not defined $desc) {
+        my $code = Cinnamon::Config::get 'get_role_desc_for';
+        $desc = $code->($name) if $code;
+    }
+    return $desc;
+}
+
+sub roles {
+    return $_[0]->{roles};
+}
+
+sub dump_info {
+    my ($self) = @_;
+    my $info = Cinnamon::Config::info;
+
+    my $roles = $self->roles;
+    my $role_info = {};
+    for my $name (keys %$roles) {
+        $role_info->{$name} = $roles->{$name}->info;
+    }
+
+    $info->{roles} = $role_info;
+    require YAML;
+    log 'info', YAML::Dump($info);
 }
 
 !!1;
