@@ -35,12 +35,22 @@ sub execute {
     my $exec_opt = {};
 
     if (defined $opt && $opt->{sudo}) {
-        @cmd = ('sudo', '-Sk', @cmd);
+        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) {
+            @cmd = ('sudo', -Sk, '--', 'sh', -c => @cmd);
+        } elsif (@cmd == 1 and $cmd[0] eq '') {
+            @cmd = ('sudo', '-Sk');
+        } else {
+            @cmd = ('sudo', '-Sk', '--', @cmd);
+        }
+    } else {
+        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) {
+            @cmd = ('sh', -c => @cmd);
+        }
     }
 
     my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
         tty => $opt->{tty},
-    }, join ' ', @cmd) or die "open3 failed: " . $conn->error;
+    }, @cmd) or die "open3 failed: " . $conn->error;
 
     if ($opt->{password}) {
         print $stdin "$opt->{password}\n";
@@ -141,45 +151,6 @@ sub execute {
         stderr    => $stderr_str,
         has_error => $exitcode > 0,
         error     => $exitcode,
-    };
-}
-
-sub execute_with_stream {
-    my ($self, @cmd) = @_;
-    my $opt = shift @cmd;
-
-    if (defined $opt && $opt->{sudo}) {
-        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|]}) {
-            @cmd = ('sudo', -Sk, '--', 'sh', -c => @cmd);
-        } else {
-            @cmd = ('sudo', '-Sk', '--', @cmd);
-        }
-    } else {
-        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|]}) {
-            @cmd = ('sh', -c => @cmd);
-        }
-    }
-
-    my $command = join ' ', map { quotemeta } @cmd;
-    #log info => $command;
-    my ($stdin, $stdout, $stderr, $pid) = $self->connection->open_ex({
-        stdin_pipe => 1,
-        stdout_pipe => 1,
-        stderr_pipe => 1,
-        tty => $opt->{tty},
-    }, $command);
-
-    if (defined $opt && $opt->{sudo}) {
-        print $stdin "$opt->{password}\n";
-    }
-
-    +{
-        stdin     => $stdin,
-        stdout    => $stdout,
-        stderr    => $stderr,
-        pid       => $pid,
-        has_error => !!$self->connection->error,
-        error     => $self->connection->error,
     };
 }
 
