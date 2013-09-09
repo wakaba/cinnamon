@@ -2,7 +2,6 @@ package Cinnamon::Config;
 use strict;
 use warnings;
 use Cinnamon;
-use Cinnamon::Logger;
 
 push our @CARP_NOT, qw(Cinnamon);
 
@@ -23,21 +22,8 @@ sub set_role ($$$;%) {
     CTX->set_role($role, $hosts, $params, \%args);
 }
 
-sub get_role (@) {
-    my $role  = ($_[0] || get('role'));
-    return CTX->get_role_hosts($role);
-}
-
 sub set_role_alias ($$) {
     CTX->set_role_alias($_[0] => $_[1]);
-}
-
-sub get_role_list () {
-    return CTX->roles;
-}
-
-sub get_role_desc ($) {
-    return CTX->get_role_desc($_[0]);
 }
 
 sub _expand_tasks ($$$;$);
@@ -62,25 +48,9 @@ sub set_task ($$;$) {
     CTX->define_tasks($defs);
 }
 
-sub get_task (@) {
-    my ($t) = @_;
-    $t ||= get('task');
-    my $path = [split /:/, $t, -1];
-    pop @$path if @$path and $path->[-1] eq '';
-    my $task = CTX->get_task($path);
+sub get_task ($) {
+    my $task = CTX->get_task($_[0]);
     return $task ? $task->code : undef;
-}
-
-sub get_task_list (;$) {
-    my ($t) = @_;
-    my $path = defined $t ? [split /:/, $t, -1] : [];
-    pop @$path if @$path and $path->[-1] eq '';
-    if (@$path) {
-        my $task = CTX->get_task($path);
-        return $task->tasks ? $task : undef;
-    } else {
-        return CTX;
-    }
 }
 
 sub user () {
@@ -91,29 +61,6 @@ sub real_user () {
     my $user = qx{whoami};
     chomp $user;
     return $user;
-}
-
-sub load (@) {
-    my ($role, $task, %opt) = @_;
-
-    do {
-        package Cinnamon::Config::Script;
-        do $opt{config};
-    } || do {
-        if ($@) {
-            log error => $@;
-            exit 1;
-        }
-
-        if ($!) {
-            log error => $!;
-            exit 1;
-        }
-    };
-
-    for my $key (keys %{ $opt{override_settings} }) {
-        CTX->set_param($key => $opt{override_settings}->{$key});
-    }
 }
 
 !!1;

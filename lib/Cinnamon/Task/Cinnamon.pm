@@ -1,6 +1,7 @@
 package Cinnamon::Task::Cinnamon;
 use strict;
 use warnings;
+use Cinnamon qw(CTX);
 use Cinnamon::DSL;
 use Cinnamon::Config;
 use Cinnamon::Logger;
@@ -9,10 +10,10 @@ task 'cinnamon' => {
     role => {
         list => sub {
             my ($task, @args) = @_;
-            my $role_defs = Cinnamon::Config::get_role_list;
+            my $role_defs = CTX->roles;
             log info => "Available roles:\n" .
                 join "", map {
-                    my $desc = Cinnamon::Config::get_role_desc($_);
+                    my $desc = CTX->get_role_desc($_);
                     "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
                 } sort { $a cmp $b } keys %$role_defs;
         },
@@ -31,7 +32,7 @@ task 'cinnamon' => {
             my ($task, $prefix, @args) = @_;
             $prefix = '' unless defined $prefix;
             $prefix .= ':' if length $prefix and not $prefix =~ /:\z/;
-            my $task_defs = Cinnamon::Config::get_task_list $prefix;
+            my $task_defs = CTX->get_task($prefix);
             $task_defs = $task_defs ? $task_defs->tasks : {};
             log info => "Available tasks:\n" .
                 join "", map {

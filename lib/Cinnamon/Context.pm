@@ -17,23 +17,25 @@ sub new {
 }
 
 sub run {
-    my ($self, $role, $task_path, %opts)  = @_;
+    my ($self, $role_name, $task_path, %opts)  = @_;
     Cinnamon::Logger->init_logger;
 
-    $role =~ s/^\@// if defined $role;
-    $self->set_param(role => $role);
-    $self->set_param(task => $task_path);
+    $role_name =~ s/^\@// if defined $role_name;
 
     # XXX This should not be executed more than once by ./cin @role task1 task2
-    Cinnamon::Config::load $role, $task_path, %opts;
+    $self->load_config($opts{config});
 
     if ($opts{info}) {
         $self->dump_info;
         return ([], []);
     }
 
+    for my $key (keys %{ $opts{override_settings} }) {
+        $self->set_param($key => $opts{override_settings}->{$key});
+    }
+
     my $args = $opts{args};
-    my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
+    my $hosts = my $orig_hosts = $self->get_role_hosts($role_name);
     $hosts = $opts{hosts} if $opts{hosts};
     my $show_tasklist;
     my $task = do {
@@ -41,12 +43,11 @@ sub run {
         ($show_tasklist = 1, pop @$path) if @$path and $path->[-1] eq '';
         $self->get_task($path);
     };
-    my $runner   = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
+    my $runner = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
     if (defined $task and ($show_tasklist or not $task->is_callable)) {
         unshift @$args, $task_path;
         require Cinnamon::Task::Cinnamon;
         $task_path = 'cinnamon:task:list';
-        $self->set_param(task => $task_path);
         $task = $self->get_task([split /:/, $task_path]);
     }
 
@@ -60,7 +61,7 @@ sub run {
         if ($task_path =~ /^cinnamon:/) {
             $hosts ||= [''];
         } else {
-            log 'error', "Role |\@$role| is not defined";
+            log 'error', "Role |\@$role_name| is not defined";
             return ([], ['undefined role']);
         }
     }
@@ -70,16 +71,16 @@ sub run {
     }
 
     if (@$hosts == 0) {
-        log error => "No host found for role '\@$role'";
+        log error => "No host found for role '\@$role_name'";
     } elsif (@$hosts > 1 or $hosts->[0] ne '') {
         {
             my %found;
             $hosts = [grep { not $found{$_}++ } @$hosts];
         }
 
-        my $desc = Cinnamon::Config::get_role_desc $role;
+        my $desc = $self->get_role_desc($role_name);
         log info => sprintf 'Host%s %s (@%s%s)',
-            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role,
+            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role_name,
             defined $desc ? ' ' . $desc : '';
         my $task_desc = $task->get_desc;
         log info => sprintf 'call %s%s',
@@ -87,6 +88,9 @@ sub run {
     }
 
     Class::Load::load_class $runner;
+
+    $self->set_param(role => $role_name);
+    $self->set_param(task => $task_path);
 
     my $result = do {
         local $self->{params} = {%{$self->{params}}};
@@ -114,6 +118,24 @@ sub run {
     );
 
     return (\@success, \@error);
+}
+
+sub load_config ($$) {
+    my $config = $_[1];
+    do {
+        package Cinnamon::Config::Script;
+        do $config;
+    } || do {
+        if ($@) {
+            log error => $@;
+            exit 1;
+        }
+
+        if ($!) {
+            log error => $!;
+            exit 1;
+        }
+    };
 }
 
 sub set_role {
@@ -211,6 +233,10 @@ sub define_tasks {
 
 sub get_task {
     my ($self, $path) = @_;
+    if (not ref $path) {
+        $path = [split /:/, $path, -1];
+        pop @$path if $path->[-1] eq '';
+    }
 
     my $value = $self;
     for (@$path) {

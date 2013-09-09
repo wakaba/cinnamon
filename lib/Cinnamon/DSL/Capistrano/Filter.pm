@@ -80,9 +80,9 @@ FILTER_ONLY
     },
     quotelike => sub {
         s/\@/\\@/g;
-        s/#\{getuname\}/@{[Cinnamon::Config::real_user || Cinnamon::Config::user]}/g;
+        s/#\{getuname\}/\@{[Cinnamon::Config::real_user || Cinnamon::Config::user]}/g;
         s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
-        s/#\{ENV\['ROLES'\]\}/@{[Cinnamon::Config::get 'role']}/g;
+        s/#\{ENV\['ROLES'\]\}/\@{[Cinnamon::Config::get 'role']}/g;
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
     },
     all => sub {
