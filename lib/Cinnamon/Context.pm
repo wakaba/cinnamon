@@ -5,7 +5,6 @@ use Cinnamon::Task;
 push our @ISA, qw(Cinnamon::Task);
 use Carp qw(croak);
 use Class::Load ();
-use Cinnamon::Config;
 use Cinnamon::Logger;
 use Cinnamon::Role;
 
@@ -124,7 +123,7 @@ sub run {
 sub load_config ($$) {
     my $config = $_[1];
     do {
-        package Cinnamon::Config::Script;
+        package Cinnamon::Context::_config_script;
         do $config;
     } || do {
         if ($@) {
@@ -168,7 +167,7 @@ sub get_role_hosts {
 
     my $params = $role->params;
     for my $key (keys %$params) {
-        Cinnamon::Config::set $key => $params->{$key};
+        $self->set_param($key => $params->{$key});
     }
 
     return $hosts;
@@ -178,7 +177,7 @@ sub get_role_desc {
     my ($self, $name) = @_;
     my $desc = $self->{roles}->{$name}->get_desc;
     if (not defined $desc) {
-        my $code = Cinnamon::Config::get 'get_role_desc_for';
+        my $code = $self->get_param('get_role_desc_for');
         $desc = $code->($name) if $code;
     }
     return $desc;
