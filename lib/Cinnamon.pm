@@ -60,7 +60,7 @@ Cinnamon - A minimalistic deploy tool
 
   # Tasks
   task update => sub {
-      my ($host) = @_;
+      my ($host, @args) = @_;
       my $deploy_to = get('deploy_to');
       my $branch = 'origin/' . get('branch');
 
@@ -73,14 +73,14 @@ Cinnamon - A minimalistic deploy tool
       } $host;
   };
   task restart => sub {
-    my ($host) = @_;
+    my ($host, @args) = @_;
     # ...
   };
 
   # Nest tasks
   task server => {
       setup => sub {
-          my ($host) = @_;
+          my ($host, @args) = @_;
           # ...
       },
   };
@@ -141,7 +141,7 @@ parameters by get DSL.
 =head3 task ( I<$taskname: Str> => (I<\%tasks: Hash[String => CODE]> | I<$sub: CODE>) )
 
   task update => sub {
-      my ($host) = @_;
+      my ($host, @args) = @_;
       my $hoge = get 'hoge'; # parameter set in global or role parameter
       # ...
   };
@@ -149,11 +149,11 @@ parameters by get DSL.
   # you can nest tasks
   task server => {
       start => sub {
-        my ($host) = @_;
+        my ($host, @args) = @_;
         # ...
       },
       stop => sub {
-        my ($host) = @_;
+        my ($host, @args) = @_;
         # ...
       },
   };
@@ -168,6 +168,16 @@ The arguments which are passed into the CODEs are:
 
 The host name where the task is executed. Which is one of the hosts
 you set by C<role> command.
+
+=item * I<@args>
+
+Command line argument which is passed by user.
+
+  $ cinammon production update foo bar baz
+
+In case above, C<@args> contains C<('foo', 'bar', 'baz')>.
+
+=back
 
 =back
 
