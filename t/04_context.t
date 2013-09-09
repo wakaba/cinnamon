@@ -3,7 +3,7 @@ use warnings;
 use Path::Class;
 use lib file(__FILE__)->dir->file('lib')->stringify;
 
-use parent qw(Test::Class);
+use base qw(Test::Class);
 use Test::More;
 
 use Cinnamon::Context;

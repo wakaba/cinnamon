@@ -1,4 +1,3 @@
-parent
 Capture::Tiny
 Coro
 Cwd
@@ -12,8 +11,6 @@ IO::Handle
 IPC::Run
 MIME::Base64
 Net::OpenSSH
-Log::Dispatch
-Class::Load
 Term::ReadKey
 AnyEvent
 AnyEvent::Handle

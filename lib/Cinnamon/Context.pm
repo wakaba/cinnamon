@@ -4,7 +4,6 @@ use warnings;
 use Cinnamon::Task;
 push our @ISA, qw(Cinnamon::Task);
 use Carp qw(croak);
-use Class::Load ();
 use Cinnamon::Logger;
 use Cinnamon::Role;
 
@@ -43,7 +42,6 @@ sub run {
         ($show_tasklist = 1, pop @$path) if @$path and $path->[-1] eq '';
         $self->get_task($path);
     };
-    my $runner = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
     if (defined $task and ($show_tasklist or not $task->is_callable)) {
         unshift @$args, $task_path;
         require Cinnamon::Task::Cinnamon;
@@ -87,7 +85,8 @@ sub run {
             $task_path, defined $task_desc ? " ($task_desc)" : '';
     }
 
-    Class::Load::load_class $runner;
+    my $runner = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
+    eval qq{ require $runner } or die $@;
 
     $self->set_param(role => $role_name);
     $self->set_param(task => $task_path);
