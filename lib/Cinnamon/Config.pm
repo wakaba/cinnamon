@@ -4,38 +4,18 @@ use warnings;
 use Cinnamon;
 use Cinnamon::Logger;
 
-our %CONFIG; # Must not be accessed from outside of this module!
-
 push our @CARP_NOT, qw(Cinnamon);
 
-sub reset () {
-    %CONFIG = ();
-}
-
-sub with_local_config (&) {
-    local %CONFIG = %CONFIG;
-    return $_[0]->();
-}
-
 sub set ($$) {
-    my ($key, $value) = @_;
-
-    $CONFIG{$key} = $value;
+    CTX->set_param(@_);
 }
 
 sub set_default ($$) {
-    my ($key, $value) = @_;
-
-    $CONFIG{$key} = $value if not defined $CONFIG{$key};
+    CTX->set_param(@_) unless defined CTX->get_param($_[0]);
 }
 
 sub get ($@) {
-    my ($key, @args) = @_;
-
-    my $value = $CONFIG{$key};
-
-    $value = $value->(@args) if ref $value eq 'CODE';
-    $value;
+    return CTX->get_param(@_);
 }
 
 sub set_role ($$$;%) {
@@ -104,7 +84,7 @@ sub get_task_list (;$) {
 }
 
 sub user () {
-    get('user') || real_user();
+    return CTX->get_param('user') || real_user();
 }
 
 sub real_user () {
@@ -116,7 +96,7 @@ sub real_user () {
 sub load (@) {
     my ($role, $task, %opt) = @_;
 
-    return do {
+    do {
         package Cinnamon::Config::Script;
         do $opt{config};
     } || do {
@@ -132,7 +112,7 @@ sub load (@) {
     };
 
     for my $key (keys %{ $opt{override_settings} }) {
-        set $key => $opt{override_settings}->{$key};
+        CTX->set_param($key => $opt{override_settings}->{$key});
     }
 }
 

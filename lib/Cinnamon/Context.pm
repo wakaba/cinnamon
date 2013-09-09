@@ -13,7 +13,7 @@ our $CTX;
 
 sub new {
     my $class = shift;
-    return bless {roles => {}, tasks => {}}, $class;
+    return bless {roles => {}, tasks => {}, params => {}}, $class;
 }
 
 sub run {
@@ -21,8 +21,8 @@ sub run {
     Cinnamon::Logger->init_logger;
 
     $role =~ s/^\@// if defined $role;
-    Cinnamon::Config::set role => $role;
-    Cinnamon::Config::set task => $task_path;
+    $self->set_param(role => $role);
+    $self->set_param(task => $task_path);
 
     # XXX This should not be executed more than once by ./cin @role task1 task2
     Cinnamon::Config::load $role, $task_path, %opts;
@@ -41,12 +41,13 @@ sub run {
         ($show_tasklist = 1, pop @$path) if @$path and $path->[-1] eq '';
         $self->get_task($path);
     };
-    my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner::Sequential';
+    my $runner   = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
     if (defined $task and ($show_tasklist or not $task->is_callable)) {
         unshift @$args, $task_path;
         require Cinnamon::Task::Cinnamon;
-        Cinnamon::Config::set task => $task_path = 'cinnamon:task:list';
-        $task = $self->get_task(['cinnamon', 'task', 'list']);
+        $task_path = 'cinnamon:task:list';
+        $self->set_param(task => $task_path);
+        $task = $self->get_task([split /:/, $task_path]);
     }
 
     if ($task_path eq 'cinnamon:role:hosts') {
@@ -87,7 +88,8 @@ sub run {
 
     Class::Load::load_class $runner;
 
-    my $result = Cinnamon::Config::with_local_config {
+    my $result = do {
+        local $self->{params} = {%{$self->{params}}};
         $runner->start($hosts, $task, @$args);
     };
     my (@success, @error);
@@ -215,6 +217,24 @@ sub get_task {
         my $tasks = $value->tasks or return undef;
         $value = $tasks->{$_};
     }
+
+    return $value;
+}
+
+sub params {
+    return $_[0]->{params};
+}
+
+sub set_param {
+    my ($self, $key, $value) = @_;
+    $self->params->{$key} = $value;
+}
+
+sub get_param {
+    my ($self, $key, @args) = @_;
+
+    my $value = $self->params->{$key};
+    $value = $value->(@args) if ref $value eq 'CODE';
 
     return $value;
 }
