@@ -1,14 +1,14 @@
 package Cinnamon;
 use strict;
 use warnings;
-
-use parent qw(Exporter);
+use Carp qw(croak);
+use Exporter::Lite;
 use Cinnamon::Context;
 
 our $VERSION = '0.23';
 
 our @EXPORT = qw(CTX);
-sub CTX { $Cinnamon::Context::CTX };
+sub CTX { $Cinnamon::Context::CTX or croak "CTX is not set" };
 
 !!1;
 
