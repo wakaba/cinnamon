@@ -28,7 +28,10 @@ sub run {
         "hosts=s"    => \$hosts,
         "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
-        "s|set=s"    => \$self->{override_settings},
+        "s|set=s"    => sub {
+            my ($key, $value) = split /=/, $_[1];
+            ($self->{override_settings} ||= {})->{$key} = $value;
+        },
         "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
         "no-color"        => \$self->{no_color},

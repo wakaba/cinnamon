@@ -28,7 +28,7 @@ sub run {
         return ([], []);
     }
 
-    for my $key (keys %{ $opts{override_settings} }) {
+    for my $key (keys %{ $opts{override_settings} or {} }) {
         $self->set_param($key => $opts{override_settings}->{$key});
     }
 
