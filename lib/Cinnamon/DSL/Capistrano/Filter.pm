@@ -3,6 +3,7 @@ use strict;
 use warnings;
 no warnings 'redefine';
 use Filter::Simple;
+use Encode;
 
 FILTER_ONLY
     executable => sub {
@@ -85,6 +86,7 @@ FILTER_ONLY
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
     },
     all => sub {
+        $_ = decode 'utf-8', $_;
         s/,(\s+#.+);$/,$1/gm;
         s/(\s+#.+);$/;$1/gm;
     };
