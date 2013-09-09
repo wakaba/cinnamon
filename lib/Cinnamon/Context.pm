@@ -273,20 +273,18 @@ sub run_cmd {
         $opts->{password} = $self->get_param('keychain')
             ->get_password_as_cv($_->user)->recv;
     }
-    $opts->{tty} = !!Cinnamon::Config::get('tty') unless defined $opts->{tty};
-
-    my ($stdout, $stderr);
-
-    my $is_remote = ref $_ eq 'Cinnamon::Remote';
-    my $host = $is_remote ? $_->host : 'localhost';
-
-    my $user = $is_remote ? $_->user : undef;
-    $user = defined $user ? $user . '@' : '';
-    log info => "[$user$host] \$ " . join ' ', @$commands;
+    $opts->{tty} = !!$self->get_param('tty') unless defined $opts->{tty};
 
     my $executor = $self->build_command_executor;
+    {
+        my $host = $executor->host;
+        my $user = $executor->user;
+        $user = defined $user ? $user . '@' : '';
+        log info => "[$user$host] \$ " . join ' ', @$commands;
+    }
     my $result = $executor->execute($commands, $opts);
 
+    # XXX ?
     if ($result->{has_error}) {
         die sprintf "error status: %d", $result->{error};
     }

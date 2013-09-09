@@ -1,6 +1,8 @@
 package Cinnamon::Remote;
 use strict;
 use warnings;
+use Cinnamon::CommandExecutor;
+push our @ISA, qw(Cinnamon::CommandExecutor);
 use Net::OpenSSH;
 use Cinnamon::Logger;
 
@@ -11,11 +13,6 @@ use POSIX;
 use Cinnamon::Logger;
 use Cinnamon::Logger::Channel;
 
-sub new {
-    my ($class, %args) = @_;
-    bless \%args, $class;
-}
-
 sub connection {
     my $self = shift;
        $self->{connection} ||= Net::OpenSSH->new(
@@ -24,8 +21,6 @@ sub connection {
 }
 
 sub host { $_[0]->{host} }
-
-sub user { $_[0]->{user} }
 
 sub execute {
     my ($self, $commands, $opts) = @_;

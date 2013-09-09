@@ -1,16 +1,12 @@
 package Cinnamon::Local;
 use strict;
 use warnings;
+use Cinnamon::CommandExecutor;
+push our @ISA, qw(Cinnamon::CommandExecutor);
 use IPC::Run ();
 use Cinnamon::Logger;
 
-sub new {
-    return bless {}, $_[0];
-}
-
-sub host {
-    return undef;
-}
+sub host { 'localhost' }
 
 sub execute {
     my ($self, $commands, $opts) = @_;
