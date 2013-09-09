@@ -28,32 +28,30 @@ sub host { $_[0]->{host} }
 sub user { $_[0]->{user} }
 
 sub execute {
-    my ($self, @cmd) = @_;
-    my $opt = shift @cmd;
+    my ($self, $commands, $opts) = @_;
     my $host = $self->host || '';
     my $conn = $self->connection;
-    my $exec_opt = {};
 
-    if (defined $opt && $opt->{sudo}) {
-        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) {
-            @cmd = ('sudo', -Sk, '--', 'sh', -c => @cmd);
-        } elsif (@cmd == 1 and $cmd[0] eq '') {
-            @cmd = ('sudo', '-Sk');
+    if (defined $opts && $opts->{sudo}) {
+        if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
+            @$commands = ('sudo', -Sk, '--', 'sh', -c => @$commands);
+        } elsif (@$commands == 1 and $commands->[0] eq '') {
+            @$commands = ('sudo', '-Sk');
         } else {
-            @cmd = ('sudo', '-Sk', '--', @cmd);
+            @$commands = ('sudo', '-Sk', '--', @$commands);
         }
     } else {
-        if (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) {
-            @cmd = ('sh', -c => @cmd);
+        if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
+            @$commands = ('sh', -c => @$commands);
         }
     }
 
     my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
-        tty => $opt->{tty},
-    }, @cmd) or die "open3 failed: " . $conn->error;
+        tty => $opts->{tty},
+    }, @$commands) or die "open3 failed: " . $conn->error;
 
-    if ($opt->{password}) {
-        print $stdin "$opt->{password}\n";
+    if ($opts->{password}) {
+        print $stdin "$opts->{password}\n";
     }
 
     my $cv = AnyEvent->condvar;
@@ -82,7 +80,7 @@ sub execute {
         type => 'error',
         label => "$user$host e",
     );
-    my $print = $opt->{hide_output} ? sub { } : sub {
+    my $print = $opts->{hide_output} ? sub { } : sub {
         my ($s, $handle) = @_;
         ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
     };
@@ -143,7 +141,7 @@ sub execute {
     my $time = time - $start_time;
     if ($exitcode != 0 or $time > 1.0) {
         log error => my $msg = "Exit with status $exitcode ($time s)";
-        die "$msg\n" if not $opt->{ignore_error} and $exitcode != 0;
+        die "$msg\n" if not $opts->{ignore_error} and $exitcode != 0;
     }
 
     +{
@@ -152,11 +150,6 @@ sub execute {
         has_error => $exitcode > 0,
         error     => $exitcode,
     };
-}
-
-sub DESTROY {
-    my $self = shift;
-       $self->{connection} = undef;
 }
 
 !!1;

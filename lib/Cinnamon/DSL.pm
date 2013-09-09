@@ -3,15 +3,9 @@ use strict;
 use warnings;
 use Exporter::Lite;
 use Cinnamon qw(CTX);
-use Cinnamon::Config;
-use Cinnamon::Local;
 use Cinnamon::Remote;
 use Cinnamon::Logger;
-use Cinnamon::Logger::Channel;
 use Cinnamon::TaskDef;
-use AnyEvent;
-use AnyEvent::Handle;
-use POSIX;
 
 our @EXPORT = qw(
     set
@@ -91,12 +85,13 @@ sub remote (&$;%) {
 
 sub run (@) {
     my (@cmd) = @_;
-    return CTX->run_cmd(\@cmd);
+    my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
+    return CTX->run_cmd(\@cmd, $opts);
 }
 
 sub sudo (@) {
     my (@cmd) = @_;
-    return CTX->run_cmd(\@cmd, {sudo => 1});
+    return CTX->run_cmd(\@cmd, { sudo => 1 });
 }
 
 # For backward compatibility

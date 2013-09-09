@@ -35,7 +35,8 @@ sub run {
     }
 
     my $args = $opts{args};
-    my $hosts = my $orig_hosts = $self->get_role_hosts($role_name);
+    my $hosts  = $self->get_role_hosts($role_name);
+    my $orig_hosts = $hosts;
     $hosts = $opts{hosts} if $opts{hosts};
     my $show_tasklist;
     my $task = do {
@@ -275,7 +276,6 @@ sub run_cmd {
     $opts->{tty} = !!Cinnamon::Config::get('tty') unless defined $opts->{tty};
 
     my ($stdout, $stderr);
-    my $result;
 
     my $is_remote = ref $_ eq 'Cinnamon::Remote';
     my $host = $is_remote ? $_->host : 'localhost';
@@ -284,18 +284,24 @@ sub run_cmd {
     $user = defined $user ? $user . '@' : '';
     log info => "[$user$host] \$ " . join ' ', @$commands;
 
-    if (ref $_ eq 'Cinnamon::Remote') {
-        $result = $_->execute($opts, @$commands);
-    }
-    else {
-        $result = Cinnamon::Local->execute(@$commands); # XXX $opts
-    }
+    my $executor = $self->build_command_executor;
+    my $result = $executor->execute($commands, $opts);
 
     if ($result->{has_error}) {
         die sprintf "error status: %d", $result->{error};
     }
 
     return ($result->{stdout}, $result->{stderr});
+}
+
+sub build_command_executor {
+    my ($self) = @_;
+
+    if (ref $_ eq 'Cinnamon::Remote') {
+        return $_;
+    } else {
+        return Cinnamon::Local->new;
+    }
 }
 
 sub dump_info {

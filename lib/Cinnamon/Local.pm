@@ -1,17 +1,23 @@
 package Cinnamon::Local;
 use strict;
 use warnings;
-use Carp ();
 use IPC::Run ();
 use Cinnamon::Logger;
+
+sub new {
+    return bless {}, $_[0];
+}
 
 sub host {
     return undef;
 }
 
 sub execute {
-    my ($class, @cmd) = @_;
-    my $result = IPC::Run::run \@cmd, \my $stdin, \my $stdout, \my $stderr;
+    my ($self, $commands, $opts) = @_;
+
+    # XXX $opts->{sudo} $opts->{tty} $opts->{hide_output}
+
+    my $result = IPC::Run::run $commands, \my $stdin, \my $stdout, \my $stderr;
     chomp for ($stdout, $stderr);
 
     for my $line (split "\n", $stdout) {
@@ -22,6 +28,8 @@ sub execute {
         log info => sprintf "[localhost e] %s",
             $line;
     }
+
+    # XXX error / $opts->{ignore_errors}
 
     +{
         stdout    => $stdout,
