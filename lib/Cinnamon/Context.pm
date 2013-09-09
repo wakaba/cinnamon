@@ -229,7 +229,7 @@ sub dump_info {
 
     my $tasks = $self->tasks;
     my $task_info = +{
-        map { $_->name => $_->code } values %$tasks,
+        map { %{$_->info} } values %$tasks,
     };
 
     require YAML;
