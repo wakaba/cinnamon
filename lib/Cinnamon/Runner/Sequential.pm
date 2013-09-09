@@ -15,7 +15,7 @@ sub start {
         $result{$host} = +{ error => 0 };
 
         local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
-        eval { $task->($host, @args) };
+        eval { $task->code->($host, @args) };
 
         if ($@) {
             chomp $@;
@@ -25,11 +25,6 @@ sub start {
     }
 
     \%result;
-}
-
-sub execute {
-    my ($class, $host, $task, @args) = @_;
-    $task->($host, @args);
 }
 
 !!1;

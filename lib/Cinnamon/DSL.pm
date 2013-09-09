@@ -28,8 +28,7 @@ our @EXPORT = qw(
     call
 );
 
-our $STDOUT = \*STDOUT;
-our $STDERR = \*STDERR;
+push our @CARP_NOT, qw(Cinnamon::Config);
 
 sub set ($$) {
     my ($name, $value) = @_;
@@ -53,10 +52,10 @@ sub role ($$;$%) {
     Cinnamon::Config::set_role $name => $hosts, $params, %args;
 }
 
-sub task ($$;%) {
-    my ($task, $task_def) = @_;
+sub task ($$;$) {
+    my ($task, $task_def, $args) = @_;
 
-    Cinnamon::Config::set_task $task => $task_def;
+    Cinnamon::Config::set_task $task => $task_def, $args;
 }
 
 sub taskdef (&$) {

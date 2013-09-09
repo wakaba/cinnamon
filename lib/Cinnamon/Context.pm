@@ -1,31 +1,31 @@
 package Cinnamon::Context;
 use strict;
 use warnings;
+use Cinnamon::Task;
+push our @ISA, qw(Cinnamon::Task);
 use Carp qw(croak);
 use Class::Load ();
-
 use Cinnamon::Config;
 use Cinnamon::Logger;
 use Cinnamon::Role;
-use Cinnamon::Task::Cinnamon;
 
 our $CTX;
 
 sub new {
     my $class = shift;
-    bless { }, $class;
+    return bless {roles => {}, tasks => {}}, $class;
 }
 
 sub run {
-    my ($self, $role, $task, %opts)  = @_;
+    my ($self, $role, $task_path, %opts)  = @_;
     Cinnamon::Logger->init_logger;
 
     $role =~ s/^\@// if defined $role;
     Cinnamon::Config::set role => $role;
-    Cinnamon::Config::set task => $task;
+    Cinnamon::Config::set task => $task_path;
 
     # XXX This should not be executed more than once by ./cin @role task1 task2
-    Cinnamon::Config::load $role, $task, %opts;
+    Cinnamon::Config::load $role, $task_path, %opts;
 
     if ($opts{info}) {
         $self->dump_info;
@@ -35,31 +35,36 @@ sub run {
     my $args = $opts{args};
     my $hosts = my $orig_hosts = Cinnamon::Config::get_role;
     $hosts = $opts{hosts} if $opts{hosts};
-    my $task_def = Cinnamon::Config::get_task;
+    my $show_tasklist;
+    my $task = do {
+        my $path = [split /:/, $task_path, -1];
+        ($show_tasklist = 1, pop @$path) if @$path and $path->[-1] eq '';
+        $self->get_task($path);
+    };
     my $runner   = Cinnamon::Config::get('runner_class') || 'Cinnamon::Runner::Sequential';
-
-    if (defined $task_def and ref $task_def eq 'HASH') {
-        unshift @$args, $task;
-        $task = 'cinnamon:task:list';
-        Cinnamon::Config::set task => $task;
-        $task_def = Cinnamon::Config::get_task;
+    if (defined $task and ($show_tasklist or not $task->is_callable)) {
+        unshift @$args, $task_path;
+        require Cinnamon::Task::Cinnamon;
+        Cinnamon::Config::set task => $task_path = 'cinnamon:task:list';
+        $task = $self->get_task(['cinnamon', 'task', 'list']);
     }
 
-    if ($task eq 'cinnamon:role:hosts') {
+    if ($task_path eq 'cinnamon:role:hosts') {
         unshift @$args, $hosts || [];
         $hosts = [''];
+        require Cinnamon::Task::Cinnamon;
     }
 
     unless (defined $orig_hosts) {
-        if ($task =~ /^cinnamon:/) {
+        if ($task_path =~ /^cinnamon:/) {
             $hosts ||= [''];
         } else {
             log 'error', "Role |\@$role| is not defined";
             return ([], ['undefined role']);
         }
     }
-    unless (defined $task_def) {
-        log 'error', "Task |$task| is not defined";
+    unless (defined $task) {
+        log 'error', "Task |$task_path| is not defined";
         return ([], ['undefined task']);
     }
 
@@ -75,15 +80,15 @@ sub run {
         log info => sprintf 'Host%s %s (@%s%s)',
             @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role,
             defined $desc ? ' ' . $desc : '';
-        my $task_desc = ref $task_def eq 'Cinnamon::TaskDef' ? $task_def->get_param('desc') : undef;
+        my $task_desc = $task->get_desc;
         log info => sprintf 'call %s%s',
-            $task, defined $task_desc ? " ($task_desc)" : '';
+            $task_path, defined $task_desc ? " ($task_desc)" : '';
     }
 
     Class::Load::load_class $runner;
 
     my $result = Cinnamon::Config::with_local_config {
-        $runner->start($hosts, $task_def, @$args);
+        $runner->start($hosts, $task, @$args);
     };
     my (@success, @error);
     
@@ -118,6 +123,8 @@ sub set_role {
         args => $args,
     );
 }
+
+*add_role = \&set_role; # compat
 
 sub set_role_alias {
     my ($self, $n1 => $n2) = @_;
@@ -156,19 +163,80 @@ sub roles {
     return $_[0]->{roles};
 }
 
-sub dump_info {
-    my ($self) = @_;
-    my $info = Cinnamon::Config::info;
+sub _task_def ($$);
+sub _task_def ($$) {
+    my ($name, $def) = @_;
+    if (UNIVERSAL::isa($def, 'Cinnamon::TaskDef')) {
+        return Cinnamon::Task->new(
+            name => $name,
+            code => $def->[0],
+            args => $def->[1],
+        );
+    } elsif (ref $def eq 'HASH') {
+        my $ts = Cinnamon::Task->new_task_set(
+            name => $name,
+        );
+        for (keys %$def) {
+            $ts->{tasks}->{$_} = _task_def $_, $def->{$_};
+        }
+        return $ts;
+    } else {
+        return Cinnamon::Task->new(
+            name => $name,
+            code => $def,
+        );
+    }
+}
 
-    my $roles = $self->roles;
-    my $role_info = {};
-    for my $name (keys %$roles) {
-        $role_info->{$name} = $roles->{$name}->info;
+sub define_tasks {
+    my ($self, $defs) = @_;
+    for my $def (@$defs) {
+        my $path = $def->{path};
+        next unless @$path;
+
+        my $obj = $self;
+        for my $i (0..$#$path) {
+            $obj->tasks->{$path->[$i]} ||= Cinnamon::Task->new(
+                path => [@$path[0..$i]],
+            );
+            $obj = $obj->tasks->{$path->[$i]};
+        }
+
+        $obj->code($def->{code}) if $def->{code};
+        $obj->args($def->{args}) if $def->{args} or $def->{code};
+    }
+}
+
+sub get_task {
+    my ($self, $path) = @_;
+
+    my $value = $self;
+    for (@$path) {
+        my $tasks = $value->tasks or return undef;
+        $value = $tasks->{$_};
     }
 
-    $info->{roles} = $role_info;
+    return $value;
+}
+
+sub dump_info {
+    my ($self) = @_;
+
+    my $roles = $self->roles;
+    my $role_info = +{
+        map { $_->name => $_->info } values %$roles,
+    };
+
+    my $tasks = $self->tasks;
+    my $task_info = +{
+        map { $_->name => $_->code } values %$tasks,
+    };
+
     require YAML;
-    log 'info', YAML::Dump($info);
+    log 'info', YAML::Dump({
+        roles => $role_info,
+        tasks => $task_info,
+    });
 }
 
 !!1;

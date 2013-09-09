@@ -49,15 +49,16 @@ sub run {
     }
 
     # check role and task exists
+    my $req_ctc;
     my $role = shift @ARGV;
     my @tasks = map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV;
     if (not defined $role) {
-        require Cinnamon::Task::Cinnamon;
         $role = '';
         @tasks = (['cinnamon:role:list']);
+        $req_ctc = 1;
     } elsif (not @tasks) {
-        require Cinnamon::Task::Cinnamon;
         @tasks = (['cinnamon:task:list']);
+        $req_ctc = 1;
     }
 
     my $keychain;
@@ -73,12 +74,13 @@ sub run {
         $hosts = [grep { length } split /\s*,\s*/, $hosts];
     }
     
+    my $context = Cinnamon::Context->new;
+    local $Cinnamon::Context::CTX = $context;
     Cinnamon::Config::set user => $self->{user};
     my $error_occured = 0;
     Cinnamon::Config::set keychain => $keychain;
     $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
-    my $context = Cinnamon::Context->new;
-    local $Cinnamon::Context::CTX = $context;
+    require Cinnamon::Task::Cinnamon if $req_ctc;
     for my $t (@tasks) {
         my ($success, $error) = $context->run(
             $role,

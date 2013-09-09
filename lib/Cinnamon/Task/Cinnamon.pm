@@ -32,13 +32,13 @@ task 'cinnamon' => {
             $prefix = '' unless defined $prefix;
             $prefix .= ':' if length $prefix and not $prefix =~ /:\z/;
             my $task_defs = Cinnamon::Config::get_task_list $prefix;
+            $task_defs = $task_defs ? $task_defs->tasks : {};
             log info => "Available tasks:\n" .
                 join "", map {
                     my $def = $task_defs->{$_};
-                    "- $prefix" . $_ . (
-                        ref $def eq 'Cinnamon::TaskDef' ?
-                            "\t- " . $def->get_param('desc') :
-                        ref $def eq 'CODE' ? '' : ':') . "\n";
+                    my $desc = $def->get_desc;
+                    $desc = '' unless defined $desc;
+                    "- $prefix" . $_ . ($def->has_subtasks ? ':' : '') . "\t".(length $desc ? '-' : '')." $desc\n";
                 } sort { $a cmp $b } keys %$task_defs;
         },
     },

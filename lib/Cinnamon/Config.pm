@@ -5,11 +5,11 @@ use Cinnamon;
 use Cinnamon::Logger;
 
 our %CONFIG; # Must not be accessed from outside of this module!
-my %TASKS;
+
+push our @CARP_NOT, qw(Cinnamon);
 
 sub reset () {
     %CONFIG = ();
-    %TASKS  = ();
 }
 
 sub with_local_config (&) {
@@ -60,36 +60,47 @@ sub get_role_desc ($) {
     return CTX->get_role_desc($_[0]);
 }
 
-sub set_task ($$) {
-    my ($task, $task_def) = @_;
-    $TASKS{$task} = $task_def;
+sub _expand_tasks ($$$;$);
+sub _expand_tasks ($$$;$) {
+    my ($path, $task_def => $defs, $root_args) = @_;
+    if (ref $task_def eq 'HASH') {
+        push @$defs, {path => $path, args => $root_args};
+        for (keys %$task_def) {
+            _expand_tasks [@$path, $_], $task_def->{$_} => $defs;
+        }
+    } elsif (UNIVERSAL::isa($task_def, 'Cinnamon::TaskDef')) {
+        push @$defs, {path => $path, code => $task_def->[0], args => $task_def->[1]};
+    } else {
+        push @$defs, {path => $path, code => $task_def, args => $root_args};
+    }
+}
+
+sub set_task ($$;$) {
+    my ($name, $task_def, $root_args) = @_;
+    my $defs = [];
+    _expand_tasks [$name] => $task_def => $defs, $root_args;
+    CTX->define_tasks($defs);
 }
 
 sub get_task (@) {
-    my ($task) = @_;
-
-    $task ||= get('task');
-    my @task_path = split(':', $task);
-
-    my $value = \%TASKS;
-    for (@task_path) {
-        $value = $value->{$_};
-    }
-
-    $value;
+    my ($t) = @_;
+    $t ||= get('task');
+    my $path = [split /:/, $t, -1];
+    pop @$path if @$path and $path->[-1] eq '';
+    my $task = CTX->get_task($path);
+    return $task ? $task->code : undef;
 }
 
 sub get_task_list (;$) {
-    my ($task) = @_;
-    
-    my @task_path = defined $task ? split(':', $task) : ();
-
-    my $value = \%TASKS;
-    for (@task_path) {
-        $value = $value->{$_};
+    my ($t) = @_;
+    my $path = defined $t ? [split /:/, $t, -1] : [];
+    pop @$path if @$path and $path->[-1] eq '';
+    if (@$path) {
+        my $task = CTX->get_task($path);
+        return $task->tasks ? $task : undef;
+    } else {
+        return CTX;
     }
-
-    return $value;
 }
 
 sub user () {
@@ -122,13 +133,6 @@ sub load (@) {
 
     for my $key (keys %{ $opt{override_settings} }) {
         set $key => $opt{override_settings}->{$key};
-    }
-}
-
-sub info {
-    my $self  = shift;
-    +{
-        tasks => \%TASKS,
     }
 }
 

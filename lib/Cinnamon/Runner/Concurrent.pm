@@ -15,7 +15,7 @@ sub start {
     my $all_results = {};
     $hosts = [ @$hosts ];
 
-    my $task_name           = Cinnamon::Config::get('task');
+    my $task_name           = $task->name;
     my $concurrency_setting = Cinnamon::Config::get('concurrency') || {};
     my $concurrency         = $concurrency_setting->{$task_name} || scalar @$hosts;
 
@@ -24,7 +24,7 @@ sub start {
 
         for my $host (@target_hosts) {
             my $coro = async {
-                my $result = $class->execute($host, $task, @args);
+                my $result = $class->execute($host, $task->code, @args);
                 $all_results->{$host} = $result;
             };
 
@@ -43,7 +43,7 @@ sub execute {
     my $result = { host => $host, error => 0 };
 
     local $@;
-    eval { $task->($host, @args) };
+    eval { $task->code->($host, @args) };
     if ($@) {
         chomp $@;
         log error => sprintf '[%s] %s', $host, $@;
