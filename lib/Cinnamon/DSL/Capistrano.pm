@@ -126,19 +126,19 @@ sub get_remote (;%) {
 push @EXPORT, qw(run);
 sub run (@) {
     local $_ = get_remote;
-    return Cinnamon::DSL::run_stream(@_);
+    return Cinnamon::DSL::run(@_);
 }
 
 push @EXPORT, qw(sudo);
 sub sudo (@) {
     local $_ = get_remote;
-    return Cinnamon::DSL::sudo_stream(@_);
+    return Cinnamon::DSL::sudo(@_);
 }
 
 push @EXPORT, qw(stream);
 sub stream (@) {
     local $_ = get_remote;
-    return Cinnamon::DSL::run_stream(@_);
+    return Cinnamon::DSL::run(@_);
 }
 
 push @EXPORT, qw(capture);

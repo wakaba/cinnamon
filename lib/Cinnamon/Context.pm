@@ -265,6 +265,39 @@ sub get_param {
     return $value;
 }
 
+sub run_cmd {
+    my ($self, $commands, $opts) = @_;
+    $opts ||= {};
+    if ($opts->{sudo} and not defined $opts->{password}) {
+        $opts->{password} = $self->get_param('keychain')
+            ->get_password_as_cv($_->user)->recv;
+    }
+    $opts->{tty} = !!Cinnamon::Config::get('tty') unless defined $opts->{tty};
+
+    my ($stdout, $stderr);
+    my $result;
+
+    my $is_remote = ref $_ eq 'Cinnamon::Remote';
+    my $host = $is_remote ? $_->host : 'localhost';
+
+    my $user = $is_remote ? $_->user : undef;
+    $user = defined $user ? $user . '@' : '';
+    log info => "[$user$host] \$ " . join ' ', @$commands;
+
+    if (ref $_ eq 'Cinnamon::Remote') {
+        $result = $_->execute($opts, @$commands);
+    }
+    else {
+        $result = Cinnamon::Local->execute(@$commands); # XXX $opts
+    }
+
+    if ($result->{has_error}) {
+        die sprintf "error status: %d", $result->{error};
+    }
+
+    return ($result->{stdout}, $result->{stderr});
+}
+
 sub dump_info {
     my ($self) = @_;
 

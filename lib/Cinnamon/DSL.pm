@@ -2,6 +2,7 @@ package Cinnamon::DSL;
 use strict;
 use warnings;
 use Exporter::Lite;
+use Cinnamon qw(CTX);
 use Cinnamon::Config;
 use Cinnamon::Local;
 use Cinnamon::Remote;
@@ -90,39 +91,12 @@ sub remote (&$;%) {
 
 sub run (@) {
     my (@cmd) = @_;
-    my $opt;
-    $opt = shift @cmd if ref $cmd[0] eq 'HASH';
-
-    my ($stdout, $stderr);
-    my $result;
-
-    my $is_remote = ref $_ eq 'Cinnamon::Remote';
-    my $host = $is_remote ? $_->host : 'localhost';
-
-    my $user = $is_remote ? $_->user : undef;
-    $user = defined $user ? $user . '@' : '';
-    log info => "[$user$host] \$ " . join ' ', @cmd;
-
-    if (ref $_ eq 'Cinnamon::Remote') {
-        $result = $_->execute($opt, @cmd);
-    }
-    else {
-        $result = Cinnamon::Local->execute(@cmd);
-    }
-
-    if ($result->{has_error}) {
-        die sprintf "error status: %d", $result->{error};
-    }
-
-    return ($result->{stdout}, $result->{stderr});
+    return CTX->run_cmd(\@cmd);
 }
 
 sub sudo (@) {
     my (@cmd) = @_;
-    my $password = Cinnamon::Config::get('keychain')
-        ->get_password_as_cv($_->user)->recv;
-    my $tty = Cinnamon::Config::get('tty');
-    run {sudo => 1, password => $password, tty => !! $tty}, @cmd;
+    return CTX->run_cmd(\@cmd, {sudo => 1});
 }
 
 # For backward compatibility
