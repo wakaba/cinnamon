@@ -264,16 +264,19 @@ sub get_param {
     return $value;
 }
 
+sub keychain {
+    return $_[0]->{keychain};
+}
+
 sub run_cmd {
     my ($self, $commands, $opts) = @_;
     $opts ||= {};
+    my $executor = $self->build_command_executor;
     if ($opts->{sudo} and not defined $opts->{password}) {
-        $opts->{password} = $self->get_param('keychain')
-            ->get_password_as_cv($_->user)->recv;
+        $opts->{password} = $self->keychain->get_password_as_cv($executor->user)->recv;
     }
     $opts->{tty} = !!$self->get_param('tty') unless defined $opts->{tty};
 
-    my $executor = $self->build_command_executor;
     {
         my $host = $executor->host;
         my $user = $executor->user;
