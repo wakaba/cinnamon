@@ -299,6 +299,7 @@ sub build_command_executor {
     if (ref $_ eq 'Cinnamon::Remote') {
         return $_;
     } else {
+        require Cinnamon::Local;
         return Cinnamon::Local->new;
     }
 }
