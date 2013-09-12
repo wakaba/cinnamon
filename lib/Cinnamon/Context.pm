@@ -267,6 +267,28 @@ sub keychain {
     return $_[0]->{keychain};
 }
 
+sub get_command_executor {
+    my ($self, %args) = @_;
+    if ($args{remote}) {
+        my $host = $args{host};
+        my $user = $args{user};
+        return $self->{remote}->{$host}->{defined $user ? 'user=' . $user : ''} ||= do {
+            log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
+            Cinnamon::Remote->new(
+                host => $host,
+                user => $user,
+            );
+        };
+    } elsif ($args{local}) {
+        return $self->{local} ||= do {
+            require Cinnamon::Local;
+            return Cinnamon::Local->new;
+        };
+    } else {
+        die "Neither |remote| or |local| is specified";
+    }
+}
+
 sub run_cmd {
     my ($self, $commands, $opts) = @_;
     $opts ||= {};

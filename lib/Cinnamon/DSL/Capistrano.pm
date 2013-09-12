@@ -2,6 +2,7 @@ package Cinnamon::DSL::Capistrano;
 use strict;
 use warnings;
 use Path::Class;
+use Cinnamon qw(CTX);
 use Cinnamon::Runner;
 use Cinnamon::Logger;
 use Cinnamon::Config ();
@@ -106,21 +107,16 @@ sub puts (@) {
     print @_, "\n";
 }
 
-our $Remote = {};
-
 sub get_remote (;%) {
     my %args = @_;
     my $user = Cinnamon::DSL::get('user');
     undef $user unless defined $user and length $user;
     my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
-    return $Remote->{$host}->{defined $user ? 'user=' . $user : ''} ||= do {
-        log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
-
-        Cinnamon::Remote->new(
-            host => $host,
-            user => $user,
-        );
-    };
+    return CTX->get_command_executor(
+        remote => 1,
+        host => $host,
+        user => $user,
+    );
 }
 
 push @EXPORT, qw(run);

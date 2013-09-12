@@ -69,13 +69,12 @@ sub call ($$@) {
 
 sub remote (&$;%) {
     my ($code, $host, %args) = @_;
-
     my $user = defined $args{user} ? length $args{user} ? $args{user} : undef
                                    : get 'user';
     undef $user unless defined $user and length $user;
-    log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
 
-    local $_ = Cinnamon::Remote->new(
+    local $_ = CTX->get_command_executor(
+        remote => 1,
         host => $host,
         user => $user,
     );
