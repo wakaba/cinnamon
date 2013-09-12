@@ -22,23 +22,24 @@ sub run {
     my $hosts  = $self->get_role_hosts($role_name);
     my $orig_hosts = $hosts;
     $hosts = $opts{hosts} if $opts{hosts};
-    my $show_tasklist;
-    my $task = do {
-        my $path = [split /:/, $task_path, -1];
-        ($show_tasklist = 1, pop @$path) if @$path and $path->[-1] eq '';
-        $self->get_task($path);
-    };
-    if (defined $task and ($show_tasklist or not $task->is_callable)) {
-        unshift @$args, $task_path;
-        require Cinnamon::Task::Cinnamon;
-        $task_path = 'cinnamon:task:list';
-        $task = $self->get_task([split /:/, $task_path]);
-    }
+    my $show_tasklist = $task_path =~ /:$/;
 
     if ($task_path eq 'cinnamon:role:hosts') {
         unshift @$args, $hosts || [];
         $hosts = [''];
         require Cinnamon::Task::Cinnamon;
+    }
+
+    my $task = $self->get_task($task_path);
+    unless (defined $task) {
+        log 'error', "Task |$task_path| is not defined";
+        return ([], ['undefined task']);
+    }
+    if ($show_tasklist or not $task->is_callable) {
+        unshift @$args, $task_path;
+        require Cinnamon::Task::Cinnamon;
+        $task_path = 'cinnamon:task:list';
+        $task = $self->get_task($task_path);
     }
 
     unless (defined $orig_hosts) {
@@ -48,10 +49,6 @@ sub run {
             log 'error', "Role |\@$role_name| is not defined";
             return ([], ['undefined role']);
         }
-    }
-    unless (defined $task) {
-        log 'error', "Task |$task_path| is not defined";
-        return ([], ['undefined task']);
     }
 
     if (@$hosts == 0) {
@@ -66,9 +63,6 @@ sub run {
         log info => sprintf 'Host%s %s (@%s%s)',
             @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role_name,
             defined $desc ? ' ' . $desc : '';
-        my $task_desc = $task->get_desc;
-        log info => sprintf 'call %s%s',
-            $task_path, defined $task_desc ? " ($task_desc)" : '';
     }
 
     $self->set_param(role => $role_name);
@@ -227,6 +221,7 @@ sub get_task {
 
     my $value = $self;
     for (@$path) {
+        return undef unless defined $value;
         my $tasks = $value->tasks or return undef;
         $value = $tasks->{$_};
     }

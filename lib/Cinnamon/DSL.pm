@@ -8,8 +8,6 @@ use Cinnamon::Remote;
 use Cinnamon::Logger;
 use Cinnamon::TaskDef;
 
-push our @CARP_NOT, qw(Cinnamon::Task);
-
 our @EXPORT = qw(
     set
     set_default
@@ -26,7 +24,7 @@ our @EXPORT = qw(
     call
 );
 
-push our @CARP_NOT, qw(Cinnamon::Config);
+push our @CARP_NOT, qw(Cinnamon::Config Cinnamon::Task);
 
 sub set ($$) {
     my ($name, $value) = @_;

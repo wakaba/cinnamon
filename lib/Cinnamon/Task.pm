@@ -1,6 +1,7 @@
 package Cinnamon::Task;
 use strict;
 use warnings;
+use Carp qw(croak);
 use Cinnamon::Logger;
 
 sub new {
@@ -58,6 +59,7 @@ sub info {
 sub run {
     my ($self, %args) = @_;
     my $desc = $self->get_desc;
+    croak '|' . $self->name . '| is not callable' unless $self->is_callable;
     log info => sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '';
     my %result;
     my $skip_by_error;
