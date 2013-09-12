@@ -84,19 +84,26 @@ sub run {
     );
     local $Cinnamon::Context::CTX = $context;
     $context->set_param(user => $self->{user}) if defined $self->{user};
-    my $error_occured = 0;
+
+    $context->load_config($self->{config});
+    for my $key (keys %{ $self->{override_settings} or {} }) {
+        $context->set_param($key => $self->{override_settings}->{$key});
+    }
+
+    if ($self->{info}) {
+        $context->dump_info;
+        return SUCCESS;
+    }
+
     require Cinnamon::Task::Cinnamon if $req_ctc;
+    my $error_occured = 0;
     for my $t (@tasks) {
         my ($success, $error) = $context->run(
             $role,
             $t->[0],
-            config            => $self->{config},
-            override_settings => $self->{override_settings},
-            info              => $self->{info},
             hosts             => $hosts,
             args              => [@$t[1..$#$t]],
         );
-        last if ($self->{info});
 
         # check execution error
         $error_occured ||= ! defined $success;

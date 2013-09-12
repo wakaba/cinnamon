@@ -16,20 +16,7 @@ sub new {
 
 sub run {
     my ($self, $role_name, $task_path, %opts)  = @_;
-
     $role_name =~ s/^\@// if defined $role_name;
-
-    # XXX This should not be executed more than once by ./cin @role task1 task2
-    $self->load_config($opts{config});
-
-    if ($opts{info}) {
-        $self->dump_info;
-        return ([], []);
-    }
-
-    for my $key (keys %{ $opts{override_settings} or {} }) {
-        $self->set_param($key => $opts{override_settings}->{$key});
-    }
 
     my $args = $opts{args};
     my $hosts  = $self->get_role_hosts($role_name);
