@@ -34,7 +34,6 @@ roles:
     params:
       foo: bar
 tasks:
-  cinnamon: ~
   update: !!perl/code '{ "DUMMY" }'
 
 OUTPUT
