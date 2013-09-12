@@ -11,7 +11,14 @@ sub start {
     my ($class, $hosts, $task, @args) = @_;
 
     my %result;
+    my $skip_by_error;
     for my $host (@$hosts) {
+        if ($skip_by_error) {
+            log error => sprintf '[%s] Skipped', $host;
+            $result{$host}->{error}++;
+            next;
+        }
+
         $result{$host} = +{ error => 0 };
 
         local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
@@ -20,11 +27,12 @@ sub start {
         if ($@) {
             chomp $@;
             log error => sprintf '[%s] %s', $host, $@;
-            $result{$host}->{error}++ ;
+            $result{$host}->{error}++;
+            $skip_by_error = 1;
         }
     }
 
-    \%result;
+    return \%result;
 }
 
 !!1;
