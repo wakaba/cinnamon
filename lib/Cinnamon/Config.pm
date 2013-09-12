@@ -44,7 +44,8 @@ sub _expand_tasks ($$$;$) {
 sub set_task ($$;$) {
     my ($name, $task_def, $root_args) = @_;
     my $defs = [];
-    _expand_tasks [$name] => $task_def => $defs, $root_args;
+    $name = [$name] unless ref $name eq 'ARRAY';
+    _expand_tasks $name => $task_def => $defs, $root_args;
     CTX->define_tasks($defs);
 }
 

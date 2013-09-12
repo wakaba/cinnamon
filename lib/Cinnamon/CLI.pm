@@ -99,17 +99,13 @@ sub run {
     require Cinnamon::Task::Cinnamon if $req_ctc;
     my $error_occured = 0;
     for my $t (@tasks) {
-        my ($success, $error) = $context->run(
+        my $result = $context->run(
             $role,
             $t->[0],
             hosts             => $hosts,
             args              => [@$t[1..$#$t]],
         );
-
-        # check execution error
-        $error_occured ||= ! defined $success;
-        $error_occured ||= scalar @$error > 0;
-
+        $error_occured = 1 if $result->failed;
         last if ($error_occured && !$self->{ignore_errors});
         print "\n";
     }

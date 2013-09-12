@@ -29,7 +29,5 @@ coderef 自体を値として使いたい時は coderef を返す coderef を指
 
   user       SSH ログインに使うユーザー (起動時の --user オプション)
              (deploy.pl で必要に応じて上書きする想定)
-  input_user SSH ログインに使うユーザー (起動時の --user オプション)
-             (上書きしない想定)
   role       起動時に指定された role (@ を除去したもの)
   task       起動時に指定された task

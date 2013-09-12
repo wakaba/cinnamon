@@ -1,48 +1,47 @@
 package Cinnamon::Task::Cinnamon;
 use strict;
 use warnings;
-use Cinnamon qw(CTX);
 use Cinnamon::DSL;
-use Cinnamon::Config;
 use Cinnamon::Logger;
 
-task 'cinnamon' => {
-    role => {
-        list => sub {
-            my ($task, @args) = @_;
-            my $role_defs = CTX->roles;
-            log info => "Available roles:\n" .
-                join "", map {
-                    my $desc = CTX->get_role($_)->get_desc;
-                    "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
-                } sort { $a cmp $b } keys %$role_defs;
-        },
-        hosts => sub {
-            my ($task, $hosts, $file_name) = @_;
-            my $file = \*STDOUT;
-            if (defined $file_name) {
-                undef $file;
-                open $file, '>', $file_name or die "$0: $task: $file_name: $!";
-            }
-            print $file join ',', @$hosts;
-        },
-    },
-    task => {
-        list => sub {
-            my ($task, $prefix, @args) = @_;
-            $prefix = '' unless defined $prefix;
-            $prefix .= ':' if length $prefix and not $prefix =~ /:\z/;
-            my $task_defs = CTX->get_task($prefix);
-            $task_defs = $task_defs ? $task_defs->tasks : {};
-            log info => "Available tasks:\n" .
-                join "", map {
-                    my $def = $task_defs->{$_};
-                    my $desc = $def->get_desc;
-                    $desc = '' unless defined $desc;
-                    "- $prefix" . $_ . ($def->has_subtasks ? ':' : '') . "\t".(length $desc ? '-' : '')." $desc\n";
-                } sort { $a cmp $b } keys %$task_defs;
-        },
-    },
-};
+task ['cinnamon', 'role', 'list'] => sub {
+    my $state = shift;
+    my $role_defs = $state->context->roles;
+    log info => "Available roles:\n" .
+        join "", map {
+            my $desc = $state->context->get_role($_)->get_desc;
+            "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
+        } sort { $a cmp $b } keys %$role_defs;
+    return $state->create_result;
+}, {hosts => 'none'};
+
+task ['cinnamon', 'role', 'hosts'] => sub {
+    my $state = shift;
+    my $file_name = $state->args->[0];
+    if (defined $file_name) {
+        open my $file, '>', $file_name or die "$0: $file_name: $!";
+        print $file join ',', @{$state->hosts};
+    } else {
+        log info => join ',', @{$state->hosts};
+    }
+    return $state->create_result;
+}, {hosts => 'all'};
+
+task ['cinnamon', 'task', 'list'] => sub {
+    my $state = shift;
+    my $prefix = $state->args->[0];
+    $prefix = '' unless defined $prefix;
+    $prefix .= ':' if length $prefix and not $prefix =~ /:\z/;
+    my $task_defs = $state->context->get_task($prefix);
+    $task_defs = $task_defs ? $task_defs->tasks : {};
+    log info => "Available tasks:\n" .
+        join "", map {
+            my $def = $task_defs->{$_};
+            my $desc = $def->get_desc;
+            $desc = '' unless defined $desc;
+            "- $prefix" . $_ . ($def->has_subtasks ? ':' : '') . "\t".(length $desc ? '-' : '')." $desc\n";
+        } sort { $a cmp $b } keys %$task_defs;
+    return $state->create_result;
+}, {hosts => 'none'};
 
 1;

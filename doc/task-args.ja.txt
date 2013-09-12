@@ -20,4 +20,12 @@
     ...;
   };
 
+hosts => 'all' || 'none' のタスクでは、 $state->args で引数の arrayref
+にアクセスできます。
+
+  task hoge => sub {
+    my $state = shift;
+    warn @{$state->args};
+  }, {hosts => 'all'};
+
 なお引数は UTF-8 文字列として解釈されます。

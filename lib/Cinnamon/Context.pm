@@ -6,6 +6,7 @@ push our @ISA, qw(Cinnamon::Task);
 use Carp qw(croak);
 use Cinnamon::Logger;
 use Cinnamon::Role;
+use Cinnamon::TaskResult;
 
 our $CTX;
 
@@ -18,10 +19,10 @@ sub run {
     my ($self, $role_name, $task_path, %opts)  = @_;
     my $role = $self->get_role($role_name) || do {
         if ($task_path eq 'cinnamon:role:list') {
-            Cinnamon::Role->new(name => '', hosts => ['']); # XXX
+            Cinnamon::Role->new(name => '', hosts => []);
         } else {
             log 'error', "Role |\@$role_name| is not defined";
-            return ([], ['undefined role']);
+            return Cinnamon::TaskResult->new(failed => 1);
         }
     };
 
@@ -33,7 +34,7 @@ sub run {
     my $task = $self->get_task($task_path);
     unless (defined $task) {
         log 'error', "Task |$task_path| is not defined";
-        return ([], ['undefined task']);
+        return Cinnamon::TaskResult->new(failed => 1);
     }
     if ($show_tasklist or not $task->is_callable) {
         unshift @$args, $task_path;
@@ -49,38 +50,31 @@ sub run {
     $self->set_param(role => $role_name);
     $self->set_param(task => $task_path);
 
-    my $result = do {
-        local $self->{params} = {%{$self->{params}}};
-        $task->run(
-            role => $role,
-            hosts => $opts{hosts},
-            args => $args,
-            onerror => sub {
-                log error => $_[0];
-            },
-        );
-    };
+    local $self->{params} = {%{$self->{params}}};
+    my $result = $task->run(
+        context => $self,
+        role => $role,
+        hosts => $opts{hosts},
+        args => $args,
+        onerror => sub {
+            log error => $_[0];
+        },
+    );
 
-    my (@success, @error);
-    for my $key (keys %{$result || {}}) {
-        if ($result->{$key}->{error}) {
-            push @error, $key;
-        }
-        else {
-            push @success, $key;
-        }
-    }
-
-    log info => "\n========================\n";
-    if (@error) {
-        log info => "[OK] @{[join ', ', @success]}";
-        log error => "[NG] @{[join ', ', @error]}";
+    if ($result->failed) {
+        log error => "Failed";
+        log info => "[OK] @{[join ', ', @{$result->succeeded_hosts}]}"
+            if @{$result->succeeded_hosts};
+        log error => "[NG] @{[join ', ', @{$result->failed_hosts}]}"
+            if @{$result->failed_hosts};
     } else {
-        log success => "[OK] @{[join ', ', @success]}";
-        log info => "[NG] @{[join ', ', @error]}";
+        log success => "Done";
+        log success => "[OK] @{[join ', ', @{$result->succeeded_hosts}]}"
+            if @{$result->succeeded_hosts};
+        log info => "[NG] @{[join ', ', @{$result->failed_hosts}]}"
+            if @{$result->failed_hosts};
     }
-
-    return (\@success, \@error);
+    return $result;
 }
 
 sub load_config ($$) {

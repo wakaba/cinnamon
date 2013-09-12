@@ -1,0 +1,43 @@
+タスクの状態
+~~~~~~~~~~~~
+
+オプション無しで定義したタスクは、ロール (または --hosts オプション) で
+指定されたホスト群のそれぞれに対して実行されます。対象となるホストが1個
+なら1回、5個なら5回、0個なら0回実行されます。引数としてはホスト名と、タ
+スクへの引数があれば渡されます。返り値は捨てられます。エラーは die して
+例外を投げることにより報告できます。
+
+  task hoge => sub {
+    my ($host, @args) = @_;
+    warn $host;
+    warn $_ for @args;
+  };
+
+hosts オプションの値を none または all で定義したタスクは、ホスト数に関
+わらず1回実行されます。引数としては状態オブジェクト (Cinnamon::State)
+が渡されます。
+
+  task hoge => sub {
+    my $state = shift;
+    warn $_ for @{$state->hosts};    
+    warn $_ for @{$state->args};
+    return $state->create_result;
+  }, {hosts => 'all'};
+
+返り値は $state->create_result メソッドによって作られた結果オブジェクト
+でなければなりません。 die によって例外を投げることでエラーを報告しても
+構いません。ホストや引数には状態オブジェクトのメソッドからアクセスでき
+ます。ただし hosts => 'none' の場合はホストは常に空になります。
+
+結果オブジェクトは、 create_result メソッドを引数なしで呼ぶと成功状態に
+なります。また、 succeeded_hosts, failed_hosts の2つの arrayref を指定
+することができます。それぞれ成功、失敗したホスト名の一覧であり、 hosts
+=> 'all' の場合、すべてのホストがどちらか片方(だけ)に含まれることを期待
+しています。 failed 引数が真か、 failed_hosts が空でなければ、結果オブ
+ジェクトは失敗状態となります。
+
+  $state->create_result(
+    succeeded_hosts => ['host1', 'host2'],
+    failed_hosts => ['host3'],
+    failed => 1,
+  );

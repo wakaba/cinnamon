@@ -2,6 +2,7 @@ package Cinnamon::Task;
 use strict;
 use warnings;
 use Carp qw(croak);
+use Cinnamon::State;
 use Cinnamon::Logger;
 
 sub new {
@@ -62,49 +63,68 @@ sub run {
     my $desc = $self->get_desc;
     log info => sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '';
 
-    ## At least one of |hosts| and |role| is required.
-    my $hosts = $args{hosts} || $args{role}->get_hosts;
-
-    {
+    my $hosts_option = $self->args->{hosts} || '';
+    my $hosts;
+    if ($hosts_option ne 'none') {
+        ## At least one of |hosts| and |role| is required.
+        $hosts = $args{hosts} || $args{role}->get_hosts;
         my %found;
         $hosts = [grep { not $found{$_}++ } @$hosts];
-    }
-    {
         my $desc = defined $args{role} ? $args{role}->get_desc : undef;
         log info => sprintf 'Host%s %s (@%s%s)',
             @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
             $args{role}->name, defined $desc ? ' ' . $desc : '';
+    } elsif (defined $args{role}) {
+        my $desc = defined $args{role} ? $args{role}->get_desc : undef;
+        log info => sprintf '(@%s%s)',
+            $args{role}->name, defined $desc ? ' ' . $desc : '';
     }
 
-    # XXX
-    if ($self->name eq 'cinnamon:role:hosts') {
-        unshift @{$args{args} ||= []}, $hosts;
-    }
-
-    my %result;
-    my $skip_by_error;
-    for my $host (@$hosts) {
-        if ($skip_by_error) {
-            my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
-            ($args{onerror} || sub { die $_[0] })->($msg);
-            $result{$host}->{error}++;
-            next;
-        }
-        
-        $result{$host} = +{ error => 0 };
-        
-        local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
-        eval { $self->code->($host, @{$args{args} or []}) };
+    my $state = Cinnamon::State->new(
+        context => $args{context},
+        hosts => $hosts,
+        args => $args{args},
+    );
+    if ($hosts_option eq 'all' or $hosts_option eq 'none') {
+        my $result = eval { $self->code->($state) };
         
         if ($@) {
             chomp $@;
-            my $msg = sprintf '%s [%s] %s', $self->name, $host, $@;
+            my $msg = sprintf '%s %s', $self->name, $@;
             ($args{onerror} || sub { die $_[0] })->($msg);
-            $result{$host}->{error}++;
-            $skip_by_error = 1;
+            return $state->create_result(failed => 1);
         }
+        return $result;
+    } else {
+        my @succeeded_host;
+        my @failed_host;
+        my $skip_by_error;
+        for my $host (@{$state->hosts}) {
+            if ($skip_by_error) {
+                my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
+                ($args{onerror} || sub { die $_[0] })->($msg);
+                push @failed_host, $host;
+                next;
+            }
+            
+            local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
+            eval { $self->code->($host, @{$state->args}) };
+            
+            if ($@) {
+                chomp $@;
+                my $msg = sprintf '%s [%s] %s', $self->name, $host, $@;
+                ($args{onerror} || sub { die $_[0] })->($msg);
+                push @failed_host, $host;
+                $skip_by_error = 1;
+            } else {
+                push @succeeded_host, $host;
+            }
+        }
+        return $state->create_result(
+            succeeded_hosts => \@succeeded_host,
+            failed_hosts => \@failed_host,
+        );
     }
-    return \%result;
 }
 
 1;
