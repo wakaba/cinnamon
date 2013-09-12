@@ -16,19 +16,16 @@ sub role : Tests {
 
         is $ctx->get_role('name1')->name, 'name1';
         is_deeply $ctx->get_role('name1')->get_hosts, ['host1'];
-        is_deeply $ctx->get_role_hosts('name1'), ['host1'];
 
         is $ctx->get_role('name2')->name, 'name2';
         is_deeply $ctx->get_role('name2')->get_hosts, ['host2'];
-        is_deeply $ctx->get_role_hosts('name2'), ['host2'];
     };
 
     subtest 'role with params' => sub {
         my $ctx = Cinnamon::Context->new;
         $ctx->add_role('name1', 'host1', { hoge => 'fuga' });
 
-        is_deeply $ctx->get_role_hosts('name1'), ['host1'];
-        is $ctx->get_param('hoge'), 'fuga';
+        is $ctx->get_role('name1')->params->{hoge}, 'fuga';
     };
 }
 
