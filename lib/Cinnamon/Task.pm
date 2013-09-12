@@ -86,6 +86,7 @@ sub run {
         args => $args{args},
     );
     if ($hosts_option eq 'all' or $hosts_option eq 'none') {
+        local $_ = undef;
         my $result = eval { $self->code->($state) };
         
         if ($@) {
@@ -106,7 +107,8 @@ sub run {
                 push @failed_host, $host;
                 next;
             }
-            
+
+            local $_ = undef;
             local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
             eval { $self->code->($host, @{$state->args}) };
             
