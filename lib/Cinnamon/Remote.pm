@@ -24,7 +24,7 @@ sub host { $_[0]->{host} }
 
 sub execute {
     my ($self, $commands, $opts) = @_;
-    my $host = $self->host || '';
+    my $host = $self->host || die "Host is not set";
     my $conn = $self->connection;
 
     if (defined $opts && $opts->{sudo}) {
@@ -39,6 +39,12 @@ sub execute {
         if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
             @$commands = ('sh', -c => @$commands);
         }
+    }
+
+    {
+        my $user = $self->user;
+        $user = defined $user ? $user . '@' : '';
+        log info => "[$user$host] \$ " . join ' ', @$commands;
     }
 
     my ($stdin, $stdout, $stderr, $pid) = $conn->open3({

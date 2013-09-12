@@ -11,7 +11,16 @@ sub host { 'localhost' }
 sub execute {
     my ($self, $commands, $opts) = @_;
 
-    # XXX $opts->{sudo} $opts->{tty} $opts->{hide_output}
+    # XXX $opts->{sudo};
+
+    {
+        my $host = $self->host;
+        my $user = $self->user;
+        $user = defined $user ? $user . '@' : '';
+        log info => "[$user$host] \$ " . join ' ', @$commands;
+    }
+
+    # XXX $opts->{tty} $opts->{hide_output}
     # XXX async
 
     my $start_time = time;

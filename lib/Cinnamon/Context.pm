@@ -271,16 +271,6 @@ sub run_cmd {
     my ($self, $commands, $opts) = @_;
     $opts ||= {};
     my $executor = $self->build_command_executor;
-    if ($opts->{sudo} and not defined $opts->{password}) {
-        $opts->{password} = $self->keychain->get_password_as_cv($executor->user)->recv;
-    }
-
-    {
-        my $host = $executor->host;
-        my $user = $executor->user;
-        $user = defined $user ? $user . '@' : '';
-        log info => "[$user$host] \$ " . join ' ', @$commands;
-    }
     return $executor->execute($commands, $opts);
 }
 

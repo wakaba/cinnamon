@@ -92,8 +92,12 @@ sub run (@) {
 
 sub sudo (@) {
     my (@cmd) = @_;
-    my $result = CTX->run_cmd(\@cmd, { sudo => 1 });
-    return defined wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
+    my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
+    $opts->{sudo} = 1;
+    unless (defined $opts->{password}) {
+        $opts->{password} = CTX->keychain->get_password_as_cv($_->user)->recv;
+    }
+    return run $opts, @cmd;
 }
 
 # For backward compatibility
