@@ -289,24 +289,6 @@ sub get_command_executor {
     }
 }
 
-sub run_cmd {
-    my ($self, $commands, $opts) = @_;
-    $opts ||= {};
-    my $executor = $self->build_command_executor;
-    return $executor->execute($commands, $opts);
-}
-
-sub build_command_executor {
-    my ($self) = @_;
-
-    if (ref $_ eq 'Cinnamon::Remote') {
-        return $_;
-    } else {
-        require Cinnamon::Local;
-        return Cinnamon::Local->new;
-    }
-}
-
 sub dump_info {
     my ($self) = @_;
 
