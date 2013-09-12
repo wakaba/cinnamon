@@ -1,5 +1,4 @@
 Capture::Tiny
-Coro
 Cwd
 DBD::mysql
 DBI

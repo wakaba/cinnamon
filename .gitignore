@@ -14,6 +14,7 @@ ppport.h
 /META.yml
 /MYMETA.*
 /META.json
+/MANIFEST
 *~
 /config/perl/libs.txt
 /perl

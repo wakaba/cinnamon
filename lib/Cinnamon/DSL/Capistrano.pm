@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Path::Class;
 use Cinnamon qw(CTX);
-use Cinnamon::Runner;
 use Cinnamon::Logger;
 use Cinnamon::Config ();
 use Cinnamon::DSL ();

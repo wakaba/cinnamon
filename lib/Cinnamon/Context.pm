@@ -71,15 +71,34 @@ sub run {
             $task_path, defined $task_desc ? " ($task_desc)" : '';
     }
 
-    my $runner = $self->get_param('runner_class') || 'Cinnamon::Runner::Sequential';
-    eval qq{ require $runner } or die $@;
-
     $self->set_param(role => $role_name);
     $self->set_param(task => $task_path);
 
     my $result = do {
         local $self->{params} = {%{$self->{params}}};
-        $runner->start($hosts, $task, @$args);
+
+        my %result;
+        my $skip_by_error;
+        for my $host (@$hosts) {
+            if ($skip_by_error) {
+                log error => sprintf '[%s] Skipped', $host;
+                $result{$host}->{error}++;
+                next;
+            }
+            
+            $result{$host} = +{ error => 0 };
+            
+            local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
+            eval { $task->code->($host, @$args) };
+            
+            if ($@) {
+                chomp $@;
+                log error => sprintf '[%s] %s', $host, $@;
+                $result{$host}->{error}++;
+                $skip_by_error = 1;
+            }
+        }
+        \%result;
     };
     my (@success, @error);
     

@@ -78,7 +78,6 @@ File::Slurp~9999.19
 IO::Socket::SSL~1.953
 Digest::SHA1~2.13
 Guard~1.022
-Coro~6.31
 HTTP::Date~6.02
 JSON::PP~2.27202
 Mozilla::CA~20130114
