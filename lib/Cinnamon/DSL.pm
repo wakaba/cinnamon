@@ -63,6 +63,7 @@ sub call ($$@) {
     croak "Host is not specified" unless defined $host;
     my $task = CTX->get_task($task_path) or croak "Task |$task_path| not found";
     $task->run(
+        #role => ...,
         hosts => [$host],
         args => \@args,
         onerror => sub { die "$_[0]\n" },

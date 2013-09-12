@@ -58,12 +58,32 @@ sub info {
 
 sub run {
     my ($self, %args) = @_;
-    my $desc = $self->get_desc;
     croak '|' . $self->name . '| is not callable' unless $self->is_callable;
+    my $desc = $self->get_desc;
     log info => sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '';
+
+    ## At least one of |hosts| and |role| is required.
+    my $hosts = $args{hosts} || $args{role}->get_hosts;
+
+    {
+        my %found;
+        $hosts = [grep { not $found{$_}++ } @$hosts];
+    }
+    {
+        my $desc = defined $args{role} ? $args{role}->get_desc : undef;
+        log info => sprintf 'Host%s %s (@%s%s)',
+            @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
+            $args{role}->name, defined $desc ? ' ' . $desc : '';
+    }
+
+    # XXX
+    if ($self->name eq 'cinnamon:role:hosts') {
+        unshift @{$args{args} ||= []}, $hosts;
+    }
+
     my %result;
     my $skip_by_error;
-    for my $host (@{$args{hosts}}) {
+    for my $host (@$hosts) {
         if ($skip_by_error) {
             my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
             ($args{onerror} || sub { die $_[0] })->($msg);

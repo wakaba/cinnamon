@@ -13,7 +13,7 @@ task 'cinnamon' => {
             my $role_defs = CTX->roles;
             log info => "Available roles:\n" .
                 join "", map {
-                    my $desc = CTX->get_role_desc($_);
+                    my $desc = CTX->get_role($_)->get_desc;
                     "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
                 } sort { $a cmp $b } keys %$role_defs;
         },

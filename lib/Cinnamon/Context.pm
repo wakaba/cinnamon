@@ -16,20 +16,20 @@ sub new {
 
 sub run {
     my ($self, $role_name, $task_path, %opts)  = @_;
-    $role_name =~ s/^\@// if defined $role_name;
+    my $role = $self->get_role($role_name) || do {
+        if ($task_path eq 'cinnamon:role:list') {
+            Cinnamon::Role->new(name => '', hosts => ['']); # XXX
+        } else {
+            log 'error', "Role |\@$role_name| is not defined";
+            return ([], ['undefined role']);
+        }
+    };
 
     my $args = $opts{args};
-    my $hosts  = $self->get_role_hosts($role_name);
-    my $orig_hosts = $hosts;
-    $hosts = $opts{hosts} if $opts{hosts};
+
     my $show_tasklist = $task_path =~ /:$/;
 
-    if ($task_path eq 'cinnamon:role:hosts') {
-        unshift @$args, $hosts || [];
-        $hosts = [''];
-        require Cinnamon::Task::Cinnamon;
-    }
-
+    require Cinnamon::Task::Cinnamon if $task_path eq 'cinnamon:role:hosts';
     my $task = $self->get_task($task_path);
     unless (defined $task) {
         log 'error', "Task |$task_path| is not defined";
@@ -42,44 +42,26 @@ sub run {
         $task = $self->get_task($task_path);
     }
 
-    unless (defined $orig_hosts) {
-        if ($task_path =~ /^cinnamon:/) {
-            $hosts ||= [''];
-        } else {
-            log 'error', "Role |\@$role_name| is not defined";
-            return ([], ['undefined role']);
-        }
+    my $params = $role->params;
+    for my $key (keys %$params) {
+        $self->set_param($key => $params->{$key});
     }
-
-    if (@$hosts == 0) {
-        log error => "No host found for role '\@$role_name'";
-    } elsif (@$hosts > 1 or $hosts->[0] ne '') {
-        {
-            my %found;
-            $hosts = [grep { not $found{$_}++ } @$hosts];
-        }
-
-        my $desc = $self->get_role_desc($role_name);
-        log info => sprintf 'Host%s %s (@%s%s)',
-            @$hosts == 1 ? '' : 's', (join ', ', @$hosts), $role_name,
-            defined $desc ? ' ' . $desc : '';
-    }
-
     $self->set_param(role => $role_name);
     $self->set_param(task => $task_path);
 
     my $result = do {
         local $self->{params} = {%{$self->{params}}};
         $task->run(
-            hosts => $hosts,
+            role => $role,
+            hosts => $opts{hosts},
             args => $args,
             onerror => sub {
                 log error => $_[0];
             },
         );
     };
+
     my (@success, @error);
-    
     for my $key (keys %{$result || {}}) {
         if ($result->{$key}->{error}) {
             push @error, $key;
@@ -141,29 +123,6 @@ sub get_role {
     return $self->{roles}->{$name}; # or undef
 }
 
-sub get_role_hosts {
-    my ($self, $name) = @_;
-    my $role = $self->{roles}->{$name} or return undef;
-    my $hosts = $role->get_hosts;
-
-    my $params = $role->params;
-    for my $key (keys %$params) {
-        $self->set_param($key => $params->{$key});
-    }
-
-    return $hosts;
-}
-
-sub get_role_desc {
-    my ($self, $name) = @_;
-    my $desc = $self->{roles}->{$name}->get_desc;
-    if (not defined $desc) {
-        my $code = $self->get_param('get_role_desc_for');
-        $desc = $code->($name) if $code;
-    }
-    return $desc;
-}
-
 sub roles {
     return $_[0]->{roles};
 }
@@ -216,7 +175,7 @@ sub get_task {
     my ($self, $path) = @_;
     if (not ref $path) {
         $path = [split /:/, $path, -1];
-        pop @$path if $path->[-1] eq '';
+        pop @$path if @$path and $path->[-1] eq '';
     }
 
     my $value = $self;

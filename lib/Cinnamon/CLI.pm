@@ -63,6 +63,7 @@ sub run {
         @tasks = (['cinnamon:task:list']);
         $req_ctc = 1;
     }
+    $role =~ s/^\@//;
 
     my $keychain;
     if ($key_chain_fds and $key_chain_fds =~ /^([0-9]+),([0-9]+)$/) {

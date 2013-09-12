@@ -1,6 +1,7 @@
 package Cinnamon::Role;
 use strict;
 use warnings;
+use Cinnamon qw(CTX);
 
 sub new {
     my $class = shift;
@@ -48,6 +49,10 @@ sub get_desc {
     if (defined $desc and ref $desc eq 'CODE') {
         return $desc->();
     } else {
+        unless (defined $desc) {
+            my $code = CTX->get_param('get_role_desc_for');
+            $desc = $code->($self->name) if $code;
+        }
         return $desc; # or undef
     }
 }
