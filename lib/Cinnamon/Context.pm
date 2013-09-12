@@ -281,9 +281,7 @@ sub run_cmd {
         $user = defined $user ? $user . '@' : '';
         log info => "[$user$host] \$ " . join ' ', @$commands;
     }
-    my $result = $executor->execute($commands, $opts);
-
-    return ($result->{stdout}, $result->{stderr});
+    return $executor->execute($commands, $opts);
 }
 
 sub build_command_executor {

@@ -86,12 +86,14 @@ sub remote (&$;%) {
 sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    return CTX->run_cmd(\@cmd, $opts);
+    my $result = CTX->run_cmd(\@cmd, $opts);
+    return defined wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
 sub sudo (@) {
     my (@cmd) = @_;
-    return CTX->run_cmd(\@cmd, { sudo => 1 });
+    my $result = CTX->run_cmd(\@cmd, { sudo => 1 });
+    return defined wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
 # For backward compatibility
