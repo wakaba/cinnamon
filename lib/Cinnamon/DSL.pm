@@ -1,11 +1,14 @@
 package Cinnamon::DSL;
 use strict;
 use warnings;
+use Carp qw(croak);
 use Exporter::Lite;
 use Cinnamon qw(CTX);
 use Cinnamon::Remote;
 use Cinnamon::Logger;
 use Cinnamon::TaskDef;
+
+push our @CARP_NOT, qw(Cinnamon::Task);
 
 our @EXPORT = qw(
     set
@@ -58,13 +61,14 @@ sub taskdef (&$) {
 }
 
 sub call ($$@) {
-    my ($task, $job, @args) = @_;
-    my $task_def = Cinnamon::Config::get_task $task;
-    die "Task |$task| is not defined" unless $task_def;
-    #my $task_desc = ref $task_def eq 'Cinnamon::TaskDef' ? $task_def->get_param('desc') : undef;
-    log info => sprintf "call %s%s",
-        $task, ''; #defined $task_desc ? " ($task_desc)" : '';
-    $task_def->($job, @args);
+    my ($task_path, $host, @args) = @_;
+    croak "Host is not specified" unless defined $host;
+    my $task = CTX->get_task($task_path) or croak "Task |$task_path| not found";
+    $task->run(
+        hosts => [$host],
+        args => \@args,
+        onerror => sub { die "$_[0]\n" },
+    );
 }
 
 sub remote (&$;%) {

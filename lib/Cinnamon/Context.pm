@@ -76,29 +76,13 @@ sub run {
 
     my $result = do {
         local $self->{params} = {%{$self->{params}}};
-
-        my %result;
-        my $skip_by_error;
-        for my $host (@$hosts) {
-            if ($skip_by_error) {
-                log error => sprintf '[%s] Skipped', $host;
-                $result{$host}->{error}++;
-                next;
-            }
-            
-            $result{$host} = +{ error => 0 };
-            
-            local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
-            eval { $task->code->($host, @$args) };
-            
-            if ($@) {
-                chomp $@;
-                log error => sprintf '[%s] %s', $host, $@;
-                $result{$host}->{error}++;
-                $skip_by_error = 1;
-            }
-        }
-        \%result;
+        $task->run(
+            hosts => $hosts,
+            args => $args,
+            onerror => sub {
+                log error => $_[0];
+            },
+        );
     };
     my (@success, @error);
     

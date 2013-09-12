@@ -1,6 +1,7 @@
 package Cinnamon::Task;
 use strict;
 use warnings;
+use Cinnamon::Logger;
 
 sub new {
     my $class = shift;
@@ -52,6 +53,36 @@ sub info {
     return +{
         $self->name => $self->code,
     };
+}
+
+sub run {
+    my ($self, %args) = @_;
+    my $desc = $self->get_desc;
+    log info => sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '';
+    my %result;
+    my $skip_by_error;
+    for my $host (@{$args{hosts}}) {
+        if ($skip_by_error) {
+            my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
+            ($args{onerror} || sub { die $_[0] })->($msg);
+            $result{$host}->{error}++;
+            next;
+        }
+        
+        $result{$host} = +{ error => 0 };
+        
+        local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
+        eval { $self->code->($host, @{$args{args} or []}) };
+        
+        if ($@) {
+            chomp $@;
+            my $msg = sprintf '%s [%s] %s', $self->name, $host, $@;
+            ($args{onerror} || sub { die $_[0] })->($msg);
+            $result{$host}->{error}++;
+            $skip_by_error = 1;
+        }
+    }
+    return \%result;
 }
 
 1;
