@@ -283,11 +283,6 @@ sub run_cmd {
     }
     my $result = $executor->execute($commands, $opts);
 
-    # XXX ?
-    if ($result->{has_error}) {
-        die sprintf "error status: %d", $result->{error};
-    }
-
     return ($result->{stdout}, $result->{stderr});
 }
 

@@ -12,8 +12,11 @@ sub execute {
     my ($self, $commands, $opts) = @_;
 
     # XXX $opts->{sudo} $opts->{tty} $opts->{hide_output}
+    # XXX async
 
+    my $start_time = time;
     my $result = IPC::Run::run $commands, \my $stdin, \my $stdout, \my $stderr;
+    my $exitcode = $?;
     chomp for ($stdout, $stderr);
 
     for my $line (split "\n", $stdout) {
@@ -25,13 +28,17 @@ sub execute {
             $line;
     }
 
-    # XXX error / $opts->{ignore_errors}
+    my $time = time - $start_time;
+    if ($exitcode != 0 or $time > 1.0) {
+        log error => my $msg = "Exit with status $exitcode ($time s)";
+        die "$msg\n" if not $opts->{ignore_error} and $exitcode != 0;
+    }
 
-    +{
+    return {
         stdout    => $stdout,
         stderr    => $stderr,
-        has_error => $? > 0,
-        error     => $?,
+        has_error => $exitcode > 0,
+        error     => $exitcode,
     };
 }
 
