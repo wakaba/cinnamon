@@ -25,7 +25,7 @@ sub init_logger {
 
 sub log ($$) {
     my ($type, $message) = @_;
-    $Logger->print($type, $message . "\n");
+    $Logger->print($type, $message, newline => 1);
     return;
 }
 

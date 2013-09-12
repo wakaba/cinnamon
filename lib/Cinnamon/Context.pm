@@ -106,15 +106,14 @@ sub run {
         }
     }
 
-    log success => sprintf(
-        "\n========================\n[success]: %s",
-        (join(', ', @success) || ''),
-    );
-
-    log error => sprintf(
-        "[error]: %s",
-        (join(', ', @error)   || ''),
-    );
+    log info => "\n========================\n";
+    if (@error) {
+        log info => "[OK] @{[join ', ', @success]}";
+        log error => "[NG] @{[join ', ', @error]}";
+    } else {
+        log success => "[OK] @{[join ', ', @success]}";
+        log info => "[NG] @{[join ', ', @error]}";
+    }
 
     return (\@success, \@error);
 }

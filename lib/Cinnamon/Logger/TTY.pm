@@ -16,10 +16,11 @@ sub new {
 }
 
 sub print {
-    my ($self, $type, $message) = @_;
+    my ($self, $type, $message, %args) = @_;
     my $color = !!$Cinnamon::Logger::OUTPUT_COLOR ? $COLOR{$type} : 0;
 
     $message = Term::ANSIColor::colored $message, $color if $color;
+    $message .= "\n" if $args{newline};
 
     if ($self->{last_type} and $self->{last_type} ne $type) {
         if (not $self->{has_newline}) {
