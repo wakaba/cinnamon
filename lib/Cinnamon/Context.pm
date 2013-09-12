@@ -274,7 +274,6 @@ sub run_cmd {
     if ($opts->{sudo} and not defined $opts->{password}) {
         $opts->{password} = $self->keychain->get_password_as_cv($executor->user)->recv;
     }
-    $opts->{tty} = !!$self->get_param('tty') unless defined $opts->{tty};
 
     {
         my $host = $executor->host;
