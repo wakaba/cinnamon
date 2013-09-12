@@ -16,7 +16,6 @@ sub new {
 
 sub run {
     my ($self, $role_name, $task_path, %opts)  = @_;
-    Cinnamon::Logger->init_logger;
 
     $role_name =~ s/^\@// if defined $role_name;
 

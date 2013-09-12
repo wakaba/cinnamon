@@ -15,9 +15,16 @@ sub new {
     return bless {@_}, $class;
 }
 
+sub no_color {
+    if (@_ > 1) {
+        $_[0]->{no_color} = $_[1];
+    }
+    return $_[0]->{no_color};
+}
+
 sub print {
     my ($self, $type, $message, %args) = @_;
-    my $color = !!$Cinnamon::Logger::OUTPUT_COLOR ? $COLOR{$type} : 0;
+    my $color = $self->no_color ? 0 : $COLOR{$type};
 
     $message = Term::ANSIColor::colored $message, $color if $color;
     $message .= "\n" if $args{newline};

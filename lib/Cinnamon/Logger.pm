@@ -10,9 +10,9 @@ our @EXPORT = qw(
 
 our $Logger;
 our $LoggerClass = 'Cinnamon::Logger::PlainText';
-our $OUTPUT_COLOR = 1;
 
 sub init_logger {
+    my ($class, %args) = @_;
     if (-t STDOUT) {
         $LoggerClass = 'Cinnamon::Logger::TTY';
     }
@@ -20,6 +20,7 @@ sub init_logger {
     $Logger = $LoggerClass->new(
         stdout => \*STDOUT,
         stderr => \*STDERR,
+        no_color => $args{no_color},
     );
 }
 

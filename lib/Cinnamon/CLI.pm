@@ -76,6 +76,8 @@ sub run {
     if (defined $hosts) {
         $hosts = [grep { length } split /\s*,\s*/, $hosts];
     }
+
+    Cinnamon::Logger->init_logger(no_color => $self->{no_color});
     
     my $context = Cinnamon::Context->new(
         keychain => $keychain,
@@ -83,7 +85,6 @@ sub run {
     local $Cinnamon::Context::CTX = $context;
     $context->set_param(user => $self->{user}) if defined $self->{user};
     my $error_occured = 0;
-    $Cinnamon::Logger::OUTPUT_COLOR = !$self->{no_color};
     require Cinnamon::Task::Cinnamon if $req_ctc;
     for my $t (@tasks) {
         my ($success, $error) = $context->run(
