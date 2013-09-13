@@ -5,6 +5,7 @@ use Cinnamon::CommandExecutor;
 push our @ISA, qw(Cinnamon::CommandExecutor);
 use IPC::Run ();
 use AnyEvent;
+use Cinnamon::CommandResult;
 use Cinnamon::Logger;
 
 sub host { 'localhost' }
@@ -13,6 +14,7 @@ sub execute_as_cv {
     my ($self, $state, $commands, $opts) = @_;
     my $cv = AE::cv;
 
+    $commands = [$commands] if not ref $commands;
     # XXX $opts->{sudo};
 
     {
@@ -40,7 +42,7 @@ sub execute_as_cv {
             $line;
     }
 
-    $cv->send({
+    $cv->send(Cinnamon::CommandResult->new(
         start_time => $start_time,
         end_time => time,
         stdout    => $stdout,
@@ -48,7 +50,7 @@ sub execute_as_cv {
         has_error => $exitcode > 0,
         error     => $exitcode,
         terminated_by_signal => $signal_error,
-    });
+    ));
     return $cv;
 }
 

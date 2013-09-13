@@ -20,10 +20,10 @@ sub execute {
     my $cv = $self->execute_as_cv(@_);
     my $result = $cv->recv;
 
-    my $time = $result->{end_time} - $result->{start_time};
-    if ($result->{error} != 0 or $time > 1.0) {
-        log error => my $msg = "Exit with status $result->{error} ($time s)";
-        die "$msg\n" if (not $opts->{ignore_error} and $result->{error} != 0) or $result->{terminated_by_signal};
+    my $time = $result->elapsed_time;
+    if ($result->error_code != 0 or $time > 1.0) {
+        log error => my $msg = "Exit with status @{[$result->error_code]} ($time s)";
+        die "$msg\n" if (not $opts->{ignore_error} and $result->error_code != 0) or $result->terminated_by_signal;
     }
 
     return $result;

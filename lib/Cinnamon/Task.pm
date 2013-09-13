@@ -95,6 +95,16 @@ sub run {
             ($args{onerror} || sub { die $_[0] })->($msg);
             return $state->create_result(failed => 1);
         }
+
+        if (UNIVERSAL::isa ($result, 'AnyEvent::CondVar')) {
+            $result = $result->recv;
+        } elsif (UNIVERSAL::isa ($result, 'Cinnamon::TaskResult')) {
+            #
+        } else {
+            log error => 'A non-result non-cv object (.$result.) is retuned';
+            $result = $state->create_result(failed => 1);
+        }
+
         return $result;
     } else {
         my @succeeded_host;

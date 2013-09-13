@@ -9,7 +9,7 @@ use Cinnamon::Logger;
 use AnyEvent;
 use AnyEvent::Handle;
 use POSIX;
-
+use Cinnamon::CommandResult;
 use Cinnamon::Logger;
 use Cinnamon::Logger::Channel;
 
@@ -28,6 +28,7 @@ sub execute_as_cv {
     my $conn = $self->connection;
     my $cv = AE::cv;
 
+    $commands = [$commands] if not ref $commands;
     if (defined $opts && $opts->{sudo}) {
         if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
             @$commands = ('sudo', -Sk, '--', 'sh', -c => @$commands);
@@ -70,7 +71,7 @@ sub execute_as_cv {
         waitpid $pid, 0;
         my $exitcode = $?;
         $state->remove_terminate_handler($handler);
-        $cv->send({
+        $cv->send(Cinnamon::CommandResult->new(
             start_time => $start_time,
             end_time => time,
             stdout    => $stdout_str,
@@ -78,7 +79,7 @@ sub execute_as_cv {
             has_error => $exitcode > 0,
             error     => $exitcode,
             terminated_by_signal => $signal_error,
-        });
+        ));
     };
 
     if ($opts->{password}) {

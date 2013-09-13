@@ -23,6 +23,16 @@ sub args {
     return $_[0]->{args} || [];
 }
 
+sub remote {
+    my ($self, %args) = @_;
+    return bless {%args, state => $self, remote => 1}, 'Cinnamon::State::RemoteOrLocal';
+}
+
+sub local {
+    my ($self, %args) = @_;
+    return bless {%args, state => $self, local => 1}, 'Cinnamon::State::RemoteOrLocal';
+}
+
 sub create_result {
     my ($self, %args) = @_;
     return Cinnamon::TaskResult->new(
@@ -30,6 +40,11 @@ sub create_result {
         succeeded_hosts => $args{succeeded_hosts},
         failed_hosts => $args{failed_hosts},
     );
+}
+
+sub create_result_cv {
+    my $self = shift;
+    return $self->create_result(@_)->as_cv;
 }
 
 sub add_terminate_handler {
@@ -74,6 +89,20 @@ sub destroy {
     delete $_[0]->{SIGTERM};
     delete $_[0]->{SIGINT};
     delete $_[0]->{terminate_handlers};
+}
+
+package Cinnamon::State::RemoteOrLocal;
+
+sub run_as_cv {
+    my ($self, $commands, $opts) = @_;
+    return $self->{state}->context->get_command_executor(%$self)
+        ->execute_as_cv($self->{state}, $commands, $opts);
+}
+
+sub sudo_as_cv {
+    my ($self, $commands, $opts) = @_;
+    return $self->{state}->context->get_command_executor(%$self)
+        ->execute_as_cv($self->{state}, $commands, {%{$opts || {}}, sudo => 1});
 }
 
 1;
