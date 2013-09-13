@@ -22,10 +22,11 @@ sub connection {
 
 sub host { $_[0]->{host} }
 
-sub execute {
-    my ($self, $commands, $opts) = @_;
+sub execute_as_cv {
+    my ($self, $state, $commands, $opts) = @_;
     my $host = $self->host || die "Host is not set";
     my $conn = $self->connection;
+    my $cv = AE::cv;
 
     if (defined $opts && $opts->{sudo}) {
         if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
@@ -51,14 +52,14 @@ sub execute {
         tty => $opts->{tty},
     }, @$commands) or die "open3 failed: " . $conn->error;
 
-    if ($opts->{password}) {
-        print $stdin "$opts->{password}\n";
-    }
+    my $signal_error;
+    $state->add_terminate_handler(my $handler = sub {
+        kill $_[0]->{signal_name}, $pid;
+        $signal_error = 1;
+        return {die => 0, remove => 1};
+    });
 
-    my $cv = AnyEvent->condvar;
-    my $exitcode;
     my ($fhout, $fherr);
-
     my $stdout_str = '';
     my $stderr_str = '';
 
@@ -67,9 +68,22 @@ sub execute {
         undef $fhout;
         undef $fherr;
         waitpid $pid, 0;
-        $exitcode = $?;
-        $cv->send;
+        my $exitcode = $?;
+        $state->remove_terminate_handler($handler);
+        $cv->send({
+            start_time => $start_time,
+            end_time => time,
+            stdout    => $stdout_str,
+            stderr    => $stderr_str,
+            has_error => $exitcode > 0,
+            error     => $exitcode,
+            terminated_by_signal => $signal_error,
+        });
     };
+
+    if ($opts->{password}) {
+        print $stdin "$opts->{password}\n";
+    }
 
     my $user = $self->user;
     $user = defined $user ? $user . '@' : '';
@@ -126,31 +140,7 @@ sub execute {
         },
     );
 
-    my $sigs = {};
-    $sigs->{TERM} = AE::signal TERM => sub {
-        kill 'TERM', $pid;
-        undef $sigs;
-    };
-    $sigs->{INT} = AE::signal INT => sub {
-        kill 'INT', $pid;
-        undef $sigs;
-    };
-
-    $cv->recv;
-    undef $sigs;
-
-    my $time = time - $start_time;
-    if ($exitcode != 0 or $time > 1.0) {
-        log error => my $msg = "Exit with status $exitcode ($time s)";
-        die "$msg\n" if not $opts->{ignore_error} and $exitcode != 0;
-    }
-
-    +{
-        stdout    => $stdout_str,
-        stderr    => $stderr_str,
-        has_error => $exitcode > 0,
-        error     => $exitcode,
-    };
+    return $cv;
 }
 
 !!1;

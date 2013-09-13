@@ -110,6 +110,10 @@ sub run {
 
             local $_ = undef;
             local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
+            local $Cinnamon::Runner::State = $state; # XXX
+            $state->add_terminate_handler(sub {
+              # XXX
+            });
             eval { $self->code->($host, @{$state->args}) };
             
             if ($@) {
