@@ -109,7 +109,9 @@ sub sudo_as_cv {
     $self->{state}->context->keychain->get_password_as_cv($self->{user})->cb(sub {
         $opts->{password} = $_[0]->recv;
         $executor->execute_as_cv($self->{state}, $commands, $opts)->cb(sub {
-            $cv->send($_[0]->recv);
+            my $result = $_[0]->recv;
+            $result->show_result_and_detect_error($opts);
+            $cv->send($result);
         });
     });
     return $cv;

@@ -92,8 +92,11 @@ sub run (@) {
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
     $commands = $executor->construct_command($commands, $opts);
-    my $result = $executor->execute($state, $commands, $opts);
-    return defined wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
+    my $cv = $executor->execute_as_cv($state, $commands, $opts);
+    my $result = $cv->recv;
+    my $errmsg = $result->show_result_and_detect_error;
+    die "$errmsg\n" if defined $errmsg;
+    return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
 sub sudo (@) {

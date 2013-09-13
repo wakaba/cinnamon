@@ -62,6 +62,7 @@ sub execute_as_cv {
             has_error => $exitcode > 0,
             error     => $exitcode,
             terminated_by_signal => $signal_error,
+            opts => $opts,
         ));
     };
 

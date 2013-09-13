@@ -29,20 +29,4 @@ sub construct_command {
 
 sub execute_as_cv { die "|execute_as_cv| not implemented" }
 
-sub execute {
-    my $self = shift;
-    my $opts = $_[2];
-
-    my $cv = $self->execute_as_cv(@_);
-    my $result = $cv->recv;
-
-    my $time = $result->elapsed_time;
-    if ($result->error_code != 0 or $time > 1.0) {
-        log error => my $msg = "Exit with status @{[$result->error_code]} ($time s)";
-        die "$msg\n" if (not $opts->{ignore_error} and $result->error_code != 0) or $result->terminated_by_signal;
-    }
-
-    return $result;
-}
-
 1;
