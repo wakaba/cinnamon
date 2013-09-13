@@ -1,4 +1,4 @@
-package Cinnamon::Local;
+package Cinnamon::CommandExecutor::Local;
 use strict;
 use warnings;
 use Cinnamon::CommandExecutor;

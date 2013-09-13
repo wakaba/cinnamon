@@ -37,12 +37,12 @@ task test_remote => sub {
 CONFIG
     no strict 'refs';
     no warnings 'redefine';
-    local *Cinnamon::Local::execute = sub {
+    local *Cinnamon::CommandExecutor::Local::execute = sub {
         my ($self, $commands) = @_;
         is_deeply $commands, [qw/command foo/];
         +{}
     };
-    local *Cinnamon::Remote::execute = sub {
+    local *Cinnamon::CommandExecutor::Remote::execute = sub {
         my ($self, $commands, $opts) = @_;
         is_deeply $commands, [qw/command bar/];
         +{}

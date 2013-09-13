@@ -7,6 +7,8 @@ use Carp qw(croak);
 use Cinnamon::Logger;
 use Cinnamon::Role;
 use Cinnamon::TaskResult;
+use Cinnamon::CommandExecutor::Local;
+use Cinnamon::CommandExecutor::Remote;
 
 our $CTX;
 
@@ -211,15 +213,14 @@ sub get_command_executor {
         my $user = $args{user};
         return $self->{remote}->{$host}->{defined $user ? 'user=' . $user : ''} ||= do {
             log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
-            Cinnamon::Remote->new(
+            Cinnamon::CommandExecutor::Remote->new(
                 host => $host,
                 user => $user,
             );
         };
     } elsif ($args{local}) {
         return $self->{local} ||= do {
-            require Cinnamon::Local;
-            return Cinnamon::Local->new;
+            return Cinnamon::CommandExecutor::Local->new;
         };
     } else {
         die "Neither |remote| or |local| is specified";

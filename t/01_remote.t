@@ -4,7 +4,7 @@ use Test::More skip_all => 'TODO';
 
 use Net::OpenSSH;
 
-use Cinnamon::Remote;
+use Cinnamon::CommandExecutor::Remote;
 
 no strict 'refs';
 no warnings 'redefine';
@@ -18,7 +18,7 @@ subtest 'run success' => sub {
         my ($self, $cmd) = @_;
         return ($cmd, $cmd);
     };
-    my $remote = Cinnamon::Remote->new(host => 'localhost', user => 'app');
+    my $remote = Cinnamon::CommandExecutor::Remote->new(host => 'localhost', user => 'app');
     my $res = $remote->execute({}, "ls", "/");
     is $res->{stdout}, "ls /";
     is $res->{stderr}, "ls /";
@@ -32,7 +32,7 @@ subtest 'run failure' => sub {
         return ($cmd, $cmd);
     };
     local *Net::OpenSSH::error = sub { 'error' };
-    my $remote = Cinnamon::Remote->new(host => 'localhost', user => 'app');
+    my $remote = Cinnamon::CommandExecutor::Remote->new(host => 'localhost', user => 'app');
     $remote->connection->error('error');
     my $res = $remote->execute({}, "ls", "/");
     is $res->{stdout}, "ls /";
@@ -46,7 +46,7 @@ subtest 'sudo run success' => sub {
         my ($self, $opt, $cmd) = @_;
         return ($cmd, $opt);
     };
-    my $remote = Cinnamon::Remote->new(host => 'localhost', user => 'app');
+    my $remote = Cinnamon::CommandExecutor::Remote->new(host => 'localhost', user => 'app');
     $remote->connection->error('error');
     my $res = $remote->execute({sudo => 1, password => 'password'}, "ls", "/");
     is $res->{stdout}, "sudo -Sk ls /";
@@ -59,7 +59,7 @@ subtest 'sudo run with tty' => sub {
         my ($self, $opt, $cmd) = @_;
         return ($cmd, $opt);
     };
-    my $remote = Cinnamon::Remote->new(host => 'localhost', user => 'app');
+    my $remote = Cinnamon::CommandExecutor::Remote->new(host => 'localhost', user => 'app');
     $remote->connection->error('error');
     my $res = $remote->execute({sudo => 1, password => 'password', tty => 1}, "ls", "/");
     is $res->{stdout}, "sudo -Sk ls /";

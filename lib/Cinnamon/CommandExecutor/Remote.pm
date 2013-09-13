@@ -1,8 +1,8 @@
-package Cinnamon::Remote;
+package Cinnamon::CommandExecutor::Remote;
 use strict;
 use warnings;
 use Cinnamon::CommandExecutor;
-push our @ISA, qw(Cinnamon::CommandExecutor);
+push our @ISA, qw(Cinnamon::CommandExecutor Cinnamon::Remote);
 use Net::OpenSSH;
 use Cinnamon::Logger;
 
@@ -124,5 +124,8 @@ sub execute_as_cv {
 
     return $cv;
 }
+
+# for backcompat
+package Cinnamon::Remote;
 
 !!1;

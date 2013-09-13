@@ -10,7 +10,7 @@ our @EXPORT;
 
 push @EXPORT, qw(get_git_revision);
 sub get_git_revision {
-    if ($_ and $_->isa('Cinnamon::Remote')) {
+    if ($_ and $_->isa('Cinnamon::CommandExecutor::Remote')) {
         my $dir = (get 'git_deploy_dir') || (get 'deploy_dir');
         my ($rev) = run "(cd $dir && git rev-parse HEAD) || true";
         chomp $rev;

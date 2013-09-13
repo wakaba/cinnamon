@@ -4,7 +4,6 @@ use warnings;
 use Carp qw(croak);
 use Exporter::Lite;
 use Cinnamon qw(CTX);
-use Cinnamon::Remote;
 use Cinnamon::Logger;
 use Cinnamon::TaskDef;
 
@@ -88,7 +87,7 @@ sub remote (&$;%) {
 sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::Remote')) ? $_ : CTX->get_command_executor(local => 1);
+    my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::CommandExecutor::Remote')) ? $_ : CTX->get_command_executor(local => 1);
     my $state = $Cinnamon::Runner::State; # XXX
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
