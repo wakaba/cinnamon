@@ -14,15 +14,10 @@ sub execute_as_cv {
     my ($self, $state, $commands, $opts) = @_;
     my $cv = AE::cv;
 
-    $commands = [$commands] if not ref $commands;
-    # XXX $opts->{sudo};
-
-    {
-        my $host = $self->host;
-        my $user = $self->user;
-        $user = defined $user ? $user . '@' : '';
-        log info => "[$user$host] \$ " . join ' ', @$commands;
-    }
+    my $host = $self->host;
+    my $user = $self->user;
+    $user = defined $user ? $user . '@' : '';
+    log info => "[$user$host] \$ " . join ' ', @$commands;
 
     # XXX $opts->{tty} $opts->{hide_output}
     # XXX async

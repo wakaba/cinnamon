@@ -20,34 +20,17 @@ sub connection {
        );
 }
 
-sub host { $_[0]->{host} }
+sub host { $_[0]->{host} || die "Host is not set" }
 
 sub execute_as_cv {
     my ($self, $state, $commands, $opts) = @_;
-    my $host = $self->host || die "Host is not set";
     my $conn = $self->connection;
     my $cv = AE::cv;
 
-    $commands = [$commands] if not ref $commands;
-    if (defined $opts && $opts->{sudo}) {
-        if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
-            @$commands = ('sudo', -Sk, '--', 'sh', -c => @$commands);
-        } elsif (@$commands == 1 and $commands->[0] eq '') {
-            @$commands = ('sudo', '-Sk');
-        } else {
-            @$commands = ('sudo', '-Sk', '--', @$commands);
-        }
-    } else {
-        if (@$commands == 1 and $commands->[0] =~ m{[ &<>|()]}) {
-            @$commands = ('sh', -c => @$commands);
-        }
-    }
-
-    {
-        my $user = $self->user;
-        $user = defined $user ? $user . '@' : '';
-        log info => "[$user$host] \$ " . join ' ', @$commands;
-    }
+    my $host = $self->host;
+    my $user = $self->user;
+    $user = defined $user ? $user . '@' : '';
+    log info => "[$user$host] \$ " . join ' ', @$commands;
 
     my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
         tty => $opts->{tty},
@@ -86,8 +69,6 @@ sub execute_as_cv {
         print $stdin "$opts->{password}\n";
     }
 
-    my $user = $self->user;
-    $user = defined $user ? $user . '@' : '';
     my $out_logger = Cinnamon::Logger::Channel->new(
         type => 'info',
         label => "$user$host o",

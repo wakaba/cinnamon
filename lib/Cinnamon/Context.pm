@@ -12,7 +12,7 @@ our $CTX;
 
 sub new {
     my $class = shift;
-    return bless {roles => {}, tasks => {}, params => {}}, $class;
+    return bless {@_, roles => {}, tasks => {}, params => {}}, $class;
 }
 
 sub run {

@@ -95,14 +95,24 @@ package Cinnamon::State::RemoteOrLocal;
 
 sub run_as_cv {
     my ($self, $commands, $opts) = @_;
-    return $self->{state}->context->get_command_executor(%$self)
-        ->execute_as_cv($self->{state}, $commands, $opts);
+    my $executor = $self->{state}->context->get_command_executor(%$self);
+    $commands = $executor->construct_command($commands, $opts);
+    return $executor->execute_as_cv($self->{state}, $commands, $opts);
 }
 
 sub sudo_as_cv {
     my ($self, $commands, $opts) = @_;
-    return $self->{state}->context->get_command_executor(%$self)
-        ->execute_as_cv($self->{state}, $commands, {%{$opts || {}}, sudo => 1});
+    $opts->{sudo} = 1;
+    my $executor = $self->{state}->context->get_command_executor(%$self);
+    $commands = $executor->construct_command($commands, $opts);
+    my $cv = AE::cv;
+    $self->{state}->context->keychain->get_password_as_cv($self->{user})->cb(sub {
+        $opts->{password} = $_[0]->recv;
+        $executor->execute_as_cv($self->{state}, $commands, $opts)->cb(sub {
+            $cv->send($_[0]->recv);
+        });
+    });
+    return $cv;
 }
 
 1;

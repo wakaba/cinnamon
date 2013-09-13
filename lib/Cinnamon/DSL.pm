@@ -90,7 +90,10 @@ sub run (@) {
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
     my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::Remote')) ? $_ : CTX->get_command_executor(local => 1);
     my $state = $Cinnamon::Runner::State; # XXX
-    my $result = $executor->execute($state, \@cmd, $opts);
+    my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
+        (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
+    $commands = $executor->construct_command($commands, $opts);
+    my $result = $executor->execute($state, $commands, $opts);
     return defined wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
