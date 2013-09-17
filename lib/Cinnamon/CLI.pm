@@ -60,7 +60,7 @@ sub run {
         @tasks = (['cinnamon:role:list']);
         $req_ctc = 1;
     } elsif (not @tasks) {
-        @tasks = (['cinnamon:task:list']);
+        @tasks = (['cinnamon:task:default']);
         $req_ctc = 1;
     }
     $role =~ s/^\@//;

@@ -41,7 +41,7 @@ sub run {
     if ($show_tasklist or not $task->is_callable) {
         unshift @$args, $task_path;
         require Cinnamon::Task::Cinnamon;
-        $task_path = 'cinnamon:task:list';
+        $task_path = 'cinnamon:task:default';
         $task = $self->get_task($task_path);
     }
 

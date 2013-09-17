@@ -15,7 +15,7 @@ task ['cinnamon', 'role', 'list'] => sub {
     return $state->create_result;
 }, {hosts => 'none'};
 
-task ['cinnamon', 'role', 'hosts'] => sub {
+task ['cinnamon', 'role', 'hosts'] => my $host_list = sub {
     my $state = shift;
     my $file_name = $state->args->[0];
     if (defined $file_name) {
@@ -27,7 +27,7 @@ task ['cinnamon', 'role', 'hosts'] => sub {
     return $state->create_result;
 }, {hosts => 'all'};
 
-task ['cinnamon', 'task', 'list'] => sub {
+task ['cinnamon', 'task', 'list'] => my $task_list = sub {
     my $state = shift;
     my $prefix = $state->args->[0];
     $prefix = '' unless defined $prefix;
@@ -43,5 +43,13 @@ task ['cinnamon', 'task', 'list'] => sub {
         } sort { $a cmp $b } keys %$task_defs;
     return $state->create_result;
 }, {hosts => 'none'};
+
+task ['cinnamon', 'task', 'default'] => sub {
+    my $state = shift;
+    $task_list->($state);
+    log info => 'Hosts:';
+    $host_list->($state);
+    return $state->create_result;
+}, {hosts => 'all'};
 
 1;
