@@ -70,11 +70,16 @@ sub run {
         $hosts = $args{hosts} || $args{role}->get_hosts;
         my %found;
         $hosts = [grep { not $found{$_}++ } @$hosts];
-        my $desc = defined $args{role} ? $args{role}->get_desc : undef;
-        log info => sprintf 'Host%s %s (@%s%s)',
-            @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
-            defined $args{role} ? $args{role}->name : '',
-            defined $desc ? ' ' . $desc : '';
+        if (defined $args{role}) {
+            my $desc = $args{role}->get_desc;
+            log info => sprintf 'Host%s %s (@%s%s)',
+                @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
+                $args{role}->name,
+                defined $desc ? ' ' . $desc : '';
+        } else {
+            log info => sprintf 'Host%s %s',
+                @$hosts == 1 ? '' : 's', (join ', ', @$hosts);
+        }
     } elsif (defined $args{role}) {
         my $desc = defined $args{role} ? $args{role}->get_desc : undef;
         log info => sprintf '(@%s%s)',
