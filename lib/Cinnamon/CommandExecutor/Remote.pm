@@ -55,6 +55,8 @@ sub execute_as_cv {
         my $exitcode = $?;
         $state->remove_terminate_handler($handler);
         $cv->send(Cinnamon::CommandResult->new(
+            host => $host,
+            user => $user,
             start_time => $start_time,
             end_time => time,
             stdout    => $stdout_str,
