@@ -95,9 +95,15 @@ package Cinnamon::State::RemoteOrLocal;
 
 sub run_as_cv {
     my ($self, $commands, $opts) = @_;
+    my $cv = AE::cv;
     my $executor = $self->{state}->context->get_command_executor(%$self);
     $commands = $executor->construct_command($commands, $opts);
-    return $executor->execute_as_cv($self->{state}, $commands, $opts);
+    $executor->execute_as_cv($self->{state}, $commands, $opts)->cb(sub {
+        my $result = $_[0]->recv;
+        $result->show_result_and_detect_error($opts);
+        $cv->send($result);
+    });
+    return $cv;
 }
 
 sub sudo_as_cv {
