@@ -248,14 +248,19 @@ sub define_daemontools_tasks ($;%) {
                     sudo 'svstat ' . $dir . '/' . $service->($name) . '/log';
                 } $host, user => $user;
             },
-            tail => sub {
-                my ($host, @args) = @_;
+            tail => (taskdef {
+                my $state = shift;
+                my $cv = $state->create_result_cv;
                 my $user = get 'daemontools_user';
-                remote {
-                    my $file_name = get 'get_daemontools_log_file_name';
-                    run_stream 'tail', '--follow=name', ($file_name->($name));
-                } $host, user => $user;
-            },
+                my $file_names = [(get 'get_daemontools_log_file_name')->($name)];
+                for my $host (@{$state->hosts}) {
+                    $cv->begin_host($host);
+                    $state->remote(host => $host, user => $user)->run_as_cv(['tail', '--follow=name', @$file_names])->cb(sub {
+                        $cv->end_host($host, $_[0]->recv);
+                    });
+                }
+                return $cv->return;
+            } {desc => 'Tail log files', hosts => 'all'}),
         },
         uninstall => sub {
             my ($host, @args) = @_;
