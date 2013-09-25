@@ -42,7 +42,7 @@ OUTPUT
 sub _no_config : Tests {
     my $app = Test::Cinnamon::CLI::cli();
     is $app->run('role', 'task'), CLI_ERROR;
-    is $app->system_error, "cannot find config file for deploy : config/deploy.pl\nUsage: cinnamon [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>\n";
+    is $app->system_error, "cannot find config file for deploy : config/deploy.pl\n";
 }
 
 sub _valid : Tests {

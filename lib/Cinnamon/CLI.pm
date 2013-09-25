@@ -50,7 +50,6 @@ sub run {
     $self->{config} ||= 'config/deploy.pl';
     if (!-e $self->{config}) {
         $self->print("cannot find config file for deploy : $self->{config}\n");
-        $self->usage;
         return ERROR;
     }
 
