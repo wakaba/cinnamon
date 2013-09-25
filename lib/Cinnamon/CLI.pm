@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Encode;
 use Getopt::Long;
+use Path::Class;
 use Cinnamon::Context;
 use Cinnamon::Config;
 use Cinnamon::Logger;
@@ -21,10 +22,12 @@ sub run {
     my $p = Getopt::Long::Parser->new(
         config => ["no_ignore_case", "pass_through"],
     );
+    my $help;
+    my $version;
     my $hosts = $ENV{HOSTS};
     $p->getoptions(
         "u|user=s"   => \$self->{user},
-        "h|help"     => \$self->{help},
+        "h|help"     => \$help,
         "hosts=s"    => \$hosts,
         "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
@@ -35,11 +38,11 @@ sub run {
         "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
         "no-color"        => \$self->{no_color},
+        "version" => \$version,
     );
 
-    # --help option
-    if ($self->{help}) {
-        $self->usage;
+    if ($help or $version) {
+        $self->usage(help => $help, version => $version);
         return SUCCESS;
     }
 
@@ -113,11 +116,49 @@ sub run {
     return $error_occured ? ERROR : SUCCESS;
 }
 
+sub git_log {
+    return $_[0]->{git_log} ||= do {
+        my $result = {};
+        my $d = file(__FILE__)->dir->parent->parent;
+
+        my $log = `cd \Q$d\E && git log -1 --raw`;
+        if ($log =~ /^commit (\w+)/) {
+            $result->{sha} = $1;
+        }
+        if ($log =~ /^Date:\s*(.+)/m) {
+            $result->{date} = $1;
+        }
+
+        my $repo = `cd \Q$d\E && git config -f .git/config remote.origin.url`;
+        my $gh_user;
+        my $gh_name;
+        if ($repo =~ m{^git\@github.com:([^./]+)/([^./]+)}) {
+            $gh_user = $1;
+            $gh_name = $2;
+        } elsif ($repo =~ m{^git://github.com/([^./]+)/([^./]+)}) {
+            $gh_user = $1;
+            $gh_name = $2;
+        } elsif ($repo =~ m{^https://github.com/([^./]+)/([^./]+)}) {
+            $gh_user = $1;
+            $gh_name = $2;
+        }
+        if (defined $result->{sha} and defined $gh_user) {
+            $result->{rev_url} = qq{https://github.com/$gh_user/$gh_name/commit/$result->{sha}};
+        }
+
+        $result;
+    };
+}
+
 sub usage {
-    my $self = shift;
-    my $msg = <<"HELP";
+    my ($self, %args) = @_;
+    my $log = $self->git_log;
+    my $msg = qq{Cinnamon ($log->{date})
+@{[defined $log->{rev_url} ? "<$log->{rev_url}>" : "Revision $log->{sha}"]}
+};
+    $msg .= q{
 Usage: cinnamon [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>
-HELP
+} if $args{help};
     $self->print($msg);
 }
 
