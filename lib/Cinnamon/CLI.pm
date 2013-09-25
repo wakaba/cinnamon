@@ -155,8 +155,8 @@ sub usage {
     my $msg = qq{Cinnamon ($log->{date})
 @{[defined $log->{rev_url} ? "<$log->{rev_url}>" : "Revision $log->{sha}"]}
 };
-    $msg .= q{
-Usage: cinnamon [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>
+    $msg .= qq{
+Usage: $0 [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>
 } if $args{help};
     $self->print($msg);
 }

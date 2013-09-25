@@ -14,7 +14,7 @@ use constant { CLI_SUCCESS => 0, CLI_ERROR => 1 };
 sub _help : Tests {
     my $app = Test::Cinnamon::CLI::cli();
     is $app->run('--help'), CLI_SUCCESS;
-    is $app->system_error, "Usage: cinnamon [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>\n";
+    like $app->system_error, qr{Usage: .+};
 }
 
 sub _info : Tests {
