@@ -61,12 +61,13 @@ sub call ($$@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
     my $task = CTX->get_task($task_path) or croak "Task |$task_path| not found";
-    $task->run(
+    my $result = $task->run(
         #role => ...,
         hosts => [$host],
         args => \@args,
         onerror => sub { die "$_[0]\n" },
     );
+    return $result->return_values->{$host}; # or undef
 }
 
 sub remote (&$;%) {

@@ -116,6 +116,7 @@ sub run {
         my @succeeded_host;
         my @failed_host;
         my $skip_by_error;
+        my $return = {};
         for my $host (@{$state->hosts}) {
             if ($skip_by_error) {
                 my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
@@ -130,7 +131,7 @@ sub run {
             $state->add_terminate_handler(sub {
               # XXX
             });
-            eval { $self->code->($host, @{$state->args}) };
+            $return->{$host} = eval { $self->code->($host, @{$state->args}) };
             
             if ($@) {
                 chomp $@;
@@ -145,6 +146,7 @@ sub run {
         return $state->create_result(
             succeeded_hosts => \@succeeded_host,
             failed_hosts => \@failed_host,
+            return_values => $return,
         );
     }
 }

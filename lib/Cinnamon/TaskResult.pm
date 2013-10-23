@@ -26,6 +26,14 @@ sub as_cv {
     return $cv;
 }
 
+sub return_values {
+    return $_[0]->{return_values} || {};
+}
+
+sub set_return_value {
+    $_[0]->{return_values}->{$_[1]} = $_[2];
+}
+
 package Cinnamon::TaskResult::CondVar;
 use AnyEvent;
 push our @ISA, qw(AnyEvent::CondVar);

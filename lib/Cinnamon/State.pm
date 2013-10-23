@@ -39,6 +39,7 @@ sub create_result {
         failed => defined $args{failed} ? $args{failed} : !!@{$args{failed_hosts} or []},
         succeeded_hosts => $args{succeeded_hosts},
         failed_hosts => $args{failed_hosts},
+        return_values => $args{return_values},
     );
 }
 
