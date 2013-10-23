@@ -38,7 +38,17 @@ sub kill_process_descendant ($$;$) {
     my %found;
     @pid = grep { not $found{$_}++ } @pid;
     log info => "kill @{[scalar @pid]} processes...";
-    run $opt || {}, 'kill', "-$signal", @pid if @pid;
+    if (@pid) {
+        run {%{$opt || {}}, ignore_error => 1}, 'kill', "-$signal", @pid;
+        my $processes = ps;
+        $processes = {map { $_->{pid} => 1 } keys %$processes};
+        @pid = grep { $processes->{$_} } @pid;
+        if ($opt->{ignore_error}) {
+            log error => "Can't kill processes @pid";
+        } else {
+            die "Can't kill processes @pid";
+        }
+    }
 }
 
 task process => {
