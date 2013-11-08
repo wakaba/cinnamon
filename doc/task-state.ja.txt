@@ -41,3 +41,5 @@ hosts オプションの値を none または all で定義したタスクは、
     failed_hosts => ['host3'],
     failed => 1,
   );
+
+実際の使用例は Cinnamon::Task::Host にあります。
