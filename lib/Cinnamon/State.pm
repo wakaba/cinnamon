@@ -71,6 +71,10 @@ sub add_terminate_handler {
 sub remove_terminate_handler {
     my ($self, $code) = @_;
     $self->{terminate_handlers} = [grep { $_ ne $code } @{$self->{terminate_handlers} or []}];
+    unless (@{$self->{terminate_handlers}}) {
+        delete $self->{SIGTERM};
+        delete $self->{SIGINT};
+    }
 }
 
 sub process_terminate_handlers {
