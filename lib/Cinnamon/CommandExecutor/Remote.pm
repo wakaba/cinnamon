@@ -16,7 +16,8 @@ use Cinnamon::Logger::Channel;
 sub connection {
     my $self = shift;
        $self->{connection} ||= Net::OpenSSH->new(
-           $self->{host}, user => $self->{user}
+           $self->{host}, user => $self->{user},
+           async => 1,
        );
 }
 
@@ -27,103 +28,128 @@ sub execute_as_cv {
     my $conn = $self->connection;
     my $cv = AE::cv;
 
-    my $host = $self->host;
-    my $user = $self->user;
-    $user = defined $user ? $user . '@' : '';
-    log info => "[$user$host] \$ " . join ' ', @$commands;
-
-    my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
-        tty => $opts->{tty},
-    }, @$commands) or die "open3 failed: " . $conn->error;
-
-    my $signal_error;
-    $state->add_terminate_handler(my $handler = sub {
-        kill $_[0]->{signal_name}, $pid;
-        $signal_error = 1;
-        return {die => 0, remove => 1};
-    });
-
-    my ($fhout, $fherr);
-    my $stdout_str = '';
-    my $stderr_str = '';
-
     my $start_time = time;
-    my $end = sub {
-        undef $fhout;
-        undef $fherr;
-        waitpid $pid, 0;
-        my $exitcode = $?;
-        $state->remove_terminate_handler($handler);
-        $cv->send(Cinnamon::CommandResult->new(
-            host => $host,
-            user => $user,
-            start_time => $start_time,
-            end_time => time,
-            stdout    => $stdout_str,
-            stderr    => $stderr_str,
-            has_error => $exitcode > 0,
-            error     => $exitcode,
-            terminated_by_signal => $signal_error,
-            opts => $opts,
-        ));
+    my $conn_cv = AE::cv;
+    my $timer; $timer = AE::timer 0, 0.0010, sub {
+        if ($conn->wait_for_master(1)) {
+            $conn_cv->send;
+            undef $timer;
+        } else {
+            if ($conn->error) {
+                log error => sprintf "[%s] %s", $self->host, $conn->error;
+                $cv->send(Cinnamon::CommandResult->new(
+                    host => $self->host,
+                    has_error => 1,
+                    error => -1,
+                    error_msg => $conn->error,
+                    start_time => $start_time,
+                    end_time => time,
+                    opts => $opts,
+                ));
+                undef $timer;
+            }
+        }
     };
 
-    if ($opts->{password}) {
-        print $stdin "$opts->{password}\n";
-    }
+    $conn_cv->cb(sub {
+        my $host = $self->host;
+        my $user = $self->user;
+        $user = defined $user ? $user . '@' : '';
+        log info => "[$user$host] \$ " . join ' ', @$commands;
 
-    my $out_logger = Cinnamon::Logger::Channel->new(
-        type => 'info',
-        label => "$user$host o",
-    );
-    my $err_logger = Cinnamon::Logger::Channel->new(
-        type => 'error',
-        label => "$user$host e",
-    );
-    my $print = $opts->{hide_output} ? sub { } : sub {
-        my ($s, $handle) = @_;
-        ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
-    };
+        my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
+            tty => $opts->{tty},
+        }, @$commands) or die "open3 failed: " . $conn->error;
 
-    $fhout = AnyEvent::Handle->new(
-        fh => $stdout,
-        on_read => sub {
-            $stdout_str .= $_[0]->rbuf;
-            $print->($_[0]->rbuf => 'stdout');
-            substr($_[0]->{rbuf}, 0) = '';
-        },
-        on_eof => sub {
-            undef $stdout;
-            $end->() if not $stdout and not $stderr;
-        },
-        on_error => sub {
-            my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s o]: %s (%d)", $host, $message, $!
-                unless $! == POSIX::EPIPE;
-            undef $stdout;
-            $end->() if not $stdout and not $stderr;
-        },
-    );
+        my $signal_error;
+        $state->add_terminate_handler(my $handler = sub {
+            kill $_[0]->{signal_name}, $pid;
+            $signal_error = 1;
+            return {die => 0, remove => 1};
+        });
 
-    $fherr = AnyEvent::Handle->new(
-        fh => $stderr,
-        on_read => sub {
-            $stderr_str .= $_[0]->rbuf;
-            $print->($_[0]->rbuf => 'stderr');
-            substr($_[0]->{rbuf}, 0) = '';
-        },
-        on_eof => sub {
-            undef $stderr;
-            $end->() if not $stdout and not $stderr;
-        },
-        on_error => sub {
-            my ($handle, $fatal, $message) = @_;
-            log error => sprintf "[%s e]: %s (%d)", $host, $message, $!
-                unless $! == POSIX::EPIPE;
-            undef $stderr;
-            $end->() if not $stdout and not $stderr;
-        },
-    );
+        my ($fhout, $fherr);
+        my $stdout_str = '';
+        my $stderr_str = '';
+
+        $start_time = time;
+        my $end = sub {
+            undef $fhout;
+            undef $fherr;
+            waitpid $pid, 0;
+            my $exitcode = $?;
+            $state->remove_terminate_handler($handler);
+            $cv->send(Cinnamon::CommandResult->new(
+                host => $host,
+                user => $user,
+                start_time => $start_time,
+                end_time => time,
+                stdout    => $stdout_str,
+                stderr    => $stderr_str,
+                has_error => $exitcode > 0,
+                error     => $exitcode,
+                terminated_by_signal => $signal_error,
+                opts => $opts,
+            ));
+        };
+
+        if ($opts->{password}) {
+            print $stdin "$opts->{password}\n";
+        }
+
+        my $out_logger = Cinnamon::Logger::Channel->new(
+            type => 'info',
+            label => "$user$host o",
+        );
+        my $err_logger = Cinnamon::Logger::Channel->new(
+            type => 'error',
+            label => "$user$host e",
+        );
+        my $print = $opts->{hide_output} ? sub { } : sub {
+            my ($s, $handle) = @_;
+            ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
+        };
+
+        $fhout = AnyEvent::Handle->new(
+            fh => $stdout,
+            on_read => sub {
+                $stdout_str .= $_[0]->rbuf;
+                $print->($_[0]->rbuf => 'stdout');
+                substr($_[0]->{rbuf}, 0) = '';
+            },
+            on_eof => sub {
+                undef $stdout;
+                $end->() if not $stdout and not $stderr;
+            },
+            on_error => sub {
+                my ($handle, $fatal, $message) = @_;
+                log error => sprintf "[%s o]: %s (%d)", $host, $message, $!
+                    unless $! == POSIX::EPIPE;
+                undef $stdout;
+                $end->() if not $stdout and not $stderr;
+            },
+        );
+
+        $fherr = AnyEvent::Handle->new(
+            fh => $stderr,
+            on_read => sub {
+                $stderr_str .= $_[0]->rbuf;
+                $print->($_[0]->rbuf => 'stderr');
+                substr($_[0]->{rbuf}, 0) = '';
+            },
+            on_eof => sub {
+                undef $stderr;
+                $end->() if not $stdout and not $stderr;
+            },
+            on_error => sub {
+                my ($handle, $fatal, $message) = @_;
+                log error => sprintf "[%s e]: %s (%d)", $host, $message, $!
+                    unless $! == POSIX::EPIPE;
+                undef $stderr;
+                $end->() if not $stdout and not $stderr;
+            },
+        );
+    });
 
     return $cv;
 }
