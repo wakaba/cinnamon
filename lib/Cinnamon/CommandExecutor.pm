@@ -10,6 +10,7 @@ sub new {
 
 sub host { die "|host| not implemented" }
 sub user { $_[0]->{user} } # or undef
+sub output_channel { $_[0]->{output_channel} }
 
 sub construct_command {
     my ($self, $commands, $opts) = @_;

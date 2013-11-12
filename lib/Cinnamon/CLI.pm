@@ -1,12 +1,12 @@
 package Cinnamon::CLI;
 use strict;
 use warnings;
+use IO::Handle;
 use Encode;
 use Getopt::Long;
 use Path::Class;
 use Cinnamon::Context;
 use Cinnamon::Config;
-use Cinnamon::Logger;
 
 use constant { SUCCESS => 0, ERROR => 1 };
 
@@ -37,7 +37,7 @@ sub run {
         },
         "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
-        "no-color"        => \$self->{no_color},
+        "no-color"        => \(my $no_color),
         "version" => \$version,
     );
 
@@ -76,14 +76,23 @@ sub run {
         $keychain = Cinnamon::KeyChain::CLI->new;
     }
     
-    if (defined $hosts) {
-        $hosts = [grep { length } split /\s*,\s*/, $hosts];
+    my $out;
+    if (-t STDOUT) {
+        require Cinnamon::OutputChannel::TTY;
+        $out = Cinnamon::OutputChannel::TTY->new_from_fh(\*STDOUT);
+        $out->no_color(1) if $no_color;
+        STDOUT->autoflush(1);
+    } else {
+        require Cinnamon::OutputChannel::PlainText;
+        $out = Cinnamon::OutputChannel::PlainText->new_from_fh(\*STDOUT);
+        STDOUT->autoflush(1);
     }
 
-    Cinnamon::Logger->init_logger(no_color => $self->{no_color});
+    $hosts = [grep { length } split /\s*,\s*/, $hosts] if defined $hosts;
     
     my $context = Cinnamon::Context->new(
         keychain => $keychain,
+        output_channel => $out,
     );
     local $Cinnamon::Context::CTX = $context;
     $context->set_param(user => $self->{user}) if defined $self->{user};

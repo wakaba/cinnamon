@@ -206,6 +206,10 @@ sub keychain {
     return $_[0]->{keychain};
 }
 
+sub output_channel {
+    return $_[0]->{output_channel};
+}
+
 sub get_command_executor {
     my ($self, %args) = @_;
     if ($args{remote}) {
@@ -216,11 +220,14 @@ sub get_command_executor {
             Cinnamon::CommandExecutor::Remote->new(
                 host => $host,
                 user => $user,
+                output_channel => $self->output_channel,
             );
         };
     } elsif ($args{local}) {
         return $self->{local} ||= do {
-            return Cinnamon::CommandExecutor::Local->new;
+            return Cinnamon::CommandExecutor::Local->new(
+                output_channel => $self->output_channel,
+            );
         };
     } else {
         die "Neither |remote| or |local| is specified";

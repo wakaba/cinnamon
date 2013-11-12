@@ -11,7 +11,7 @@ use AnyEvent::Handle;
 use POSIX;
 use Cinnamon::CommandResult;
 use Cinnamon::Logger;
-use Cinnamon::Logger::Channel;
+use Cinnamon::OutputChannel::LinedStream;
 
 sub connection {
     my $self = shift;
@@ -97,14 +97,13 @@ sub execute_as_cv {
             print $stdin "$opts->{password}\n";
         }
 
-        my $out_logger = Cinnamon::Logger::Channel->new(
-            type => 'info',
-            label => "$user$host o",
-        );
-        my $err_logger = Cinnamon::Logger::Channel->new(
-            type => 'error',
-            label => "$user$host e",
-        );
+        my $out = $self->output_channel;
+        my $out_logger = Cinnamon::OutputChannel::LinedStream->new_from_output_channel($out);
+        $out_logger->class('info');
+        $out_logger->label("$user$host o");
+        my $err_logger = Cinnamon::OutputChannel::LinedStream->new_from_output_channel($out);
+        $err_logger->class('error');
+        $err_logger->label("$user$host e");
         my $print = $opts->{hide_output} ? sub { } : sub {
             my ($s, $handle) = @_;
             ($handle eq 'stdout' ? $out_logger : $err_logger)->print($s);
