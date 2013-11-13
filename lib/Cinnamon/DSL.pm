@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Carp qw(croak);
 use Exporter::Lite;
-use Cinnamon qw(CTX);
 use Cinnamon::TaskDef;
 
 our @EXPORT = qw(
@@ -61,7 +60,7 @@ sub taskdef (&$) {
 sub call ($$@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
-    my $task = CTX->get_task($task_path) or croak "Task |$task_path| not found";
+    my $task = $Cinnamon::Context::CTX->get_task($task_path) or croak "Task |$task_path| not found";
     my $result = $task->run(
         #role => ...,
         hosts => [$host],
@@ -77,7 +76,7 @@ sub remote (&$;%) {
                                    : get 'user';
     undef $user unless defined $user and length $user;
 
-    local $_ = CTX->get_command_executor(
+    local $_ = $Cinnamon::Context::CTX->get_command_executor(
         remote => 1,
         host => $host,
         user => $user,
@@ -89,14 +88,14 @@ sub remote (&$;%) {
 sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::CommandExecutor::Remote')) ? $_ : CTX->get_command_executor(local => 1);
+    my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::CommandExecutor::Remote')) ? $_ : $Cinnamon::Context::CTX->get_command_executor(local => 1);
     my $state = $Cinnamon::Runner::State; # XXX
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
     $commands = $executor->construct_command($commands, $opts);
     my $cv = $executor->execute_as_cv($state, $commands, $opts);
     my $result = $cv->recv;
-    my $errmsg = $result->show_result_and_detect_error(CTX);
+    my $errmsg = $result->show_result_and_detect_error($Cinnamon::Context::CTX);
     die "$errmsg\n" if defined $errmsg;
     return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
@@ -106,14 +105,14 @@ sub sudo (@) {
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
     $opts->{sudo} = 1;
     unless (defined $opts->{password}) {
-        $opts->{password} = CTX->keychain->get_password_as_cv($_->user)->recv;
+        $opts->{password} = $Cinnamon::Context::CTX->keychain->get_password_as_cv($_->user)->recv;
     }
     return run $opts, @cmd;
 }
 
 sub log ($$) {
     my ($type, $message) = @_;
-    CTX->output_channel->print($message, newline => 1, class => $type);
+    $Cinnamon::Context::CTX->output_channel->print($message, newline => 1, class => $type);
     return;
 }
 

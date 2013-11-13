@@ -2,7 +2,6 @@ package Cinnamon::DSL::Capistrano;
 use strict;
 use warnings;
 use Path::Class;
-use Cinnamon qw(CTX);
 use Cinnamon::Config ();
 use Cinnamon::DSL ();
 use Cinnamon::DSL::Capistrano::Filter ();
@@ -110,7 +109,7 @@ sub get_remote (;%) {
     my $user = Cinnamon::DSL::get('user');
     undef $user unless defined $user and length $user;
     my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
-    return CTX->get_command_executor(
+    return $Cinnamon::Context::CTX->get_command_executor(
         remote => 1,
         host => $host,
         user => $user,

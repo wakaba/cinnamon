@@ -9,8 +9,6 @@ use Cinnamon::TaskResult;
 use Cinnamon::CommandExecutor::Local;
 use Cinnamon::CommandExecutor::Remote;
 
-our $CTX;
-
 sub new {
     my $class = shift;
     return bless {@_, roles => {}, tasks => {}, params => {}}, $class;

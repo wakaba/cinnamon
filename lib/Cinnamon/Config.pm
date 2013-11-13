@@ -1,29 +1,26 @@
 package Cinnamon::Config;
 use strict;
 use warnings;
-use Cinnamon;
-
-push our @CARP_NOT, qw(Cinnamon);
 
 sub set ($$) {
-    CTX->set_param(@_);
+    $Cinnamon::Context::CTX->set_param(@_);
 }
 
 sub set_default ($$) {
-    CTX->set_param(@_) unless defined CTX->get_param($_[0]);
+    $Cinnamon::Context::CTX->set_param(@_) unless defined $Cinnamon::Context::CTX->get_param($_[0]);
 }
 
 sub get ($@) {
-    return CTX->get_param(@_);
+    return $Cinnamon::Context::CTX->get_param(@_);
 }
 
 sub set_role ($$$;%) {
     my ($role, $hosts, $params, %args) = @_;
-    CTX->set_role($role, $hosts, $params, \%args);
+    $Cinnamon::Context::CTX->set_role($role, $hosts, $params, \%args);
 }
 
 sub set_role_alias ($$) {
-    CTX->set_role_alias($_[0] => $_[1]);
+    $Cinnamon::Context::CTX->set_role_alias($_[0] => $_[1]);
 }
 
 sub _expand_tasks ($$$;$);
@@ -46,16 +43,16 @@ sub set_task ($$;$) {
     my $defs = [];
     $name = [$name] unless ref $name eq 'ARRAY';
     _expand_tasks $name => $task_def => $defs, $root_args;
-    CTX->define_tasks($defs);
+    $Cinnamon::Context::CTX->define_tasks($defs);
 }
 
 sub get_task ($) {
-    my $task = CTX->get_task($_[0]);
+    my $task = $Cinnamon::Context::CTX->get_task($_[0]);
     return $task ? $task->code : undef;
 }
 
 sub user () {
-    return CTX->get_param('user') || real_user();
+    return $Cinnamon::Context::CTX->get_param('user') || real_user();
 }
 
 sub real_user () {

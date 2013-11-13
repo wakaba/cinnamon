@@ -7,7 +7,6 @@ use lib file(__FILE__)->dir->file('lib')->stringify;
 use base qw(Test::Class);
 
 use Test::Cinnamon::CLI;
-use Cinnamon qw(CTX);
 use Cinnamon::DSL ();
 use Cinnamon::Context;
 
