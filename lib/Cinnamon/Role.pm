@@ -53,12 +53,4 @@ sub get_desc {
     }
 }
 
-sub info {
-    my ($self) = @_;
-    return +{
-        hosts  => $self->get_hosts,
-        params => $self->params,
-    };
-}
-
 1;

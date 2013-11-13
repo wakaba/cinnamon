@@ -49,13 +49,6 @@ sub get_desc {
     }
 }
 
-sub info {
-    my ($self) = @_;
-    return +{
-        $self->name => $self->code,
-    };
-}
-
 sub run {
     my ($self, %args) = @_;
     croak '|' . $self->name . '| is not callable' unless $self->is_callable;

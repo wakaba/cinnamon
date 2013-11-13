@@ -17,28 +17,6 @@ sub _help : Tests {
     like $app->system_error, qr{Usage: .+};
 }
 
-sub _info : Tests {
-    my $app = Test::Cinnamon::CLI::cli();
-    $app->dir->touch("config/deploy.pl", <<CONFIG);
-use Cinnamon::DSL;
-role production  => sub { 'example.com'  }, { foo => 'bar' };
-task update      => sub { 'do something' };
-CONFIG
-    is $app->run('--config=config/deploy.pl', '--info'), CLI_SUCCESS;
-    is $app->system_output, <<"OUTPUT";
----
-roles:
-  production:
-    hosts:
-      - example.com
-    params:
-      foo: bar
-tasks:
-  update: !!perl/code '{ "DUMMY" }'
-
-OUTPUT
-}
-
 sub _no_config : Tests {
     my $app = Test::Cinnamon::CLI::cli();
     is $app->run('role', 'task'), CLI_ERROR;

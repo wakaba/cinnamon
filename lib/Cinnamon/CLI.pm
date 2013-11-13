@@ -29,7 +29,6 @@ sub run {
         "u|user=s"   => \$self->{user},
         "h|help"     => \$help,
         "hosts=s"    => \$hosts,
-        "i|info"     => \$self->{info},
         "c|config=s" => \$self->{config},
         "s|set=s"    => sub {
             my ($key, $value) = split /=/, $_[1];
@@ -107,11 +106,6 @@ sub run {
         $context->set_param($key => $self->{override_settings}->{$key});
     }
 
-    if ($self->{info}) {
-        $context->dump_info;
-        return SUCCESS;
-    }
-
     require Cinnamon::Task::Cinnamon if $req_ctc;
     my $error_occured = 0;
     for my $t (@tasks) {
@@ -170,7 +164,7 @@ sub usage {
 @{[defined $log->{rev_url} ? "<$log->{rev_url}>" : "Revision $log->{sha}"]}
 };
     $msg .= qq{
-Usage: $0 [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--info] <role> <task ...>
+Usage: $0 [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--version] <role> <task ...>
 } if $args{help};
     $self->print($msg);
 }

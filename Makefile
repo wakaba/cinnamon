@@ -24,9 +24,7 @@ pmbp-update: pmbp-upgrade
 pmbp-install: pmbp-upgrade
 	perl local/bin/pmbp.pl --install \
 	    --create-perl-command-shortcut perl \
-	    --create-perl-command-shortcut prove \
-	    --write-makefile-pl Build.PL \
-	    --write-makefile-pl cpanfile
+	    --create-perl-command-shortcut prove
 
 git-submodules:
 	$(GIT) submodule update --init

@@ -245,24 +245,4 @@ sub operator_name {
     return $_[0]->{operator_name};
 }
 
-sub dump_info {
-    my ($self) = @_;
-
-    my $roles = $self->roles;
-    my $role_info = +{
-        map { $_->name => $_->info } values %$roles,
-    };
-
-    my $tasks = $self->tasks;
-    my $task_info = +{
-        map { %{$_->info} } values %$tasks,
-    };
-
-    require YAML;
-    $self->info(YAML::Dump({
-        roles => $role_info,
-        tasks => $task_info,
-    }));
-}
-
 !!1;
