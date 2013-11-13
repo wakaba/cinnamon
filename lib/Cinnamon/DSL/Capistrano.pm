@@ -2,6 +2,7 @@ package Cinnamon::DSL::Capistrano;
 use strict;
 use warnings;
 use Path::Class;
+use Carp qw(croak);
 use Cinnamon::DSL ();
 use Cinnamon::DSL::Capistrano::Filter ();
 use Cinnamon::TaskDef;
@@ -63,51 +64,43 @@ sub set_role_alias {
     $Cinnamon::LocalContext->global->set_role_alias($_[1] => $_[2]);
 }
 
-our $Tasks = undef;
-push @EXPORT, qw(namespace);
-sub namespace ($$) {
-    my ($name, $code) = @_;
-    my $tasks = {};
-    if ($Tasks) {
-        if ($Tasks->{$name} and ref $Tasks->{$name} eq 'HASH') {
-            $tasks = $Tasks->{$name};
-        } else {
-            $Tasks->{$name} = $tasks;
-        }
-    } else {
-        my $current_task = $Cinnamon::LocalContext->global->get_task($name);
-        if ($current_task and ref $current_task eq 'HASH') {
-            $tasks = $current_task;
-        }
-    }
-    {
-        local $Tasks = $tasks;
-        $code->();
-    }
-    unless ($Tasks) {
-        &Cinnamon::DSL::task($name => $tasks);
-    }
-}
-
 push @EXPORT, qw(desc);
 sub desc ($) {
     my $name = shift;
     $Cinnamon::LocalContext->{LastDesc} = $name;
 }
 
+our $Tasks = undef;
+push @EXPORT, qw(namespace);
+sub namespace ($$) {
+    my ($name, $code) = @_;
+    my $tasks = [];
+    {
+        local $Tasks = $tasks;
+        $code->();
+    }
+    push @$tasks, {path => [], args => {
+        desc => delete $Cinnamon::LocalContext->{LastDesc}, # or undef
+    }};
+    $_->{path} = [$name, @{$_->{path}}] for @$tasks;
+    if ($Tasks) {
+        push @$Tasks, @$tasks;
+    } else {
+        $Cinnamon::LocalContext->global->define_tasks($tasks);
+    }
+}
+
 push @EXPORT, qw(task);
 sub task ($$) {
     my ($name, $code) = @_;
-    $code = Cinnamon::TaskDef->new_from_code_and_args($code, {
-        desc => $Cinnamon::LocalContext->{LastDesc},
-    }) if defined $Cinnamon::LocalContext->{LastDesc};
+    my $def = {path => [$name], code => $code, args => {
+        desc => delete $Cinnamon::LocalContext->{LastDesc}, # or undef
+    }};
     if ($Tasks) {
-        # XXX $LastDesc
-        $Tasks->{$name} = $code;
+        push @$Tasks, $def;
     } else {
-        &Cinnamon::DSL::task($name => $code);
+        $Cinnamon::LocalContext->global->define_tasks([$def]);
     }
-    delete $Cinnamon::LocalContext->{LastDesc};
 }
 
 push @EXPORT, qw(puts);
@@ -155,8 +148,17 @@ sub application () {
 
 push @EXPORT, qw(call);
 sub call ($;@) {
+    my ($task_path, $host, @args) = @_;
+    croak "Host is not specified" unless defined $host;
+    my $task = $Cinnamon::LocalContext->global->get_task($task_path)
+        or croak "Task |$task_path| not found";
     my $user = get 'user';
-    &Cinnamon::DSL::call(@_);
+    $task->run(
+        #role => ...,
+        hosts => [$host],
+        args => \@args,
+        onerror => sub { die "$_[0]\n" },
+    );
     set user => $user;
 }
 
