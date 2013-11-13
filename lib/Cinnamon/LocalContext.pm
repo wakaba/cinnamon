@@ -26,9 +26,16 @@ sub output_channel {
     return $_[0]->global->output_channel;
 }
 
+sub get_param {
+    my ($self, $name, @args) = @_;
+    my $value = $self->global->params->{$name};
+    $value = $self->eval(sub { $value->(@args) }) if ref $value eq 'CODE';
+    return $value;
+}
+
 sub get_role_desc_by_name {
     my ($self, $role_name) = @_;
-    my $code = $self->global->get_param('get_role_desc_for');
+    my $code = $self->get_param('get_role_desc_for');
     return undef unless defined $code;
     return $self->eval(sub { $code->($role_name) });
 }

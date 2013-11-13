@@ -63,8 +63,8 @@ sub param : Tests {
         $ctx->set_param('key1' => 'value1');
         $ctx->set_param('key2' => 'value2');
 
-        is $ctx->get_param('key1'), 'value1';
-        is $ctx->get_param('key2'), 'value2';
+        is $ctx->params->{'key1'}, 'value1';
+        is $ctx->params->{'key2'}, 'value2';
     };
 
     subtest 'code param' => sub {
@@ -75,9 +75,9 @@ sub param : Tests {
             return "value$count";
         });
 
-        is $ctx->get_param('key1'), 'value1';
-        is $ctx->get_param('key2', 2), 'value2';
-        is $ctx->get_param('key2', 3), 'value3';
+        is $ctx->params->{'key1'}, 'value1';
+        is $ctx->params->{'key2'}->(2), 'value2';
+        is $ctx->params->{'key2'}->(3), 'value3';
     };
 }
 

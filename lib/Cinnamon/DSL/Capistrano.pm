@@ -13,7 +13,7 @@ our @EXPORT;
 push @EXPORT, qw(get);
 sub get ($) {
     local $_ = undef;
-    $Cinnamon::LocalContext->global->get_param($_[0]);
+    $Cinnamon::LocalContext->get_param($_[0]);
 }
 
 push @EXPORT, qw(set);

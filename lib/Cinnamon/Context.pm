@@ -200,16 +200,6 @@ sub set_param {
     $self->params->{$key} = $value;
 }
 
-sub get_param {
-    my ($self, $key, @args) = @_;
-
-    my $value = $self->params->{$key};
-    $value = $Cinnamon::LocalContext->eval(sub { $value->(@args) })
-        if ref $value eq 'CODE';
-
-    return $value;
-}
-
 sub keychain {
     return $_[0]->{keychain};
 }

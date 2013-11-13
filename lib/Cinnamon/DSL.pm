@@ -35,13 +35,13 @@ sub set ($$) {
 sub set_default ($$) {
     my ($name, $value) = @_;
     $Cinnamon::LocalContext->global->set_param(@_)
-        unless defined $Cinnamon::LocalContext->global->get_param($_[0]);
+        unless defined $Cinnamon::LocalContext->global->params->{$_[0]};
 }
 
 sub get ($@) {
     my ($name, @args) = @_;
     local $_ = undef;
-    $Cinnamon::LocalContext->global->get_param($name, @args);
+    $Cinnamon::LocalContext->get_param($name, @args);
 }
 
 sub role ($$;$%) {
