@@ -8,7 +8,7 @@ task ['cinnamon', 'role', 'list'] => sub {
     my $role_defs = $state->context->roles;
     log info => "Available roles:\n" .
         join "", map {
-            my $desc = $state->context->get_role($_)->get_desc;
+            my $desc = $state->context->get_role($_)->get_desc($state->context->get_param('get_role_desc_for'));
             "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
         } sort { $a cmp $b } keys %$role_defs;
     return $state->create_result;

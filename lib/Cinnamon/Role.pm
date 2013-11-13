@@ -43,15 +43,12 @@ sub get_hosts {
 }
 
 sub get_desc {
-    my ($self) = @_;
+    my ($self, $get_code) = @_;
     my $desc = $self->{args}->{desc};
     if (defined $desc and ref $desc eq 'CODE') {
         return $desc->();
     } else {
-        unless (defined $desc) {
-            my $code = $Cinnamon::Context::CTX->get_param('get_role_desc_for');
-            $desc = $code->($self->name) if $code;
-        }
+        $desc = $get_code->($self->name) if not defined $desc and $get_code;
         return $desc; # or undef
     }
 }
