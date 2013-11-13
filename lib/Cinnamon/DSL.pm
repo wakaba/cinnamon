@@ -20,37 +20,56 @@ our @EXPORT = qw(
     sudo_stream
     call
 
+    get_operator_name
+
     log
 );
 
-push our @CARP_NOT, qw(Cinnamon::Config Cinnamon::Task);
+push our @CARP_NOT, qw(Cinnamon::Task);
 
 sub set ($$) {
     my ($name, $value) = @_;
-    Cinnamon::Config::set $name => $value;
+    $Cinnamon::LocalContext->global->set_param($name => $value);
 }
 
 sub set_default ($$) {
     my ($name, $value) = @_;
-    Cinnamon::Config::set_default $name => $value;
+    $Cinnamon::LocalContext->global->set_param(@_)
+        unless defined $Cinnamon::LocalContext->global->get_param($_[0]);
 }
 
 sub get ($@) {
     my ($name, @args) = @_;
     local $_ = undef;
-    Cinnamon::Config::get $name, @args;
+    $Cinnamon::LocalContext->global->get_param($name, @args);
 }
 
 sub role ($$;$%) {
     my ($name, $hosts, $params, %args) = @_;
-    $params ||= {};
-    Cinnamon::Config::set_role $name => $hosts, $params, %args;
+    $Cinnamon::LocalContext->global->set_role($name, $hosts, $params, \%args);
+}
+
+sub _expand_tasks ($$$;$);
+sub _expand_tasks ($$$;$) {
+    my ($path, $task_def => $defs, $root_args) = @_;
+    if (ref $task_def eq 'HASH') {
+        push @$defs, {path => $path, args => $root_args};
+        for (keys %$task_def) {
+            _expand_tasks [@$path, $_], $task_def->{$_} => $defs;
+        }
+    } elsif (UNIVERSAL::isa($task_def, 'Cinnamon::TaskDef')) {
+        push @$defs, {path => $path, code => $task_def->[0], args => $task_def->[1]};
+    } else {
+        push @$defs, {path => $path, code => $task_def, args => $root_args};
+    }
 }
 
 sub task ($$;$) {
-    my ($task, $task_def, $args) = @_;
-
-    Cinnamon::Config::set_task $task => $task_def, $args;
+    my ($name, $task_def, $root_args) = @_;
+    my $defs = [];
+    $name = [$name] unless ref $name eq 'ARRAY';
+    _expand_tasks $name => $task_def => $defs, $root_args;
+    $Cinnamon::LocalContext->global->define_tasks($defs);
 }
 
 sub taskdef (&$) {
@@ -60,7 +79,8 @@ sub taskdef (&$) {
 sub call ($$@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
-    my $task = $Cinnamon::Context::CTX->get_task($task_path) or croak "Task |$task_path| not found";
+    my $task = $Cinnamon::LocalContext->global->get_task($task_path)
+        or croak "Task |$task_path| not found";
     my $result = $task->run(
         #role => ...,
         hosts => [$host],
@@ -76,26 +96,26 @@ sub remote (&$;%) {
                                    : get 'user';
     undef $user unless defined $user and length $user;
 
-    local $_ = $Cinnamon::Context::CTX->get_command_executor(
+    local $_ = $Cinnamon::LocalContext->global->get_command_executor(
         remote => 1,
         host => $host,
         user => $user,
     );
-
+    local $Cinnamon::LocalContext = $Cinnamon::LocalContext->clone_with_command_executor($_);
     $code->($host);
 }
 
 sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    my $executor = (defined $_ and UNIVERSAL::isa($_, 'Cinnamon::CommandExecutor::Remote')) ? $_ : $Cinnamon::Context::CTX->get_command_executor(local => 1);
+    my $executor = $Cinnamon::LocalContext->command_executor;
     my $state = $Cinnamon::Runner::State; # XXX
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
     $commands = $executor->construct_command($commands, $opts);
     my $cv = $executor->execute_as_cv($state, $commands, $opts);
     my $result = $cv->recv;
-    my $errmsg = $result->show_result_and_detect_error($Cinnamon::Context::CTX);
+    my $errmsg = $result->show_result_and_detect_error($Cinnamon::LocalContext->global);
     die "$errmsg\n" if defined $errmsg;
     return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
@@ -105,14 +125,18 @@ sub sudo (@) {
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
     $opts->{sudo} = 1;
     unless (defined $opts->{password}) {
-        $opts->{password} = $Cinnamon::Context::CTX->keychain->get_password_as_cv($_->user)->recv;
+        $opts->{password} = $Cinnamon::LocalContext->keychain->get_password_as_cv($Cinnamon::LocalContext->command_executor->user)->recv;
     }
     return run $opts, @cmd;
 }
 
+sub get_operator_name {
+    return $Cinnamon::LocalContext->global->operator_name;
+}
+
 sub log ($$) {
     my ($type, $message) = @_;
-    $Cinnamon::Context::CTX->output_channel->print($message, newline => 1, class => $type);
+    $Cinnamon::LocalContext->output_channel->print($message, newline => 1, class => $type);
     return;
 }
 

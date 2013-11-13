@@ -8,8 +8,8 @@ use Encode;
 FILTER_ONLY
     executable => sub {
         # Use default user name
-        s/\bENV\['SSHNAME'\]\s*\|\|\s*\`whoami\`\.chomp/q{PERLDO { my $v = Cinnamon::DSL::get('input_user'); defined $v ? $v : '' }}/ge;
-        s/\`whoami\`\.chomp/q{PERLDO { my $v = Cinnamon::DSL::get('input_user'); defined $v ? $v : '' }}/ge;
+        s/\bENV\['SSHNAME'\]\s*\|\|\s*\`whoami\`\.chomp/q{PERLDO { my $v = get('input_user'); defined $v ? $v : '' }}/ge;
+        s/\`whoami\`\.chomp/q{PERLDO { my $v = get('input_user'); defined $v ? $v : '' }}/ge;
 
         # role :foo, *hoge("fuga") << {
         #   ...
@@ -18,7 +18,7 @@ FILTER_ONLY
         s/^(\s*role)\s*\*\[(.+)\]\s*$/$1 $2/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)<</$1, sub { $2 },/gm;
         s/^(\s*role\s*\S+)\s*,\s*\*(.*?)$/$1, sub { $2 }/gm;
-        s/\broles\[([^\[\]]+)\]\s*=\s*roles\[([^\[\]]+)\]/Cinnamon::Config::set_role_alias($1, $2)/g;
+        s/\broles\[([^\[\]]+)\]\s*=\s*roles\[([^\[\]]+)\]/+Cinnamon::DSL::Capistrano->set_role_alias($1, $2)/g;
         s{\bif\s*(\S+)\s+(\S+)\s+(\S+)\s+then}{if ($1 @{[{'==' => 'eq'}->{$2} || $2]} $3) \{}g;
         s{\belsif\s*(\S+)\s+(\S+)\s+(\S+)\s+then}{\} elsif ($1 @{[{'==' => 'eq'}->{$2} || $2]} $3) \{}g;
         s/%Q\b/qq/g;
@@ -80,9 +80,9 @@ FILTER_ONLY
     },
     quotelike => sub {
         s/\@/\\@/g;
-        s/#\{getuname\}/\@{[Cinnamon::Config::real_user || Cinnamon::Config::user]}/g;
-        s/#\{(\w+)\}/\@{[Cinnamon::Config::get '$1']}/g;
-        s/#\{ENV\['ROLES'\]\}/\@{[Cinnamon::Config::get 'role']}/g;
+        s/#\{getuname\}/\@{[getuname]}/g;
+        s/#\{(\w+)\}/\@{[get '$1']}/g;
+        s/#\{ENV\['ROLES'\]\}/\@{[get 'role']}/g;
         s/#\{ENV\[([^\[\]]+)\]\}/\$ENV{$1}/g;
     },
     all => sub {
@@ -119,6 +119,8 @@ sub convert {
 sub convert_and_run {
     my $self = shift;
     my $args = shift;
+    local $Cinnamon::DSL::Capistrano::BaseFileName
+        = defined $args->{base_file_name} ? $args->{base_file_name} : $args->{file_name}; # or undef
     my $converted = $self->convert(@_);
     
     if ($ENV{CINNAMON_CAP_DEBUG}) {

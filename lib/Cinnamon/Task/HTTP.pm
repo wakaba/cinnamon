@@ -4,6 +4,7 @@ use warnings;
 use Exporter::Lite;
 use Web::UserAgent::Functions ();
 use JSON::Functions::XS qw(perl2json_bytes);
+use Cinnamon::DSL;
 use Cinnamon::Config::User;
 
 our @EXPORT = qw(http_get http_post http_post_data http_post_json);

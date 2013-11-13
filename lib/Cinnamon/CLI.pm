@@ -6,7 +6,7 @@ use Encode;
 use Getopt::Long;
 use Path::Class;
 use Cinnamon::Context;
-use Cinnamon::Config;
+use Cinnamon::LocalContext;
 
 use constant { SUCCESS => 0, ERROR => 1 };
 
@@ -89,12 +89,17 @@ sub run {
     }
 
     $hosts = [grep { length } split /\s*,\s*/, $hosts] if defined $hosts;
+
+    my $user = qx{whoami};
+    chomp $user;
     
     my $context = Cinnamon::Context->new(
         keychain => $keychain,
         output_channel => $out,
+        operator_name => $user,
     );
     local $Cinnamon::Context::CTX = $context;
+    local $Cinnamon::LocalContext = Cinnamon::LocalContext->new_from_global_context($context);
     $context->set_param(user => $self->{user}) if defined $self->{user};
 
     $context->load_config($self->{config});

@@ -109,7 +109,7 @@ sub set_role {
     $self->{roles}->{$name} = Cinnamon::Role->new(
         name => $name,
         hosts => $hosts,
-        params => $params,
+        params => $params || {},
         args => $args,
     );
 }
@@ -239,6 +239,10 @@ sub get_command_executor {
     } else {
         die "Neither |remote| or |local| is specified";
     }
+}
+
+sub operator_name {
+    return $_[0]->{operator_name};
 }
 
 sub dump_info {

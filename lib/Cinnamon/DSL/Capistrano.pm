@@ -2,7 +2,6 @@ package Cinnamon::DSL::Capistrano;
 use strict;
 use warnings;
 use Path::Class;
-use Cinnamon::Config ();
 use Cinnamon::DSL ();
 use Cinnamon::DSL::Capistrano::Filter ();
 use Cinnamon::TaskDef;
@@ -12,23 +11,31 @@ our @EXPORT;
 
 push @EXPORT, qw(get);
 sub get ($) {
-    return &Cinnamon::DSL::get(@_);
+    local $_ = undef;
+    $Cinnamon::LocalContext->global->get_param($_[0]);
 }
 
 push @EXPORT, qw(set);
 sub set ($$) {
-    my $name = $_[0];
-    return &Cinnamon::DSL::set(@_);
+    my ($name, $value) = @_;
+    $Cinnamon::LocalContext->global->set_param($name => $value);
 }
 
-my $LoadHandlers = {};
+push @EXPORT, qw(getuname);
+sub getuname () {
+    return $Cinnamon::LocalContext->global->operator_name;
+}
+
 push @EXPORT, qw(load);
 sub load ($) {
-    if ($LoadHandlers->{$_[0]}) {
-        $LoadHandlers->{$_[0]}->();
+    if ($Cinnamon::LocalContext->{LoadHandlers}->{$_[0]}) {
+        $Cinnamon::LocalContext->{LoadHandlers}->{$_[0]}->();
     } else {
         # XXX loop detection?
         my $recipe_f = file($_[0]); # XXX path resolution?
+        if (defined $Cinnamon::DSL::Capistrano::BaseFileName) {
+            $recipe_f = $recipe_f->absolute(file($Cinnamon::DSL::Capistrano::BaseFileName)->dir);
+        }
         Cinnamon::DSL::Capistrano::Filter->convert_and_run({
             file_name => $recipe_f->stringify,
         }, $recipe_f->slurp);
@@ -37,7 +44,7 @@ sub load ($) {
 
 push @EXPORT, qw(set_load_handler);
 sub set_load_handler ($$) {
-    $LoadHandlers->{$_[0]} = $_[1];
+    $Cinnamon::LocalContext->{LoadHandlers}->{$_[0]} = $_[1];
 }
 
 push @EXPORT, qw(after);
@@ -48,11 +55,15 @@ sub after ($$) {
 
 push @EXPORT, qw(role);
 sub role ($$;$) {
-    &Cinnamon::DSL::role(@_);
+    my ($name, $hosts, $params) = @_;
+    $Cinnamon::LocalContext->global->set_role($name, $hosts, $params);
+}
+
+sub set_role_alias {
+    $Cinnamon::LocalContext->global->set_role_alias($_[1] => $_[2]);
 }
 
 our $Tasks = undef;
-
 push @EXPORT, qw(namespace);
 sub namespace ($$) {
     my ($name, $code) = @_;
@@ -64,7 +75,7 @@ sub namespace ($$) {
             $Tasks->{$name} = $tasks;
         }
     } else {
-        my $current_task = Cinnamon::Config::get_task $name;
+        my $current_task = $Cinnamon::LocalContext->global->get_task($name);
         if ($current_task and ref $current_task eq 'HASH') {
             $tasks = $current_task;
         }
@@ -78,25 +89,25 @@ sub namespace ($$) {
     }
 }
 
-our $LastDesc = undef;
-
 push @EXPORT, qw(desc);
 sub desc ($) {
     my $name = shift;
-    $LastDesc = $name;
+    $Cinnamon::LocalContext->{LastDesc} = $name;
 }
 
 push @EXPORT, qw(task);
 sub task ($$) {
     my ($name, $code) = @_;
-    $code = Cinnamon::TaskDef->new_from_code_and_args($code, {desc => $LastDesc}) if defined $LastDesc;
+    $code = Cinnamon::TaskDef->new_from_code_and_args($code, {
+        desc => $Cinnamon::LocalContext->{LastDesc},
+    }) if defined $Cinnamon::LocalContext->{LastDesc};
     if ($Tasks) {
         # XXX $LastDesc
         $Tasks->{$name} = $code;
     } else {
         &Cinnamon::DSL::task($name => $code);
     }
-    undef $LastDesc;
+    delete $Cinnamon::LocalContext->{LastDesc};
 }
 
 push @EXPORT, qw(puts);
@@ -106,38 +117,29 @@ sub puts (@) {
 
 sub get_remote (;%) {
     my %args = @_;
-    my $user = Cinnamon::DSL::get('user');
+    my $user = get 'user';
     undef $user unless defined $user and length $user;
     my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
-    return $Cinnamon::Context::CTX->get_command_executor(
+    my $exec = $Cinnamon::LocalContext->global->get_command_executor(
         remote => 1,
         host => $host,
         user => $user,
     );
+    return $Cinnamon::LocalContext->clone_with_command_executor($exec);
 }
 
-push @EXPORT, qw(run);
+push @EXPORT, qw(run stream capture);
 sub run (@) {
-    local $_ = get_remote;
+    local $Cinnamon::LocalContext = get_remote;
     return Cinnamon::DSL::run(@_);
 }
+*stream = \&run;
+*capture = \&run;
 
 push @EXPORT, qw(sudo);
 sub sudo (@) {
-    local $_ = get_remote;
+    local $Cinnamon::LocalContext = get_remote;
     return Cinnamon::DSL::sudo(@_);
-}
-
-push @EXPORT, qw(stream);
-sub stream (@) {
-    local $_ = get_remote;
-    return Cinnamon::DSL::run(@_);
-}
-
-push @EXPORT, qw(capture);
-sub capture (@) {
-    local $_ = get_remote;
-    return Cinnamon::DSL::run(@_);
 }
 
 push @EXPORT, qw(system);
@@ -153,9 +155,9 @@ sub application () {
 
 push @EXPORT, qw(call);
 sub call ($;@) {
-    my $user = Cinnamon::Config::get 'user';
+    my $user = get 'user';
     &Cinnamon::DSL::call(@_);
-    Cinnamon::Config::set user => $user;
+    set user => $user;
 }
 
 sub chomp {
