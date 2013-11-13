@@ -4,13 +4,10 @@ use warnings;
 use Cinnamon::CommandExecutor;
 push our @ISA, qw(Cinnamon::CommandExecutor Cinnamon::Remote);
 use Net::OpenSSH;
-use Cinnamon::Logger;
-
 use AnyEvent;
 use AnyEvent::Handle;
 use POSIX;
 use Cinnamon::CommandResult;
-use Cinnamon::Logger;
 use Cinnamon::OutputChannel::LinedStream;
 
 sub connection {
@@ -36,7 +33,7 @@ sub execute_as_cv {
             undef $timer;
         } else {
             if ($conn->error) {
-                log error => sprintf "[%s] %s", $self->host, $conn->error;
+                $state->context->error(sprintf "[%s] %s", $self->host, $conn->error);
                 $cv->send(Cinnamon::CommandResult->new(
                     host => $self->host,
                     has_error => 1,
@@ -55,7 +52,7 @@ sub execute_as_cv {
         my $host = $self->host;
         my $user = $self->user;
         $user = defined $user ? $user . '@' : '';
-        log info => "[$user$host] \$ " . join ' ', @$commands;
+        $state->context->info("[$user$host] \$ " . join ' ', @$commands);
 
         my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
             tty => $opts->{tty},
@@ -122,7 +119,7 @@ sub execute_as_cv {
             },
             on_error => sub {
                 my ($handle, $fatal, $message) = @_;
-                log error => sprintf "[%s o]: %s (%d)", $host, $message, $!
+                $state->context->error(sprintf "[%s o]: %s (%d)", $host, $message, $!)
                     unless $! == POSIX::EPIPE;
                 undef $stdout;
                 $end->() if not $stdout and not $stderr;
@@ -142,7 +139,7 @@ sub execute_as_cv {
             },
             on_error => sub {
                 my ($handle, $fatal, $message) = @_;
-                log error => sprintf "[%s e]: %s (%d)", $host, $message, $!
+                $state->context->error(sprintf "[%s e]: %s (%d)", $host, $message, $!)
                     unless $! == POSIX::EPIPE;
                 undef $stderr;
                 $end->() if not $stdout and not $stderr;

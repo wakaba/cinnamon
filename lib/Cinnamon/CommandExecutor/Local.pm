@@ -6,7 +6,6 @@ push our @ISA, qw(Cinnamon::CommandExecutor);
 use IPC::Run ();
 use AnyEvent;
 use Cinnamon::CommandResult;
-use Cinnamon::Logger;
 
 sub host { 'localhost' }
 
@@ -17,7 +16,7 @@ sub execute_as_cv {
     my $host = $self->host;
     my $user = $self->user;
     $user = defined $user ? $user . '@' : '';
-    log info => "[$user$host] \$ " . join ' ', @$commands;
+    $state->context->info("[$user$host] \$ " . join ' ', @$commands);
 
     # XXX $opts->{tty} $opts->{hide_output}
     # XXX async
@@ -29,12 +28,10 @@ sub execute_as_cv {
     chomp for ($stdout, $stderr);
 
     for my $line (split "\n", $stdout) {
-        log info => sprintf "[localhost o] %s",
-            $line;
+        $state->context->info(sprintf "[localhost o] %s", $line);
     }
     for my $line (split "\n", $stderr) {
-        log info => sprintf "[localhost e] %s",
-            $line;
+        $state->context->info(sprintf "[localhost e] %s", $line);
     }
 
     $cv->send(Cinnamon::CommandResult->new(

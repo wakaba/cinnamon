@@ -4,7 +4,6 @@ use warnings;
 use Cinnamon::Task;
 push our @ISA, qw(Cinnamon::Task);
 use Carp qw(croak);
-use Cinnamon::Logger;
 use Cinnamon::Role;
 use Cinnamon::TaskResult;
 use Cinnamon::CommandExecutor::Local;
@@ -17,13 +16,23 @@ sub new {
     return bless {@_, roles => {}, tasks => {}, params => {}}, $class;
 }
 
+sub info {
+    $_[0]->output_channel->print($_[1], newline => 1, class => 'info');
+}
+sub success {
+    $_[0]->output_channel->print($_[1], newline => 1, class => 'success');
+}
+sub error {
+    $_[0]->output_channel->print($_[1], newline => 1, class => 'error');
+}
+
 sub run {
     my ($self, $role_name, $task_path, %opts)  = @_;
     my $role = $self->get_role($role_name) || do {
         if ($task_path eq 'cinnamon:role:list') {
             Cinnamon::Role->new(name => '', hosts => []);
         } else {
-            log 'error', "Role |\@$role_name| is not defined";
+            $self->error("Role |\@$role_name| is not defined");
             return Cinnamon::TaskResult->new(failed => 1);
         }
     };
@@ -35,7 +44,7 @@ sub run {
     require Cinnamon::Task::Cinnamon if $task_path eq 'cinnamon:role:hosts';
     my $task = $self->get_task($task_path);
     unless (defined $task) {
-        log 'error', "Task |$task_path| is not defined";
+        $self->error("Task |$task_path| is not defined");
         return Cinnamon::TaskResult->new(failed => 1);
     }
     if ($show_tasklist or not $task->is_callable) {
@@ -59,39 +68,39 @@ sub run {
         hosts => $opts{hosts},
         args => $args,
         onerror => sub {
-            log error => $_[0];
+            $self->error($_[0]);
         },
     );
 
     if ($result->failed) {
-        log error => "Failed";
-        log info => "[OK] @{[join ', ', @{$result->succeeded_hosts}]}"
+        $self->error("Failed");
+        $self->info("[OK] @{[join ', ', @{$result->succeeded_hosts}]}")
             if @{$result->succeeded_hosts};
-        log error => "[NG] @{[join ', ', @{$result->failed_hosts}]}"
+        $self->error("[NG] @{[join ', ', @{$result->failed_hosts}]}")
             if @{$result->failed_hosts};
     } else {
-        log success => "Done";
-        log success => "[OK] @{[join ', ', @{$result->succeeded_hosts}]}"
+        $self->success("Done");
+        $self->success("[OK] @{[join ', ', @{$result->succeeded_hosts}]}")
             if @{$result->succeeded_hosts};
-        log info => "[NG] @{[join ', ', @{$result->failed_hosts}]}"
+        $self->info("[NG] @{[join ', ', @{$result->failed_hosts}]}")
             if @{$result->failed_hosts};
     }
     return $result;
 }
 
 sub load_config ($$) {
-    my $config = $_[1];
+    my ($self, $config) = @_;
     do {
         package Cinnamon::Context::_config_script;
         do $config;
     } || do {
         if ($@) {
-            log error => $@;
+            $self->error($@);
             exit 1;
         }
 
         if ($!) {
-            log error => $!;
+            $self->error($!);
             exit 1;
         }
     };
@@ -216,7 +225,7 @@ sub get_command_executor {
         my $host = $args{host};
         my $user = $args{user};
         return $self->{remote}->{$host}->{defined $user ? 'user=' . $user : ''} ||= do {
-            log info => 'ssh ' . (defined $user ? "$user\@$host" : $host);
+            $self->info('ssh ' . (defined $user ? "$user\@$host" : $host));
             Cinnamon::CommandExecutor::Remote->new(
                 host => $host,
                 user => $user,
@@ -248,10 +257,10 @@ sub dump_info {
     };
 
     require YAML;
-    log 'info', YAML::Dump({
+    $self->info(YAML::Dump({
         roles => $role_info,
         tasks => $task_info,
-    });
+    }));
 }
 
 !!1;

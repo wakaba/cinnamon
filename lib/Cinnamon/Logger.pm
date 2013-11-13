@@ -1,17 +1,6 @@
+# For backward compatibility
 package Cinnamon::Logger;
-use strict;
-use warnings;
+use Cinnamon::DSL ();
 use Exporter::Lite;
-use Cinnamon qw(CTX);
-
-our @EXPORT = qw(
-    log
-);
-
-sub log ($$) {
-    my ($type, $message) = @_;
-    CTX->output_channel->print($message, newline => 1, class => $type);
-    return;
-}
-
+our @EXPORT = qw(log);
 !!1;

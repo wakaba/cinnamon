@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Carp qw(croak);
 use Cinnamon::State;
-use Cinnamon::Logger;
 
 sub new {
     my $class = shift;
@@ -61,7 +60,7 @@ sub run {
     my ($self, %args) = @_;
     croak '|' . $self->name . '| is not callable' unless $self->is_callable;
     my $desc = $self->get_desc;
-    log info => sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '';
+    $args{context}->info(sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '');
 
     my $hosts_option = $self->args->{hosts} || '';
     my $hosts;
@@ -72,18 +71,18 @@ sub run {
         $hosts = [grep { not $found{$_}++ } @$hosts];
         if (defined $args{role}) {
             my $desc = $args{role}->get_desc;
-            log info => sprintf 'Host%s %s (@%s%s)',
+            $args{context}->info(sprintf 'Host%s %s (@%s%s)',
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
                 $args{role}->name,
-                defined $desc ? ' ' . $desc : '';
+                defined $desc ? ' ' . $desc : '');
         } else {
-            log info => sprintf 'Host%s %s',
-                @$hosts == 1 ? '' : 's', (join ', ', @$hosts);
+            $args{context}->info(sprintf 'Host%s %s',
+                @$hosts == 1 ? '' : 's', (join ', ', @$hosts));
         }
     } elsif (defined $args{role}) {
         my $desc = defined $args{role} ? $args{role}->get_desc : undef;
-        log info => sprintf '(@%s%s)',
-            $args{role}->name, defined $desc ? ' ' . $desc : '';
+        $args{context}->info(sprintf '(@%s%s)',
+            $args{role}->name, defined $desc ? ' ' . $desc : '');
     }
 
     my $state = Cinnamon::State->new(
@@ -107,7 +106,7 @@ sub run {
         } elsif (UNIVERSAL::isa ($result, 'Cinnamon::TaskResult')) {
             #
         } else {
-            log error => 'A non-result non-cv object (.$result.) is retuned';
+            $args{context}->error('A non-result non-cv object (.$result.) is retuned');
             $result = $state->create_result(failed => 1);
         }
 

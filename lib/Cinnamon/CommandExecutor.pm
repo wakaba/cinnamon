@@ -1,7 +1,6 @@
 package Cinnamon::CommandExecutor;
 use strict;
 use warnings;
-use Cinnamon::Logger;
 
 sub new {
     my ($class, %args) = @_;

@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use AnyEvent;
 use Scalar::Util qw(weaken);
-use Cinnamon::Logger;
 use Cinnamon::TaskResult;
 
 sub new {
@@ -53,14 +52,14 @@ sub add_terminate_handler {
     weaken ($self = $self);
     $self->{SIGTERM} ||= AE::signal TERM => sub {
         my $t; $t = AE::timer 0, 0, sub {
-            log error => 'SIGTERM received';
+            $self->context->error('SIGTERM received');
             $self->process_terminate_handlers({signal_name => 'TERM'});
             undef $t;
         };
     };
     $self->{SIGINT} ||= AE::signal INT => sub {
         my $t; $t = AE::timer 0, 0, sub {
-            log error => 'SIGINT received';
+            $self->context->error('SIGINT received');
             $self->process_terminate_handlers({signal_name => 'INT'});
             undef $t;
         };
@@ -105,7 +104,7 @@ sub run_as_cv {
     $commands = $executor->construct_command($commands, $opts);
     $executor->execute_as_cv($self->{state}, $commands, $opts)->cb(sub {
         my $result = $_[0]->recv;
-        $result->show_result_and_detect_error($opts);
+        $result->show_result_and_detect_error($self->{state}->context);
         $cv->send($result);
     });
     return $cv;
@@ -121,7 +120,7 @@ sub sudo_as_cv {
         $opts->{password} = $_[0]->recv;
         $executor->execute_as_cv($self->{state}, $commands, $opts)->cb(sub {
             my $result = $_[0]->recv;
-            $result->show_result_and_detect_error($opts);
+            $result->show_result_and_detect_error($self->{state}->context);
             $cv->send($result);
         });
     });

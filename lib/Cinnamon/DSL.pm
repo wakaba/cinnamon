@@ -4,7 +4,6 @@ use warnings;
 use Carp qw(croak);
 use Exporter::Lite;
 use Cinnamon qw(CTX);
-use Cinnamon::Logger;
 use Cinnamon::TaskDef;
 
 our @EXPORT = qw(
@@ -21,6 +20,8 @@ our @EXPORT = qw(
     sudo
     sudo_stream
     call
+
+    log
 );
 
 push our @CARP_NOT, qw(Cinnamon::Config Cinnamon::Task);
@@ -95,7 +96,7 @@ sub run (@) {
     $commands = $executor->construct_command($commands, $opts);
     my $cv = $executor->execute_as_cv($state, $commands, $opts);
     my $result = $cv->recv;
-    my $errmsg = $result->show_result_and_detect_error;
+    my $errmsg = $result->show_result_and_detect_error(CTX);
     die "$errmsg\n" if defined $errmsg;
     return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
@@ -110,8 +111,15 @@ sub sudo (@) {
     return run $opts, @cmd;
 }
 
+sub log ($$) {
+    my ($type, $message) = @_;
+    CTX->output_channel->print($message, newline => 1, class => $type);
+    return;
+}
+
 # For backward compatibility
 *run_stream = \&run;
 *sudo_stream = \&sudo;
+*Cinnamon::Logger::log = \&log;
 
 !!1;
