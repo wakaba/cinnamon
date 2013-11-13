@@ -26,4 +26,9 @@ sub output_channel {
     return $_[0]->global->output_channel;
 }
 
+sub eval {
+    local $Cinnamon::LocalContext = $_[0];
+    return $_[1]->();
+}
+
 1;

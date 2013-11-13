@@ -204,7 +204,8 @@ sub get_param {
     my ($self, $key, @args) = @_;
 
     my $value = $self->params->{$key};
-    $value = $value->(@args) if ref $value eq 'CODE';
+    $value = $Cinnamon::LocalContext->eval(sub { $value->(@args) })
+        if ref $value eq 'CODE';
 
     return $value;
 }

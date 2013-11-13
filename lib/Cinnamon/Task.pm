@@ -39,11 +39,11 @@ sub args {
     return $_[0]->{args}; # or undef
 }
 
-sub get_desc {
-    my ($self) = @_;
+sub get_desc_with {
+    my ($self, $local_context) = @_;
     my $desc = $self->{args}->{desc};
     if (defined $desc and ref $desc eq 'CODE') {
-        return $desc->();
+        return $local_context->eval($desc);
     } else {
         return $desc; # or undef
     }
@@ -52,18 +52,18 @@ sub get_desc {
 sub run {
     my ($self, %args) = @_;
     croak '|' . $self->name . '| is not callable' unless $self->is_callable;
-    my $desc = $self->get_desc;
+    my $desc = $self->get_desc_with($Cinnamon::LocalContext);
     $args{context}->info(sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '');
 
     my $hosts_option = $self->args->{hosts} || '';
     my $hosts;
     if ($hosts_option ne 'none') {
         ## At least one of |hosts| and |role| is required.
-        $hosts = $args{hosts} || $args{role}->get_hosts;
+        $hosts = $args{hosts} || $args{role}->get_hosts_with($Cinnamon::LocalContext);
         my %found;
         $hosts = [grep { not $found{$_}++ } @$hosts];
         if (defined $args{role}) {
-            my $desc = $args{role}->get_desc($args{context}->get_param('get_role_desc_for'));
+            my $desc = $args{role}->get_desc_with($args{context}->get_param('get_role_desc_for'), $Cinnamon::LocalContext);
             $args{context}->info(sprintf 'Host%s %s (@%s%s)',
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
                 $args{role}->name,
@@ -73,7 +73,9 @@ sub run {
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts));
         }
     } elsif (defined $args{role}) {
-        my $desc = defined $args{role} ? $args{role}->get_desc($args{context}->get_param('get_role_desc_for')) : undef;
+        my $desc = defined $args{role}
+            ? $args{role}->get_desc_with($args{context}->get_param('get_role_desc_for'), $Cinnamon::LocalContext)
+            : undef;
         $args{context}->info(sprintf '(@%s%s)',
             $args{role}->name, defined $desc ? ' ' . $desc : '');
     }
@@ -85,7 +87,7 @@ sub run {
     );
     if ($hosts_option eq 'all' or $hosts_option eq 'none') {
         local $_ = undef;
-        my $result = eval { $self->code->($state) };
+        my $result = eval { $Cinnamon::LocalContext->eval(sub { $self->code->($state) }) };
         
         if ($@) {
             chomp $@;
@@ -123,7 +125,7 @@ sub run {
             $state->add_terminate_handler(sub {
               # XXX
             });
-            $return->{$host} = eval { $self->code->($host, @{$state->args}) };
+            $return->{$host} = eval { $Cinnamon::LocalContext->eval(sub { $self->code->($host, @{$state->args}) }) };
             
             if ($@) {
                 chomp $@;

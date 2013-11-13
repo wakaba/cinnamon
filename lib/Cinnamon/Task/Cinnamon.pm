@@ -8,7 +8,7 @@ task ['cinnamon', 'role', 'list'] => sub {
     my $role_defs = $state->context->roles;
     log info => "Available roles:\n" .
         join "", map {
-            my $desc = $state->context->get_role($_)->get_desc($state->context->get_param('get_role_desc_for'));
+            my $desc = $state->context->get_role($_)->get_desc_with($state->context->get_param('get_role_desc_for'), $Cinnamon::LocalContext);
             "- " . $_ . (defined $desc ? "\t- $desc" : '') . "\n";
         } sort { $a cmp $b } keys %$role_defs;
     return $state->create_result;
@@ -36,7 +36,7 @@ task ['cinnamon', 'task', 'list'] => my $task_list = sub {
     log info => "Available tasks:\n" .
         join "", map {
             my $def = $task_defs->{$_};
-            my $desc = $def->get_desc;
+            my $desc = $def->get_desc_with($Cinnamon::LocalContext);
             $desc = '' unless defined $desc;
             "- $prefix" . $_ . ($def->has_subtasks ? ':' : '') . "\t".(length $desc ? '-' : '')." $desc\n";
         } sort { $a cmp $b } keys %$task_defs;

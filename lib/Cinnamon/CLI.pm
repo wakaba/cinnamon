@@ -101,7 +101,9 @@ sub run {
     local $Cinnamon::LocalContext = Cinnamon::LocalContext->new_from_global_context($context);
     $context->set_param(user => $self->{user}) if defined $self->{user};
 
-    $context->load_config($self->{config});
+    $Cinnamon::LocalContext->eval(sub {
+        $context->load_config($self->{config});
+    });
     for my $key (keys %{ $self->{override_settings} or {} }) {
         $context->set_param($key => $self->{override_settings}->{$key});
     }

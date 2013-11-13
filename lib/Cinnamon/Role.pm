@@ -19,36 +19,38 @@ sub params {
     return $_[0]->{params} ||= {};
 }
 
-sub _get_hosts {
-    my $v = shift;
+sub _get_hosts ($$);
+sub _get_hosts ($$) {
+    my ($v, $lc) = @_;
     if (not defined $v) {
         return ();
     } elsif (ref $v eq 'CODE') {
-        return _get_hosts($v->());
+        return _get_hosts($lc->eval($v), $lc);
     } elsif (ref $v eq 'ARRAY') {
-        return map { _get_hosts($_) } @$v;
+        return map { _get_hosts($_, $lc) } @$v;
     } elsif (UNIVERSAL::can($v, 'to_a')) {
-        return map { _get_hosts($_) } @{$v->to_a};
+        return map { _get_hosts($_, $lc) } @{$v->to_a};
     } else {
         return $v;
     }
 }
 
-sub get_hosts {
-    my ($self) = @_;
+sub get_hosts_with {
+    my ($self, $local_context) = @_;
     my $hosts = $self->hosts;
 
     my $found = {};
-    return [grep { not $found->{$_}++ } _get_hosts $hosts];
+    return [grep { not $found->{$_}++ } _get_hosts $hosts, $local_context];
 }
 
-sub get_desc {
-    my ($self, $get_code) = @_;
+sub get_desc_with {
+    my ($self, $get_code, $local_context) = @_;
     my $desc = $self->{args}->{desc};
     if (defined $desc and ref $desc eq 'CODE') {
-        return $desc->();
+        return $local_context->eval($desc);
     } else {
-        $desc = $get_code->($self->name) if not defined $desc and $get_code;
+        $desc = $local_context->eval(sub { $get_code->($self->name) })
+            if not defined $desc and $get_code;
         return $desc; # or undef
     }
 }
