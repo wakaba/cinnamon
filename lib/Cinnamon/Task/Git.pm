@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Path::Class;
 use Cinnamon::DSL;
-use Cinnamon::Logger;
 use Exporter::Lite;
 
 our @EXPORT;

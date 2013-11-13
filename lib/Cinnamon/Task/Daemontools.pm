@@ -2,7 +2,6 @@ package Cinnamon::Task::Daemontools;
 use strict;
 use warnings;
 use Cinnamon::DSL;
-use Cinnamon::Logger;
 use Cinnamon::Task::Process;
 use Exporter::Lite;
 

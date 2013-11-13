@@ -2,7 +2,6 @@ package Cinnamon::Task::HTTPServerStatus;
 use strict;
 use warnings;
 use Cinnamon::DSL;
-use Cinnamon::Logger;
 use Cinnamon::Task::HTTP;
 
 task httpserverstatus => {

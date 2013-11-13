@@ -2,7 +2,6 @@ package Cinnamon::Task::Cinnamon;
 use strict;
 use warnings;
 use Cinnamon::DSL;
-use Cinnamon::Logger;
 
 task ['cinnamon', 'role', 'list'] => sub {
     my $state = shift;

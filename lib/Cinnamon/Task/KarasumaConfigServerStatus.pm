@@ -2,7 +2,6 @@ package Cinnamon::Task::KarasumaConfigServerStatus;
 use strict;
 use warnings;
 use Cinnamon::DSL;
-use Cinnamon::Logger;
 use Cinnamon::Task::HTTP;
 use Exporter::Lite;
 use AnyEvent;

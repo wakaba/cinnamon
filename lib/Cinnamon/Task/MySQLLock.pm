@@ -10,7 +10,7 @@ sub mysql_lock ($$) {
 }
 
 package Cinnamon::Task::MySQLLock::Object;
-use Cinnamon::Logger;
+use Cinnamon::DSL;
 
 sub new_from_dsn_and_name {
     my $self = bless {dsn => $_[1], name => $_[2]}, $_[0];
