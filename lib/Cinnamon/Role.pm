@@ -44,13 +44,13 @@ sub get_hosts_with {
 }
 
 sub get_desc_with {
-    my ($self, $get_code, $local_context) = @_;
+    my ($self, $local_context) = @_;
     my $desc = $self->{args}->{desc};
     if (defined $desc and ref $desc eq 'CODE') {
         return $local_context->eval($desc);
     } else {
-        $desc = $local_context->eval(sub { $get_code->($self->name) })
-            if not defined $desc and $get_code;
+        $desc = $local_context->get_role_desc_by_name($self->name)
+            unless defined $desc;
         return $desc; # or undef
     }
 }

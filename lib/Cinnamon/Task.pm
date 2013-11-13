@@ -63,7 +63,7 @@ sub run {
         my %found;
         $hosts = [grep { not $found{$_}++ } @$hosts];
         if (defined $args{role}) {
-            my $desc = $args{role}->get_desc_with($args{context}->get_param('get_role_desc_for'), $Cinnamon::LocalContext);
+            my $desc = $args{role}->get_desc_with($Cinnamon::LocalContext);
             $args{context}->info(sprintf 'Host%s %s (@%s%s)',
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
                 $args{role}->name,
@@ -74,7 +74,7 @@ sub run {
         }
     } elsif (defined $args{role}) {
         my $desc = defined $args{role}
-            ? $args{role}->get_desc_with($args{context}->get_param('get_role_desc_for'), $Cinnamon::LocalContext)
+            ? $args{role}->get_desc_with($Cinnamon::LocalContext)
             : undef;
         $args{context}->info(sprintf '(@%s%s)',
             $args{role}->name, defined $desc ? ' ' . $desc : '');
