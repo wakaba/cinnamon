@@ -52,18 +52,18 @@ sub run {
         return ERROR;
     }
 
-    # check role and task exists
     my $req_ctc;
     my $role = shift @ARGV;
-    my @tasks = map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV;
+    my $tasks = [map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV];
     if (not defined $role) {
         $role = '';
-        @tasks = (['cinnamon:role:list']);
+        @$tasks = (['cinnamon:role:list']);
         $req_ctc = 1;
-    } elsif (not @tasks) {
-        @tasks = (['cinnamon:task:default']);
+    } elsif (not @$tasks) {
+        @$tasks = (['cinnamon:task:default']);
         $req_ctc = 1;
     }
+    @$tasks = map { {name => $_->[0], args => [@$_[1..$#$_]]} } @$tasks;
     $role =~ s/^\@//;
 
     my $keychain;
@@ -110,12 +110,12 @@ sub run {
 
     require Cinnamon::Task::Cinnamon if $req_ctc;
     my $error_occured = 0;
-    for my $t (@tasks) {
+    for my $t (@$tasks) {
         my $result = $context->run(
             $role,
-            $t->[0],
+            $t->{name},
             hosts             => $hosts,
-            args              => [@$t[1..$#$t]],
+            args              => $t->{args},
         );
         $error_occured = 1 if $result->failed;
         last if ($error_occured && !$self->{ignore_errors});
