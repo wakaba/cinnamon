@@ -82,11 +82,9 @@ sub call ($$@) {
     my $task = $Cinnamon::LocalContext->global->get_task($task_path)
         or croak "Task |$task_path| not found";
     my $result = $task->run(
+        $Cinnamon::LocalContext->clone_for_task([$host], \@args),
         #role => ...,
-        hosts => [$host],
-        args => \@args,
         onerror => sub { die "$_[0]\n" },
-        context => $Cinnamon::LocalContext->global,
     );
     return $result->return_values->{$host}; # or undef
 }

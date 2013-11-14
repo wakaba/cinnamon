@@ -97,13 +97,10 @@ sub run {
         output_channel => $out,
         operator_name => $user,
     );
-    local $Cinnamon::Context::CTX = $context;
-    local $Cinnamon::LocalContext = Cinnamon::LocalContext->new_from_global_context($context);
+    my $lc = Cinnamon::LocalContext->new_from_global_context($context);
     $context->set_param(user => $self->{user}) if defined $self->{user};
 
-    $Cinnamon::LocalContext->eval(sub {
-        $context->load_config($self->{config});
-    });
+    $lc->eval(sub { $context->load_config($self->{config}) });
     for my $key (keys %{ $self->{override_settings} or {} }) {
         $context->set_param($key => $self->{override_settings}->{$key});
     }
@@ -117,7 +114,8 @@ sub run {
     for (@$tasks) {
         my ($task_path, @args) = @$_;
         my $show_tasklist = $task_path =~ /:$/;
-        require Cinnamon::Task::Cinnamon if $task_path =~ /^cinnamon:/;
+        $lc->eval(sub { require Cinnamon::Task::Cinnamon })
+            if $task_path =~ /^cinnamon:/;
         my $task = $context->get_task($task_path);
         unless (defined $task) {
             $out->print("Task |$task_path| is not defined", newline => 1, class => 'error');
@@ -126,7 +124,7 @@ sub run {
         if ($show_tasklist or not $task->is_callable) {
             unshift @args, $task_path;
             $task_path = 'cinnamon:task:default';
-            require Cinnamon::Task::Cinnamon;
+            $lc->eval(sub { require Cinnamon::Task::Cinnamon });
             $task = $context->get_task($task_path);
         }
         $_ = {task => $task, args => \@args};
@@ -139,11 +137,10 @@ sub run {
           ), []);
     $context->set_params_by_role($role);
     $context->set_param(task => $task->name);
+    $hosts ||= $role->get_hosts_with($lc);
     my $result = $task->run(
-        context => $context,
+        $lc->clone_for_task($hosts, $args),
         role => $role,
-        hosts => $hosts,
-        args => $args,
         onerror => sub {
             $out->print($_[0], newline => 1, class => 'error');
         },

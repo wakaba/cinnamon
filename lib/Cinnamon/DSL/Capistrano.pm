@@ -165,11 +165,9 @@ sub call ($;@) {
         or croak "Task |$task_path| not found";
     my $user = get 'user';
     $task->run(
+        $Cinnamon::LocalContext->clone_for_task([$host], \@args),
         #role => ...,
-        hosts => [$host],
-        args => \@args,
         onerror => sub { die "$_[0]\n" },
-        context => $Cinnamon::LocalContext->global,
     );
     set user => $user;
 }

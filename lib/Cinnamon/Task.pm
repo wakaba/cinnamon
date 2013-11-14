@@ -49,37 +49,32 @@ sub get_desc_with {
 }
 
 sub run {
-    my ($self, %args) = @_;
+    my ($self, $local_context, %args) = @_;
     croak '|' . $self->name . '| is not callable' unless $self->is_callable;
-    my $desc = $self->get_desc_with($Cinnamon::LocalContext);
-    $args{context}->info(sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '');
+    my $desc = $self->get_desc_with($local_context);
+    $local_context->global->info(sprintf "call %s%s", $self->name, defined $desc ? " ($desc)" : '');
 
     my $hosts_option = $self->args->{hosts} || '';
-    my $hosts;
     if ($hosts_option ne 'none') {
-        ## At least one of |hosts| and |role| is required.
-        $hosts = $args{hosts} || $args{role}->get_hosts_with($Cinnamon::LocalContext);
-        my %found;
-        $hosts = [grep { not $found{$_}++ } @$hosts];
+        my $hosts = $local_context->hosts;
         if (defined $args{role}) {
-            my $desc = $args{role}->get_desc_with($Cinnamon::LocalContext);
-            $args{context}->info(sprintf 'Host%s %s (@%s%s)',
+            my $desc = $args{role}->get_desc_with($local_context);
+            $local_context->global->info(sprintf 'Host%s %s (@%s%s)',
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts),
                 $args{role}->name,
                 defined $desc ? ' ' . $desc : '');
         } else {
-            $args{context}->info(sprintf 'Host%s %s',
+            $local_context->global->info(sprintf 'Host%s %s',
                 @$hosts == 1 ? '' : 's', (join ', ', @$hosts));
         }
     } elsif (defined $args{role}) {
         my $desc = defined $args{role}
-            ? $args{role}->get_desc_with($Cinnamon::LocalContext)
+            ? $args{role}->get_desc_with($local_context)
             : undef;
-        $args{context}->info(sprintf '(@%s%s)',
+        $local_context->global->info(sprintf '(@%s%s)',
             $args{role}->name, defined $desc ? ' ' . $desc : '');
     }
 
-    my $local_context = $Cinnamon::LocalContext->clone_for_task($hosts, $args{args});
     if ($hosts_option eq 'all' or $hosts_option eq 'none') {
         local $_ = undef;
         my $result = eval { $local_context->eval(sub { $self->code->($local_context) }) };
