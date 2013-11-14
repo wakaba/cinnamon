@@ -27,15 +27,16 @@ sub run {
     );
     my $help;
     my $version;
+    my $override_settings = {};
     my $hosts = $ENV{HOSTS};
     $p->getoptions(
-        "u|user=s"   => \$self->{user},
+        "u|user=s"   => \(my $user_name),
         "h|help"     => \$help,
         "hosts=s"    => \$hosts,
-        "c|config=s" => \$self->{config},
+        "c|config=s" => \(my $config_file_name),
         "s|set=s"    => sub {
-            my ($key, $value) = split /=/, $_[1];
-            ($self->{override_settings} ||= {})->{$key} = $value;
+            my ($key, $value) = split /=/, $_[1], 2;
+            $override_settings->{$key} = $value;
         },
         "key-chain-fds=s" => \(my $key_chain_fds),
         "no-color"        => \(my $no_color),
@@ -60,9 +61,9 @@ sub run {
     }
 
     # check config exists
-    $self->{config} ||= 'config/deploy.pl';
-    if (!-e $self->{config}) {
-        $out->print("cannot find config file for deploy : $self->{config}", newline => 1, class => 'error');
+    $config_file_name ||= 'config/deploy.pl';
+    if (!-e $config_file_name) {
+        $out->print("cannot find config file for deploy : $config_file_name", newline => 1, class => 'error');
         return ERROR;
     }
 
@@ -98,11 +99,11 @@ sub run {
         operator_name => $user,
     );
     my $lc = Cinnamon::LocalContext->new_from_global_context($context);
-    $context->set_param(user => $self->{user}) if defined $self->{user};
+    $context->set_param(user => $user_name) if defined $user_name;
 
-    $lc->eval(sub { $context->load_config($self->{config}) });
-    for my $key (keys %{ $self->{override_settings} or {} }) {
-        $context->set_param($key => $self->{override_settings}->{$key});
+    $lc->eval(sub { $context->load_config($config_file_name) });
+    for my $key (keys %$override_settings) {
+        $context->set_param($key => $override_settings->{$key});
     }
 
     $role ||= $context->get_role($role_name);
