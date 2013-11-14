@@ -26,12 +26,40 @@ sub global {
     return $_[0]->{global_context};
 }
 
+sub command_executor {
+    return $_[0]->{command_executor} ||= $_[0]->global->get_command_executor(local => 1);
+}
+
 sub keychain {
     return $_[0]->global->keychain;
 }
 
-sub command_executor {
-    return $_[0]->{command_executor} ||= $_[0]->global->get_command_executor(local => 1);
+sub get_password_as_cv {
+    return $_[0]->keychain->get_password_as_cv($_[0]->command_executor->user);
+}
+
+sub run_as_cv {
+    my ($self, $commands, $opts) = @_;
+    my $cv = AE::cv;
+    my $executor = $self->command_executor;
+    $commands = $executor->construct_command($commands, $opts);
+    $executor->execute_as_cv($self, $commands, $opts)->cb(sub {
+        my $result = $_[0]->recv;
+        $result->show_result_and_detect_error($self->global);
+        $cv->send($result);
+    });
+    return $cv;
+}
+
+sub sudo_as_cv {
+    my ($self, $commands, $opts) = @_;
+    my $cv = AE::cv;
+    $self->get_password_as_cv->cb(sub {
+        $opts->{sudo} = 1;
+        $opts->{password} = $_[0]->recv;
+        $self->run_as_cv($commands, $opts)->cb(sub { $cv->send($_[0]->recv) });
+    });
+    return $cv;
 }
 
 sub output_channel {
@@ -126,38 +154,6 @@ sub destroy {
     delete $_[0]->{SIGTERM};
     delete $_[0]->{SIGINT};
     delete $_[0]->{terminate_handlers};
-}
-
-# compat?
-sub run_as_cv {
-    my ($self, $commands, $opts) = @_;
-    my $cv = AE::cv;
-    my $executor = $self->command_executor;
-    $commands = $executor->construct_command($commands, $opts);
-    $executor->execute_as_cv($self, $commands, $opts)->cb(sub {
-        my $result = $_[0]->recv;
-        $result->show_result_and_detect_error($self->global);
-        $cv->send($result);
-    });
-    return $cv;
-}
-
-# compat?
-sub sudo_as_cv {
-    my ($self, $commands, $opts) = @_;
-    $opts->{sudo} = 1;
-    my $executor = $self->command_executor;
-    $commands = $executor->construct_command($commands, $opts);
-    my $cv = AE::cv;
-    $self->keychain->get_password_as_cv($executor->user)->cb(sub {
-        $opts->{password} = $_[0]->recv;
-        $executor->execute_as_cv($self, $commands, $opts)->cb(sub {
-            my $result = $_[0]->recv;
-            $result->show_result_and_detect_error($self->global);
-            $cv->send($result);
-        });
-    });
-    return $cv;
 }
 
 # compat

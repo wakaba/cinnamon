@@ -19,6 +19,11 @@ sub has_error {
     return $_[0]->{has_error};
 }
 
+sub is_fatal_error {
+    return ((not $_[0]->{opts}->{ignore_error} and $_[0]->error_code != 0) or
+            $_[0]->terminated_by_signal);
+}
+
 sub error_code {
     return $_[0]->{error};
 }
@@ -36,7 +41,7 @@ sub show_result_and_detect_error {
     my $time = $self->elapsed_time;
     if ($self->error_code != 0 or $time > 1.0) {
         $context->error(my $msg = "[@{[$self->host]}] Exit with status @{[$self->error_code]} ($time s)");
-        return $msg if (not $self->{opts}->{ignore_error} and $self->error_code != 0) or $self->terminated_by_signal;
+        return $msg if $self->is_fatal_error;
     }
     return undef;
 }

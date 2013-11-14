@@ -86,6 +86,7 @@ sub call ($$@) {
         hosts => [$host],
         args => \@args,
         onerror => sub { die "$_[0]\n" },
+        context => $Cinnamon::LocalContext->global,
     );
     return $result->return_values->{$host}; # or undef
 }
@@ -108,25 +109,23 @@ sub remote (&$;%) {
 sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    my $executor = $Cinnamon::LocalContext->command_executor;
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
-    $commands = $executor->construct_command($commands, $opts);
-    my $cv = $executor->execute_as_cv($Cinnamon::LocalContext, $commands, $opts);
+    my $cv = $Cinnamon::LocalContext->run_as_cv($commands, $opts);
     my $result = $cv->recv;
-    my $errmsg = $result->show_result_and_detect_error($Cinnamon::LocalContext->global);
-    die "$errmsg\n" if defined $errmsg;
+    die "Command failed\n" if $result->is_fatal_error;
     return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
 sub sudo (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
-    $opts->{sudo} = 1;
-    unless (defined $opts->{password}) {
-        $opts->{password} = $Cinnamon::LocalContext->keychain->get_password_as_cv($Cinnamon::LocalContext->command_executor->user)->recv;
-    }
-    return run $opts, @cmd;
+    my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
+        (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
+    my $cv = $Cinnamon::LocalContext->sudo_as_cv($commands, $opts);
+    my $result = $cv->recv;
+    die "Command failed\n" if $result->is_fatal_error;
+    return wantarray ? ($result->{stdout}, $result->{stderr}, $result) : $result;
 }
 
 sub get_operator_name {

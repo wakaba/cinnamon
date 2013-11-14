@@ -3,9 +3,7 @@ use strict;
 use warnings;
 use Path::Class;
 use Carp qw(croak);
-use Cinnamon::DSL ();
 use Cinnamon::DSL::Capistrano::Filter ();
-use Cinnamon::TaskDef;
 use Exporter::Lite;
 
 our @EXPORT;
@@ -122,22 +120,36 @@ sub get_remote (;%) {
 
 push @EXPORT, qw(run stream capture);
 sub run (@) {
-    local $Cinnamon::LocalContext = get_remote;
-    return Cinnamon::DSL::run(@_);
+    my (@cmd) = @_;
+    my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
+        (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
+    my $cv = get_remote->run_as_cv($commands);
+    my $result = $cv->recv;
+    die "Command failed\n" if $result->is_fatal_error;
 }
 *stream = \&run;
 *capture = \&run;
 
 push @EXPORT, qw(sudo);
 sub sudo (@) {
-    local $Cinnamon::LocalContext = get_remote;
-    return Cinnamon::DSL::sudo(@_);
+    my (@cmd) = @_;
+    my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
+        (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
+    my $cv = get_remote->sudo_as_cv($commands);
+    my $result = $cv->recv;
+    die "Command failed\n" if $result->is_fatal_error;
 }
 
 push @EXPORT, qw(system);
 sub system (@) {
-    local $_ = undef;
-    return Cinnamon::DSL::run(@_);
+    my (@cmd) = @_;
+    my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
+        (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
+    my $exec = $Cinnamon::LocalContext->global->get_command_executor(local => 1);
+    my $local_context = $Cinnamon::LocalContext->clone_with_command_executor($exec);
+    my $cv = $local_context->run_as_cv($commands);
+    my $result = $cv->recv;
+    die "Command failed\n" if $result->is_fatal_error;
 }
 
 push @EXPORT, qw(application);
@@ -157,6 +169,7 @@ sub call ($;@) {
         hosts => [$host],
         args => \@args,
         onerror => sub { die "$_[0]\n" },
+        context => $Cinnamon::LocalContext->global,
     );
     set user => $user;
 }
