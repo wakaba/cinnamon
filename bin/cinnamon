@@ -17,8 +17,6 @@ exit $exit_status;
 
 __END__
 
-=encoding utf8
-
 =head1 NAME
 
 cinnamon - Command Line Interface for Deploy with Cinnamon
@@ -31,4 +29,3 @@ cinnamon - Command Line Interface for Deploy with Cinnamon
     -i --info Display a definition of Role and Task
     -c --config Config path
     -s --set Override parameters which we can get from "get" method provided Cinnamon::DSL
-    -I --ignore-errors Cinnamon execute all task, if error occur during execution

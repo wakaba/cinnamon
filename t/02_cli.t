@@ -110,32 +110,6 @@ CONFIG
     unlike $app->system_output, qr{deploy_to};
 }
 
-sub _fail_at_more_tasks_with_ignore_errors_option : Tests {
-local $TODO = '???';
-    my $app = Test::Cinnamon::CLI::cli();
-    $app->dir->touch("config/deploy.pl", <<CONFIG);
-use Cinnamon::DSL;
-set user       => 'app';
-set deploy_to  => '/home/app/deploy_to';
-role test => 'localhost';
-task die_user => sub {
-    die get 'user';
-};
-task echo_deploy_to => sub {
-    print(get 'deploy_to');
-};
-CONFIG
-    is $app->run('--ignore-errors', 'test', 'die_user', 'echo_deploy_to'), CLI_ERROR;
-    like $app->system_error, qr{app};
-    like $app->system_output, qr{deploy_to};
-
-    # specified undefined task
-    is $app->run('--ignore-errors', 'test', 'undef_task', 'die_user', 'echo_deploy_to'), CLI_ERROR;
-    like $app->system_error, qr{undefined task : 'undef_task'};
-    like $app->system_error, qr{app};
-    like $app->system_output, qr{deploy_to};
-}
-
 sub _specifies_colorized_output : Tests {
 local $TODO = '???';
     require Term::ANSIColor;

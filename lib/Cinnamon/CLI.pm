@@ -34,7 +34,6 @@ sub run {
             my ($key, $value) = split /=/, $_[1];
             ($self->{override_settings} ||= {})->{$key} = $value;
         },
-        "I|ignore-errors" => \$self->{ignore_errors},
         "key-chain-fds=s" => \(my $key_chain_fds),
         "no-color"        => \(my $no_color),
         "version" => \$version,
@@ -118,7 +117,7 @@ sub run {
             args              => $t->{args},
         );
         $error_occured = 1 if $result->failed;
-        last if ($error_occured && !$self->{ignore_errors});
+        last if $error_occured;
         print "\n";
     }
 
@@ -166,7 +165,7 @@ sub usage {
 @{[defined $log->{rev_url} ? "<$log->{rev_url}>" : "Revision $log->{sha}"]}
 };
     $msg .= qq{
-Usage: $0 [--config=<path>] [--set=<parameter>] [--ignore-errors] [--help] [--version] <role> <task ...>
+Usage: $0 [--config=<path>] [--set=<parameter>] [--help] [--version] <role> <task ...>
 } if $args{help};
     $self->print($msg);
 }
