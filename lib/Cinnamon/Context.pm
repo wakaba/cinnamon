@@ -25,46 +25,20 @@ sub error {
 }
 
 sub run {
-    my ($self, $role_name, $task_path, %opts)  = @_;
-    my $role = $self->get_role($role_name) || do {
-        if ($task_path eq 'cinnamon:role:list') {
-            Cinnamon::Role->new(name => '', hosts => []);
-        } else {
-            $self->error("Role |\@$role_name| is not defined");
-            return Cinnamon::TaskResult->new(failed => 1);
-        }
-    };
-
-    my $args = $opts{args};
-
-    my $show_tasklist = $task_path =~ /:$/;
-
-    require Cinnamon::Task::Cinnamon if $task_path eq 'cinnamon:role:hosts';
-    my $task = $self->get_task($task_path);
-    unless (defined $task) {
-        $self->error("Task |$task_path| is not defined");
-        return Cinnamon::TaskResult->new(failed => 1);
-    }
-    if ($show_tasklist or not $task->is_callable) {
-        unshift @$args, $task_path;
-        require Cinnamon::Task::Cinnamon;
-        $task_path = 'cinnamon:task:default';
-        $task = $self->get_task($task_path);
-    }
-
+    my ($self, $role, $task, %opts)  = @_;
     my $params = $role->params;
     for my $key (keys %$params) {
         $self->set_param($key => $params->{$key});
     }
-    $self->set_param(role => $role_name);
-    $self->set_param(task => $task_path);
+    $self->set_param(role => $role->name);
+    $self->set_param(task => $task->name);
 
     local $self->{params} = {%{$self->{params}}};
     my $result = $task->run(
         context => $self,
         role => $role,
         hosts => $opts{hosts},
-        args => $args,
+        args => $opts{args},
         onerror => sub {
             $self->error($_[0]);
         },

@@ -5,6 +5,7 @@ use IO::Handle;
 use Encode;
 use Getopt::Long;
 use Path::Class;
+use Cinnamon::Role;
 use Cinnamon::Context;
 use Cinnamon::LocalContext;
 
@@ -51,19 +52,17 @@ sub run {
         return ERROR;
     }
 
-    my $req_ctc;
-    my $role = shift @ARGV;
+    my $role_name = shift @ARGV;
     my $tasks = [map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV];
-    if (not defined $role) {
-        $role = '';
+    my $role;
+    if (not defined $role_name) {
+        $role_name = '';
+        $role = Cinnamon::Role->new(name => '', hosts => []);
         @$tasks = (['cinnamon:role:list']);
-        $req_ctc = 1;
     } elsif (not @$tasks) {
         @$tasks = (['cinnamon:task:default']);
-        $req_ctc = 1;
     }
-    @$tasks = map { {name => $_->[0], args => [@$_[1..$#$_]]} } @$tasks;
-    $role =~ s/^\@//;
+    $role_name =~ s/^\@//;
 
     my $keychain;
     if ($key_chain_fds and $key_chain_fds =~ /^([0-9]+),([0-9]+)$/) {
@@ -107,12 +106,34 @@ sub run {
         $context->set_param($key => $self->{override_settings}->{$key});
     }
 
-    require Cinnamon::Task::Cinnamon if $req_ctc;
+    $role ||= $context->get_role($role_name);
+    unless ($role) {
+        $self->print("Role |\@$role_name| is not defined\n");
+        return ERROR;
+    }
+
+    for (@$tasks) {
+        my ($task_path, @args) = @$_;
+        my $show_tasklist = $task_path =~ /:$/;
+        require Cinnamon::Task::Cinnamon if $task_path =~ /^cinnamon:/;
+        my $task = $context->get_task($task_path);
+        unless (defined $task) {
+            $self->print("Task |$task_path| is not defined\n");
+            return ERROR;
+        }
+        if ($show_tasklist or not $task->is_callable) {
+            unshift @args, $task_path;
+            $task_path = 'cinnamon:task:default';
+            require Cinnamon::Task::Cinnamon;
+            $task = $context->get_task($task_path);
+        }
+        $_ = {task => $task, args => \@args};
+    }
     my $error_occured = 0;
     for my $t (@$tasks) {
         my $result = $context->run(
             $role,
-            $t->{name},
+            $t->{task},
             hosts             => $hosts,
             args              => $t->{args},
         );
