@@ -109,11 +109,10 @@ sub run (@) {
     my (@cmd) = @_;
     my $opts = ref $cmd[0] eq 'HASH' ? shift @cmd : {};
     my $executor = $Cinnamon::LocalContext->command_executor;
-    my $state = $Cinnamon::Runner::State; # XXX
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
     $commands = $executor->construct_command($commands, $opts);
-    my $cv = $executor->execute_as_cv($state, $commands, $opts);
+    my $cv = $executor->execute_as_cv($Cinnamon::LocalContext, $commands, $opts);
     my $result = $cv->recv;
     my $errmsg = $result->show_result_and_detect_error($Cinnamon::LocalContext->global);
     die "$errmsg\n" if defined $errmsg;

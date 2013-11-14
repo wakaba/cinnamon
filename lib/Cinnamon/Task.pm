@@ -2,7 +2,6 @@ package Cinnamon::Task;
 use strict;
 use warnings;
 use Carp qw(croak);
-use Cinnamon::State;
 
 sub new {
     my $class = shift;
@@ -80,20 +79,16 @@ sub run {
             $args{role}->name, defined $desc ? ' ' . $desc : '');
     }
 
-    my $state = Cinnamon::State->new(
-        context => $args{context},
-        hosts => $hosts,
-        args => $args{args},
-    );
+    my $local_context = $Cinnamon::LocalContext->clone_for_task($hosts, $args{args});
     if ($hosts_option eq 'all' or $hosts_option eq 'none') {
         local $_ = undef;
-        my $result = eval { $Cinnamon::LocalContext->eval(sub { $self->code->($state) }) };
+        my $result = eval { $local_context->eval(sub { $self->code->($local_context) }) };
         
         if ($@) {
             chomp $@;
             my $msg = sprintf '%s %s', $self->name, $@;
             ($args{onerror} || sub { die $_[0] })->($msg);
-            return $state->create_result(failed => 1);
+            return $local_context->create_result(failed => 1);
         }
 
         if (UNIVERSAL::isa ($result, 'AnyEvent::CondVar')) {
@@ -101,8 +96,8 @@ sub run {
         } elsif (UNIVERSAL::isa ($result, 'Cinnamon::TaskResult')) {
             #
         } else {
-            $args{context}->error('A non-result non-cv object (.$result.) is retuned');
-            $result = $state->create_result(failed => 1);
+            $local_context->global->error('A non-result non-cv object (.$result.) is retuned');
+            $result = $local_context->create_result(failed => 1);
         }
 
         return $result;
@@ -111,7 +106,7 @@ sub run {
         my @failed_host;
         my $skip_by_error;
         my $return = {};
-        for my $host (@{$state->hosts}) {
+        for my $host (@{$local_context->hosts}) {
             if ($skip_by_error) {
                 my $msg = sprintf '%s [%s] %s', $self->name, $host, 'Skipped';
                 ($args{onerror} || sub { die $_[0] })->($msg);
@@ -119,13 +114,12 @@ sub run {
                 next;
             }
 
+            my $lc = $local_context->clone_for_task([$host], $local_context->args);
             local $_ = undef;
-            local $Cinnamon::Runner::Host = $host; # XXX AE unsafe
-            local $Cinnamon::Runner::State = $state; # XXX
-            $state->add_terminate_handler(sub {
-              # XXX
-            });
-            $return->{$host} = eval { $Cinnamon::LocalContext->eval(sub { $self->code->($host, @{$state->args}) }) };
+            #$lc->add_terminate_handler(sub {
+            #  # XXX
+            #});
+            $return->{$host} = eval { $lc->eval(sub { $self->code->($host, @{$lc->args}) }) };
             
             if ($@) {
                 chomp $@;
@@ -137,7 +131,7 @@ sub run {
                 push @succeeded_host, $host;
             }
         }
-        return $state->create_result(
+        return $local_context->create_result(
             succeeded_hosts => \@succeeded_host,
             failed_hosts => \@failed_host,
             return_values => $return,

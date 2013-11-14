@@ -10,13 +10,13 @@ use Cinnamon::CommandResult;
 sub host { 'localhost' }
 
 sub execute_as_cv {
-    my ($self, $state, $commands, $opts) = @_;
+    my ($self, $local_context, $commands, $opts) = @_;
     my $cv = AE::cv;
 
     my $host = $self->host;
     my $user = $self->user;
     $user = defined $user ? $user . '@' : '';
-    $state->context->info("[$user$host] \$ " . join ' ', @$commands);
+    $local_context->global->info("[$user$host] \$ " . join ' ', @$commands);
 
     # XXX $opts->{tty} $opts->{hide_output}
     # XXX async
@@ -28,10 +28,10 @@ sub execute_as_cv {
     chomp for ($stdout, $stderr);
 
     for my $line (split "\n", $stdout) {
-        $state->context->info(sprintf "[localhost o] %s", $line);
+        $local_context->global->info(sprintf "[localhost o] %s", $line);
     }
     for my $line (split "\n", $stderr) {
-        $state->context->info(sprintf "[localhost e] %s", $line);
+        $local_context->global->info(sprintf "[localhost e] %s", $line);
     }
 
     $cv->send(Cinnamon::CommandResult->new(

@@ -14,8 +14,8 @@
   };
 
 hosts オプションの値を none または all で定義したタスクは、ホスト数に関
-わらず1回実行されます。引数としては状態オブジェクト (Cinnamon::State)
-が渡されます。
+わらず1回実行されます。引数としては状態オブジェクト
+(Cinnamon::LocalContext) が渡されます。
 
   task hoge => sub {
     my $state = shift;

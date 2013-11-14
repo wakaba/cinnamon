@@ -112,10 +112,9 @@ sub get_remote (;%) {
     my %args = @_;
     my $user = get 'user';
     undef $user unless defined $user and length $user;
-    my $host = $Cinnamon::Runner::Host; # XXX AE unsafe
     my $exec = $Cinnamon::LocalContext->global->get_command_executor(
         remote => 1,
-        host => $host,
+        host => $Cinnamon::LocalContext->hosts->[0],
         user => $user,
     );
     return $Cinnamon::LocalContext->clone_with_command_executor($exec);

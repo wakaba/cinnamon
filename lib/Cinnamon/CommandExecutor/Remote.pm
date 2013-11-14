@@ -21,7 +21,7 @@ sub connection {
 sub host { $_[0]->{host} || die "Host is not set" }
 
 sub execute_as_cv {
-    my ($self, $state, $commands, $opts) = @_;
+    my ($self, $local_context, $commands, $opts) = @_;
     my $conn = $self->connection;
     my $cv = AE::cv;
 
@@ -33,7 +33,7 @@ sub execute_as_cv {
             undef $timer;
         } else {
             if ($conn->error) {
-                $state->context->error(sprintf "[%s] %s", $self->host, $conn->error);
+                $local_context->global->error(sprintf "[%s] %s", $self->host, $conn->error);
                 $cv->send(Cinnamon::CommandResult->new(
                     host => $self->host,
                     has_error => 1,
@@ -52,14 +52,14 @@ sub execute_as_cv {
         my $host = $self->host;
         my $user = $self->user;
         $user = defined $user ? $user . '@' : '';
-        $state->context->info("[$user$host] \$ " . join ' ', @$commands);
+        $local_context->global->info("[$user$host] \$ " . join ' ', @$commands);
 
         my ($stdin, $stdout, $stderr, $pid) = $conn->open3({
             tty => $opts->{tty},
         }, @$commands) or die "open3 failed: " . $conn->error;
 
         my $signal_error;
-        $state->add_terminate_handler(my $handler = sub {
+        $local_context->add_terminate_handler(my $handler = sub {
             kill $_[0]->{signal_name}, $pid;
             $signal_error = 1;
             return {die => 0, remove => 1};
@@ -75,7 +75,7 @@ sub execute_as_cv {
             undef $fherr;
             waitpid $pid, 0;
             my $exitcode = $?;
-            $state->remove_terminate_handler($handler);
+            $local_context->remove_terminate_handler($handler);
             $cv->send(Cinnamon::CommandResult->new(
                 host => $host,
                 user => $user,
@@ -119,7 +119,7 @@ sub execute_as_cv {
             },
             on_error => sub {
                 my ($handle, $fatal, $message) = @_;
-                $state->context->error(sprintf "[%s o]: %s (%d)", $host, $message, $!)
+                $local_context->global->error(sprintf "[%s o]: %s (%d)", $host, $message, $!)
                     unless $! == POSIX::EPIPE;
                 undef $stdout;
                 $end->() if not $stdout and not $stderr;
@@ -139,7 +139,7 @@ sub execute_as_cv {
             },
             on_error => sub {
                 my ($handle, $fatal, $message) = @_;
-                $state->context->error(sprintf "[%s e]: %s (%d)", $host, $message, $!)
+                $local_context->global->error(sprintf "[%s e]: %s (%d)", $host, $message, $!)
                     unless $! == POSIX::EPIPE;
                 undef $stderr;
                 $end->() if not $stdout and not $stderr;
