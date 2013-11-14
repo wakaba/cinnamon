@@ -6,8 +6,10 @@ use Encode;
 use Getopt::Long;
 use Path::Class;
 use Cinnamon::Role;
+use Cinnamon::Task;
 use Cinnamon::Context;
 use Cinnamon::LocalContext;
+use Cinnamon::DSL::TaskCalls;
 
 use constant { SUCCESS => 0, ERROR => 1 };
 
@@ -44,11 +46,23 @@ sub run {
         $self->usage(help => $help, version => $version);
         return SUCCESS;
     }
+    
+    my $out;
+    if (-t STDOUT) {
+        require Cinnamon::OutputChannel::TTY;
+        $out = Cinnamon::OutputChannel::TTY->new_from_fh(\*STDOUT);
+        $out->no_color(1) if $no_color;
+        STDOUT->autoflush(1);
+    } else {
+        require Cinnamon::OutputChannel::PlainText;
+        $out = Cinnamon::OutputChannel::PlainText->new_from_fh(\*STDOUT);
+        STDOUT->autoflush(1);
+    }
 
     # check config exists
     $self->{config} ||= 'config/deploy.pl';
     if (!-e $self->{config}) {
-        $self->print("cannot find config file for deploy : $self->{config}\n");
+        $out->print("cannot find config file for deploy : $self->{config}", newline => 1, class => 'error');
         return ERROR;
     }
 
@@ -71,18 +85,6 @@ sub run {
     } else {
         require Cinnamon::KeyChain::CLI;
         $keychain = Cinnamon::KeyChain::CLI->new;
-    }
-    
-    my $out;
-    if (-t STDOUT) {
-        require Cinnamon::OutputChannel::TTY;
-        $out = Cinnamon::OutputChannel::TTY->new_from_fh(\*STDOUT);
-        $out->no_color(1) if $no_color;
-        STDOUT->autoflush(1);
-    } else {
-        require Cinnamon::OutputChannel::PlainText;
-        $out = Cinnamon::OutputChannel::PlainText->new_from_fh(\*STDOUT);
-        STDOUT->autoflush(1);
     }
 
     $hosts = [grep { length } split /\s*,\s*/, $hosts] if defined $hosts;
@@ -108,7 +110,7 @@ sub run {
 
     $role ||= $context->get_role($role_name);
     unless ($role) {
-        $self->print("Role |\@$role_name| is not defined\n");
+        $out->print("Role |\@$role_name| is not defined", newline => 1, class => 'error');
         return ERROR;
     }
 
@@ -118,7 +120,7 @@ sub run {
         require Cinnamon::Task::Cinnamon if $task_path =~ /^cinnamon:/;
         my $task = $context->get_task($task_path);
         unless (defined $task) {
-            $self->print("Task |$task_path| is not defined\n");
+            $out->print("Task |$task_path| is not defined", newline => 1, class => 'error');
             return ERROR;
         }
         if ($show_tasklist or not $task->is_callable) {
@@ -129,20 +131,39 @@ sub run {
         }
         $_ = {task => $task, args => \@args};
     }
-    my $error_occured = 0;
-    for my $t (@$tasks) {
-        my $result = $context->run(
-            $role,
-            $t->{task},
-            hosts             => $hosts,
-            args              => $t->{args},
-        );
-        $error_occured = 1 if $result->failed;
-        last if $error_occured;
-        print "\n";
+
+    my ($task, $args) = @$tasks == 1
+        ? ($tasks->[0]->{task}, $tasks->[0]->{args})
+        : (Cinnamon::Task->new(
+              code => Cinnamon::DSL::TaskCalls->get_code($tasks),
+          ), []);
+    $context->set_params_by_role($role);
+    $context->set_param(task => $task->name);
+    my $result = $task->run(
+        context => $context,
+        role => $role,
+        hosts => $hosts,
+        args => $args,
+        onerror => sub {
+            $out->print($_[0], newline => 1, class => 'error');
+        },
+    );
+
+    if ($result->failed) {
+        $out->print("Failed", newline => 1, class => 'error');
+        $out->print("[OK] @{[join ', ', @{$result->succeeded_hosts}]}", newline => 1)
+            if @{$result->succeeded_hosts};
+        $out->print("[NG] @{[join ', ', @{$result->failed_hosts}]}", newline => 1, class => 'error')
+            if @{$result->failed_hosts};
+    } else {
+        $out->print("Done", newline => 1, class => 'success');
+        $out->print("[OK] @{[join ', ', @{$result->succeeded_hosts}]}", newline => 1, class => 'success')
+            if @{$result->succeeded_hosts};
+        $out->print("[NG] @{[join ', ', @{$result->failed_hosts}]}", newline => 1)
+            if @{$result->failed_hosts};
     }
 
-    return $error_occured ? ERROR : SUCCESS;
+    return $result->failed ? ERROR : SUCCESS;
 }
 
 sub git_log {

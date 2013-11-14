@@ -17,47 +17,8 @@ sub new {
 sub info {
     $_[0]->output_channel->print($_[1], newline => 1, class => 'info');
 }
-sub success {
-    $_[0]->output_channel->print($_[1], newline => 1, class => 'success');
-}
 sub error {
     $_[0]->output_channel->print($_[1], newline => 1, class => 'error');
-}
-
-sub run {
-    my ($self, $role, $task, %opts)  = @_;
-    my $params = $role->params;
-    for my $key (keys %$params) {
-        $self->set_param($key => $params->{$key});
-    }
-    $self->set_param(role => $role->name);
-    $self->set_param(task => $task->name);
-
-    local $self->{params} = {%{$self->{params}}};
-    my $result = $task->run(
-        context => $self,
-        role => $role,
-        hosts => $opts{hosts},
-        args => $opts{args},
-        onerror => sub {
-            $self->error($_[0]);
-        },
-    );
-
-    if ($result->failed) {
-        $self->error("Failed");
-        $self->info("[OK] @{[join ', ', @{$result->succeeded_hosts}]}")
-            if @{$result->succeeded_hosts};
-        $self->error("[NG] @{[join ', ', @{$result->failed_hosts}]}")
-            if @{$result->failed_hosts};
-    } else {
-        $self->success("Done");
-        $self->success("[OK] @{[join ', ', @{$result->succeeded_hosts}]}")
-            if @{$result->succeeded_hosts};
-        $self->info("[NG] @{[join ', ', @{$result->failed_hosts}]}")
-            if @{$result->failed_hosts};
-    }
-    return $result;
 }
 
 sub load_config ($$) {
@@ -172,6 +133,13 @@ sub params {
 sub set_param {
     my ($self, $key, $value) = @_;
     $self->params->{$key} = $value;
+}
+
+sub set_params_by_role {
+    my ($self, $role) = @_;
+    my $params = $role->params;
+    $self->set_param(role => $role->name);
+    $self->set_param($_ => $params->{$_}) for keys %$params;
 }
 
 sub keychain {
