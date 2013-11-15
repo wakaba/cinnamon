@@ -67,10 +67,6 @@ Cinnamon - A minimalistic deploy tool
       },
   };
 
-=head1 WARNINGS
-
-This software is under the heavy development and considered ALPHA quality.  Things might be broken, not all features have been implemented, and APIs will be likely to change.
-
 =head1 DESCRIPTION
 
 Cinnamon is a minimalistic deploy tool aiming to provide
@@ -258,24 +254,16 @@ Cinnamon configuration is managed by set function.  You can customize following 
 
 user name which is used for login to server.
 
-=head3 concurrency
-
-Max number of concurrent execution of tasks.  the task which is not specified concurrency, is executed in parallel by all the hosts.
-
-=over 4
-
-    set concurrency => {
-        restart        => 1,
-        'server:setup' => 2,
-    };
-
-=back
-
 =head1 REPOSITORY
 
-https://github.com/kentaro/cinnamon
+<https://github.com/wakaba/cinnamon>, which is derived from:
+<https://github.com/kentaro/cinnamon>.
 
-=head1 AUTHOR
+=head1 AUTHORS
+
+Wakaba <wakaba@suikawiki.org>.
+
+Upstream authors are:
 
 =over 4
 
@@ -293,15 +281,16 @@ https://github.com/kentaro/cinnamon
 
 L<http://d.hatena.ne.jp/naoya/20130118/1358477523>
 
-=item * L<capistrano>
-
-=item * L<Archer>
-
 =back
 
 =head1 LICENSE
 
-Copyright (C) Kentaro Kuribayashi
+Copyright (c) 2013 by Yuki Shibazaki <shibayu36@gmail.com> & Kentaro
+Kuribayashi kentarok@gmail.com.
+
+Copyright 2012-2013 Hatena <http://www.hatena.ne.jp/company/>.
+
+Copyright 2012-2013 Wakaba <wakaba@suikawiki.org>.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
