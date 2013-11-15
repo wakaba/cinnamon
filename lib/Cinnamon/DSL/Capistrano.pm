@@ -22,7 +22,7 @@ sub set ($$) {
 
 push @EXPORT, qw(getuname);
 sub getuname () {
-    return $Cinnamon::LocalContext->global->operator_name;
+    return $Cinnamon::LocalContext->operator_name;
 }
 
 push @EXPORT, qw(load);
@@ -110,12 +110,11 @@ sub get_remote (;%) {
     my %args = @_;
     my $user = get 'user';
     undef $user unless defined $user and length $user;
-    my $exec = $Cinnamon::LocalContext->global->get_command_executor(
+    return $Cinnamon::LocalContext->clone_with_new_command_executor(
         remote => 1,
         host => $Cinnamon::LocalContext->hosts->[0],
         user => $user,
     );
-    return $Cinnamon::LocalContext->clone_with_command_executor($exec);
 }
 
 push @EXPORT, qw(run stream capture);
@@ -145,8 +144,9 @@ sub system (@) {
     my (@cmd) = @_;
     my $commands = (@cmd == 1 and $cmd[0] =~ m{[ &<>|()]}) ? $cmd[0] :
         (@cmd == 1 and $cmd[0] eq '') ? [] : \@cmd;
-    my $exec = $Cinnamon::LocalContext->global->get_command_executor(local => 1);
-    my $local_context = $Cinnamon::LocalContext->clone_with_command_executor($exec);
+    my $local_context = $Cinnamon::LocalContext->clone_with_new_command_executor(
+        local => 1,
+    );
     my $cv = $local_context->run_as_cv($commands);
     my $result = $cv->recv;
     die "Command failed\n" if $result->is_fatal_error;
@@ -161,7 +161,7 @@ push @EXPORT, qw(call);
 sub call ($;@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
-    my $task = $Cinnamon::LocalContext->global->get_task($task_path)
+    my $task = $Cinnamon::LocalContext->get_task($task_path)
         or croak "Task |$task_path| not found";
     my $user = get 'user';
     $task->run(

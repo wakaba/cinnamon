@@ -3,10 +3,13 @@ use strict;
 use warnings;
 use Scalar::Util qw(weaken);
 use AnyEvent;
+use AnyEvent::Util qw(portable_socketpair fork_call);
+use AnyEvent::Handle;
+use Cinnamon::TPP;
 use Cinnamon::TaskResult;
 
 sub new_from_global_context {
-    return bless {global_context => $_[1], params => {}}, $_[0];
+    return bless {global => $_[1], params => {}}, $_[0];
 }
 
 sub clone_for_task {
@@ -18,12 +21,14 @@ sub clone_for_task {
     }, ref $_[0];
 }
 
-sub clone_with_command_executor {
-    return bless {%{$_[0]}, command_executor => $_[1]}, ref $_[0];
+sub clone_with_new_command_executor {
+    my $self = shift;
+    my $exec = $self->global->get_command_executor(@_);
+    return bless {%$self, command_executor => $exec}, ref $self;
 }
 
 sub global {
-    return $_[0]->{global_context};
+    return $_[0]->{global};
 }
 
 sub command_executor {
@@ -63,7 +68,7 @@ sub sudo_as_cv {
 }
 
 sub output_channel {
-    return $_[0]->global->output_channel;
+    return $_[0]->{output_channel} || $_[0]->global->output_channel;
 }
 
 sub params {
@@ -99,6 +104,94 @@ sub get_role_desc_by_name {
 sub eval {
     local $Cinnamon::LocalContext = $_[0];
     return $_[1]->();
+}
+
+sub fork_eval_as_cv {
+    my ($self, $code) = @_;
+    my $cv = AE::cv;
+    my ($fh_child, $fh_parent) = portable_socketpair;
+    my $process_line;
+    my $_process_line;
+    my $child; $child = AnyEvent::Handle->new(
+        fh => $fh_child,
+        on_eof => sub {
+            undef $child;
+            undef $_process_line;
+        },
+        on_error => sub {
+            if ($_[1]) {
+                $self->global->error($_[2]);
+                undef $child;
+                undef $_process_line;
+            }
+        },
+    );
+    $_process_line = sub {
+        my $data = tpp_parse $_[1];
+        if ($data->{type} eq 'run') {
+            my $cv = AE::cv;
+            if ($data->{opts}->{sudo}) {
+                $self->get_password_as_cv->cb(sub {
+                    $data->{opts}->{password} = $_[0]->recv;
+                    $cv->send;
+                });
+            } else {
+                $cv->send;
+            }
+            $cv->cb(sub {
+                my $executor = $self->global->get_command_executor(%{$data->{command_executor_args}});
+                $executor->execute_as_cv($self, $data->{command}, $data->{opts})->cb(sub {
+                    my $result = $_[0]->recv;
+                    $result->show_result_and_detect_error($self->global);
+                    $child->push_write (tpp_serialize {
+                        result => $result,
+                    });
+                });
+            });
+        } elsif ($data->{type} eq 'logger') {
+            # XXX blocking
+            $self->output_channel->print(
+                $data->{message}, %{$data->{args}},
+            );
+            $child->push_write (tpp_serialize {});
+        } elsif ($data->{type} eq 'end') {
+            undef $_process_line;
+            return;
+        } else {
+            $self->global->error("Broken data from task process: |$data->{type}|");
+            undef $_process_line;
+            return;
+        }
+        $child->push_read (line => $process_line);
+    };
+    $process_line = sub {
+        my @args = @_;
+        $self->eval(sub { $_process_line->(@args) });
+    };
+    $child->push_read (line => $process_line);
+
+    # XXX control forked process number
+    # XXX signal handling
+    fork_call {
+        close $fh_child;
+        require Cinnamon::LocalContext::TaskProcess;
+        require Cinnamon::OutputChannel::TaskProcess;
+        bless $Cinnamon::LocalContext, 'Cinnamon::LocalContext::TaskProcess';
+        $Cinnamon::LocalContext->{tpp_parent_fh} = $fh_parent;
+        local $Cinnamon::LocalContext->{output_channel} = Cinnamon::OutputChannel::TaskProcess->new_from_local_context($Cinnamon::LocalContext); # loop ref
+        my $return = $code->();
+        $Cinnamon::LocalContext->tpp_close;
+        return $return;
+    } sub {
+        if ($@) {
+            $self->output_channel->print($@, newline => 1, class => 'error');
+            $cv->send({error => 1});
+        } else {
+            $cv->send({return_value => $_[0]});
+        }
+    };
+    close $fh_parent;
+    return $cv;
 }
 
 sub hosts {

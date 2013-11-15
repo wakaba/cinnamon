@@ -46,4 +46,8 @@ sub show_result_and_detect_error {
     return undef;
 }
 
+sub recv {
+    return $_[0];
+}
+
 1;

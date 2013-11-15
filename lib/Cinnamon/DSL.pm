@@ -79,7 +79,7 @@ sub taskdef (&$) {
 sub call ($$@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
-    my $task = $Cinnamon::LocalContext->global->get_task($task_path)
+    my $task = $Cinnamon::LocalContext->get_task($task_path)
         or croak "Task |$task_path| not found";
     my $result = $task->run(
         $Cinnamon::LocalContext->clone_for_task([$host], \@args),
@@ -95,12 +95,12 @@ sub remote (&$;%) {
                                    : get 'user';
     undef $user unless defined $user and length $user;
 
-    local $_ = $Cinnamon::LocalContext->global->get_command_executor(
+    local $Cinnamon::LocalContext = $Cinnamon::LocalContext->clone_with_new_command_executor(
         remote => 1,
         host => $host,
         user => $user,
     );
-    local $Cinnamon::LocalContext = $Cinnamon::LocalContext->clone_with_command_executor($_);
+    local $_ = $Cinnamon::LocalContext->command_executor;
     $code->($host);
 }
 
@@ -127,7 +127,7 @@ sub sudo (@) {
 }
 
 sub get_operator_name {
-    return $Cinnamon::LocalContext->global->operator_name;
+    return $Cinnamon::LocalContext->operator_name;
 }
 
 sub log ($$) {
