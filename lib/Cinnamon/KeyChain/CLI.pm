@@ -14,7 +14,9 @@ sub get_password_as_cv {
     my $cv = AE::cv;
 
     if (defined $self->{password}->{defined $user ? $user : ''}) {
-        $cv->send($self->{password}->{defined $user ? $user : ''});
+        AE::postpone {
+            $cv->send($self->{password}->{defined $user ? $user : ''});
+        };
         return $cv;
     }
 

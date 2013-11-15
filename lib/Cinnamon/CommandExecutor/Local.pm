@@ -34,18 +34,20 @@ sub execute_as_cv {
         $local_context->global->info(sprintf "[localhost e] %s", $line);
     }
 
-    $cv->send(Cinnamon::CommandResult->new(
-        host => $host,
-        user => $user,
-        start_time => $start_time,
-        end_time => time,
-        stdout    => $stdout,
-        stderr    => $stderr,
-        has_error => $exitcode > 0,
-        error     => $exitcode,
-        terminated_by_signal => $signal_error,
-        opts => $opts,
-    ));
+    AE::postpone {
+        $cv->send(Cinnamon::CommandResult->new(
+            host => $host,
+            user => $user,
+            start_time => $start_time,
+            end_time => time,
+            stdout    => $stdout,
+            stderr    => $stderr,
+            has_error => $exitcode > 0,
+            error     => $exitcode,
+            terminated_by_signal => $signal_error,
+            opts => $opts,
+        ));
+    };
     return $cv;
 }
 
