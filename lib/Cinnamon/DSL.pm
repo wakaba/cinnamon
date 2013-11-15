@@ -29,13 +29,13 @@ push our @CARP_NOT, qw(Cinnamon::Task);
 
 sub set ($$) {
     my ($name, $value) = @_;
-    $Cinnamon::LocalContext->global->set_param($name => $value);
+    $Cinnamon::LocalContext->set_param($name => $value);
 }
 
 sub set_default ($$) {
     my ($name, $value) = @_;
-    $Cinnamon::LocalContext->global->set_param(@_)
-        unless defined $Cinnamon::LocalContext->global->params->{$_[0]};
+    $Cinnamon::LocalContext->set_param(@_)
+        unless defined $Cinnamon::LocalContext->params->{$_[0]};
 }
 
 sub get ($@) {

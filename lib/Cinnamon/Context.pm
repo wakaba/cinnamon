@@ -11,7 +11,7 @@ use Cinnamon::CommandExecutor::Remote;
 
 sub new {
     my $class = shift;
-    return bless {@_, roles => {}, tasks => {}, params => {}}, $class;
+    return bless {@_, roles => {}, tasks => {}}, $class;
 }
 
 sub info {
@@ -124,22 +124,6 @@ sub get_task {
     }
 
     return $value;
-}
-
-sub params {
-    return $_[0]->{params};
-}
-
-sub set_param {
-    my ($self, $key, $value) = @_;
-    $self->params->{$key} = $value;
-}
-
-sub set_params_by_role {
-    my ($self, $role) = @_;
-    my $params = $role->params;
-    $self->set_param(role => $role->name);
-    $self->set_param($_ => $params->{$_}) for keys %$params;
 }
 
 sub keychain {

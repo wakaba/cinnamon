@@ -6,7 +6,7 @@ use AnyEvent;
 use Cinnamon::TaskResult;
 
 sub new_from_global_context {
-    return bless {global_context => $_[1]}, $_[0];
+    return bless {global_context => $_[1], params => {}}, $_[0];
 }
 
 sub clone_for_task {
@@ -66,9 +66,25 @@ sub output_channel {
     return $_[0]->global->output_channel;
 }
 
+sub params {
+    return $_[0]->{params};
+}
+
+sub set_param {
+    my ($self, $key, $value) = @_;
+    $self->params->{$key} = $value;
+}
+
+sub set_params_by_role {
+    my ($self, $role) = @_;
+    my $params = $role->params;
+    $self->set_param(role => $role->name);
+    $self->set_param($_ => $params->{$_}) for keys %$params;
+}
+
 sub get_param {
     my ($self, $name, @args) = @_;
-    my $value = $self->global->params->{$name};
+    my $value = $self->params->{$name};
     $value = $self->eval(sub { $value->(@args) }) if ref $value eq 'CODE';
     return $value;
 }

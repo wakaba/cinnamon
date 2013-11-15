@@ -17,7 +17,7 @@ sub get ($) {
 push @EXPORT, qw(set);
 sub set ($$) {
     my ($name, $value) = @_;
-    $Cinnamon::LocalContext->global->set_param($name => $value);
+    $Cinnamon::LocalContext->set_param($name => $value);
 }
 
 push @EXPORT, qw(getuname);

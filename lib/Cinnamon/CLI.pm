@@ -99,11 +99,11 @@ sub run {
         operator_name => $user,
     );
     my $lc = Cinnamon::LocalContext->new_from_global_context($context);
-    $context->set_param(user => $user_name) if defined $user_name;
+    $lc->set_param(user => $user_name) if defined $user_name;
 
     $lc->eval(sub { $context->load_config($config_file_name) });
     for my $key (keys %$override_settings) {
-        $context->set_param($key => $override_settings->{$key});
+        $lc->set_param($key => $override_settings->{$key});
     }
 
     $role ||= $context->get_role($role_name);
@@ -136,8 +136,8 @@ sub run {
         : (Cinnamon::Task->new(
               code => Cinnamon::DSL::TaskCalls->get_code($tasks),
           ), []);
-    $context->set_params_by_role($role);
-    $context->set_param(task => $task->name);
+    $lc->set_params_by_role($role);
+    $lc->set_param(task => $task->name);
     $hosts ||= $role->get_hosts_with($lc);
     my $result = $task->run(
         $lc->clone_for_task($hosts, $args),
