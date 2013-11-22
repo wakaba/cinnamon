@@ -145,7 +145,7 @@ sub fork_eval_as_cv {
                     $result->show_result_and_detect_error($self->global);
                     $child->push_write (tpp_serialize {
                         result => $result,
-                    });
+                    }) if $child;
                 });
             });
         } elsif ($data->{type} eq 'logger') {
@@ -171,10 +171,11 @@ sub fork_eval_as_cv {
     $child->push_read (line => $process_line);
 
     # XXX concur=only|serial|auto|all
-    # XXX signal handling
     fork_call {
         close $fh_child;
         $child->destroy;
+        $SIG{INT} = sub { warn "SIGINT received\n"; exit 1 };
+        $SIG{TERM} = sub { warn "SIGTERM received\n"; exit 1 };
         require Cinnamon::LocalContext::TaskProcess;
         require Cinnamon::OutputChannel::TaskProcess;
         bless $Cinnamon::LocalContext, 'Cinnamon::LocalContext::TaskProcess';

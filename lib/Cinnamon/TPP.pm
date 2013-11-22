@@ -11,7 +11,12 @@ sub tpp_parse ($) {
     my $line = $_[0];
     $line =~ tr/\x0D\x0A//d;
     $line =~ s/\\([0-9A-F]{2})/pack 'C', hex $1/ge;
-    return Storable::thaw ($line);
+    my $result = eval { Storable::thaw ($line) };
+    if ($@) {
+        return {throw => $@};
+    } else {
+        return $result;
+    }
 }
 
 sub tpp_serialize ($) {
