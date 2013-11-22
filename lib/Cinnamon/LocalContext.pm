@@ -174,6 +174,7 @@ sub fork_eval_as_cv {
     # XXX signal handling
     fork_call {
         close $fh_child;
+        $child->destroy;
         require Cinnamon::LocalContext::TaskProcess;
         require Cinnamon::OutputChannel::TaskProcess;
         bless $Cinnamon::LocalContext, 'Cinnamon::LocalContext::TaskProcess';
