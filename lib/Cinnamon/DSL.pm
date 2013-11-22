@@ -6,6 +6,8 @@ use Exporter::Lite;
 use Cinnamon::TaskDef;
 
 our @EXPORT = qw(
+    in_task_process
+
     set
     set_default
     get
@@ -26,6 +28,10 @@ our @EXPORT = qw(
 );
 
 push our @CARP_NOT, qw(Cinnamon::Task);
+
+sub in_task_process () {
+    return $Cinnamon::LocalContext->in_task_process;
+}
 
 sub set ($$) {
     my ($name, $value) = @_;

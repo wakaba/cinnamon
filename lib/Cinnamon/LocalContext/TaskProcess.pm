@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Cinnamon::LocalContext;
 push our @ISA, qw(Cinnamon::LocalContext);
-use Carp qw(croak);
+use Carp qw(croak carp);
 use Cinnamon::TPP;
 use Cinnamon::CommandResult; # run_as_cv, sudo_as_cv
 use Cinnamon::CommandExecutor::InTaskProcess;
@@ -19,6 +19,10 @@ sub clone_with_new_command_executor {
         output_channel => $self->output_channel,
     );
     return bless {%$self, command_executor => $exec}, ref $self;
+}
+
+sub in_task_process {
+    return 1;
 }
 
 *global = $bad_method;
@@ -84,5 +88,23 @@ sub sudo_as_cv {
 *context = $bad_method;
 *remote = $bad_method;
 *local = $bad_method;
+
+our $OrigCV;
+
+sub condvar (;&) {
+    carp "AnyEvent cannot be used in tasks";
+    return $OrigCV->($_[0]) if $_[0];
+    return bless {}, 'Cinnamon::LocalContext::TaskProcess::CondVar';
+}
+
+package Cinnamon::LocalContext::TaskProcess::CondVar;
+
+sub send {
+    return $_[0]->{value} = $_[1];
+}
+
+sub recv {
+    return $_[0]->{value};
+}
 
 1;

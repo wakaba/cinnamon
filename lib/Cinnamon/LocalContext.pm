@@ -27,6 +27,10 @@ sub clone_with_new_command_executor {
     return bless {%$self, command_executor => $exec}, ref $self;
 }
 
+sub in_task_process {
+    return 0;
+}
+
 sub global {
     return $_[0]->{global};
 }
@@ -172,12 +176,15 @@ sub fork_eval_as_cv {
 
     # XXX concur=only|serial|auto|all
     fork_call {
+        local $SIG{INT} = sub { warn "SIGINT received\n"; exit 1 };
+        local $SIG{TERM} = sub { warn "SIGTERM received\n"; exit 1 };
         close $fh_child;
         $child->destroy;
-        $SIG{INT} = sub { warn "SIGINT received\n"; exit 1 };
-        $SIG{TERM} = sub { warn "SIGTERM received\n"; exit 1 };
         require Cinnamon::LocalContext::TaskProcess;
         require Cinnamon::OutputChannel::TaskProcess;
+        local *AnyEvent::condvar = \&Cinnamon::LocalContext::TaskProcess::condvar;
+        $Cinnamon::LocalContext::TaskProcess::OrigCV = \&AE::cv;
+        local *AE::cv = \&Cinnamon::LocalContext::TaskProcess::condvar;
         bless $Cinnamon::LocalContext, 'Cinnamon::LocalContext::TaskProcess';
         $Cinnamon::LocalContext->{tpp_parent_fh} = $fh_parent;
         local $Cinnamon::LocalContext->{output_channel} = Cinnamon::OutputChannel::TaskProcess->new_from_local_context($Cinnamon::LocalContext); # loop ref
