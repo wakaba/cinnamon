@@ -7,6 +7,7 @@ use Cinnamon::TaskDef;
 
 our @EXPORT = qw(
     in_task_process
+    invoke_in_main_process
 
     set
     set_default
@@ -31,6 +32,11 @@ push our @CARP_NOT, qw(Cinnamon::Task);
 
 sub in_task_process () {
     return $Cinnamon::LocalContext->in_task_process;
+}
+
+sub invoke_in_main_process ($) {
+    croak "Can't invoke in the main process" unless in_task_process;
+    return $Cinnamon::LocalContext->invoke_in_main_process($_[0]);
 }
 
 sub set ($$) {

@@ -62,6 +62,18 @@ sub tpp_close {
     syswrite $fh, tpp_serialize {type => 'end'};
 }
 
+sub invoke_in_main_process {
+    my ($self, $args) = @_;
+    my $result = $self->tpp_parent_operation({
+        type => 'function',
+        %$args,
+    });
+    for (@{$result->{return}}) {
+        eval qq{ require @{[ref $_]} } if ref $_;
+    }
+    return $result;
+}
+
 sub run_as_cv {
     my ($self, $command, $opts) = @_;
     my $return = $self->tpp_parent_operation({

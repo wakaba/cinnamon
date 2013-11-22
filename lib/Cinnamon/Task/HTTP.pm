@@ -46,44 +46,44 @@ sub _with_proxy ($$) {
     }
 }
 
-sub http_get (%) {
+sub _http ($%) {
+    my $method = shift;
     my %args = @_;
-    die "sync mode is not supported" unless $args{anyevent};
-    
-    return _with_proxy $args{url}, sub {
-        return Web::UserAgent::Functions::http_get(%args);
-    };
+    if (in_task_process) {
+        my $cb = delete $args{cb};
+        my $result = invoke_in_main_process {
+            name => __PACKAGE__ . '::_http',
+            args => [$method, %args, anyevent => 1],
+            context => 'list',
+            async => 'cb',
+        };
+        $cb->(@{$result->{return}}) if $cb;
+        return $result->{return};
+    } else {
+        die "sync mode is not supported" unless $args{anyevent};
+        return _with_proxy $args{url}, sub {
+            return Web::UserAgent::Functions->can($method)->(%args);
+        };
+    }
+}
+
+sub http_get (%) {
+    return _http('http_get', @_);
 }
 
 sub http_post (%) {
-    my %args = @_;
-    die "sync mode is not supported" unless $args{anyevent};
-    
-    return _with_proxy $args{url}, sub {
-        return Web::UserAgent::Functions::http_post(%args);
-    };
+    return _http('http_post', @_);
 }
 
 sub http_post_data (%) {
-    my %args = @_;
-    die "sync mode is not supported" unless $args{anyevent};
-    
-    return _with_proxy $args{url}, sub {
-        return Web::UserAgent::Functions::http_post_data(%args);
-    };
+    return _http('http_post_data', @_);
 }
 
 sub http_post_json (%) {
     my %args = @_;
-    die "sync mode is not supported" unless $args{anyevent};
     $args{header_fields}->{'Content-Type'} = 'application/json';
-    
-    return _with_proxy $args{url}, sub {
-        return Web::UserAgent::Functions::http_post_data(
-            %args,
-            content => perl2json_bytes $args{content},
-        );
-    };
+    $args{content} = perl2json_bytes $args{content};
+    return _http('http_post_data', %args);
 }
 
 1;

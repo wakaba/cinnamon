@@ -158,6 +158,26 @@ sub fork_eval_as_cv {
                 $data->{message}, %{$data->{args}},
             );
             $child->push_write (tpp_serialize {});
+        } elsif ($data->{type} eq 'function') {
+            my $return;
+            my $context = $data->{context} || '';
+            my $async = $data->{async} || '';
+            my @args = @{$data->{args}};
+            push @args, cb => sub {
+                $return = $context eq 'list' ? [@_] : $_[0];
+                $child->push_write (tpp_serialize {return => $return});
+            } if $async eq 'cb';
+            if ($context eq 'list') {
+                no strict 'refs';
+                $return = eval { [&{$data->{name}}(@args)] };
+            } else {
+                no strict 'refs';
+                $return = eval { &{$data->{name}}(@args) };
+            }
+            if ($@ or not $async eq 'cb') {
+                my $result = $@ ? {throw => $@} : {return => $return};
+                $child->push_write (tpp_serialize $result);
+            }
         } elsif ($data->{type} eq 'end') {
             undef $_process_line;
             return;
