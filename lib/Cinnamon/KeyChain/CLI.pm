@@ -5,8 +5,8 @@ use Encode;
 use AnyEvent;
 use Term::ReadKey;
 
-sub new {
-    return bless {}, $_[0];
+sub new_from_ui {
+    return bless {ui => $_[1]}, $_[0];
 }
 
 sub get_password_as_cv {
@@ -20,18 +20,23 @@ sub get_password_as_cv {
         return $cv;
     }
 
-    local $| = 1;
-    if (defined $user) {
-        print "Enter sudo password for user $user: ";
-    } else {
-        print "Enter your sudo password: ";
-    }
-    ReadMode "noecho";
-    chomp(my $password = decode 'utf-8', ReadLine 0);
-    ReadMode 0;
-    print "\n";
+    $self->{ui}->push_action(sub {
+        my $done = $_[0];
+        ## XXX Blocking I/O
+        local $| = 1;
+        if (defined $user) {
+            print "Enter sudo password for user $user: ";
+        } else {
+            print "Enter your sudo password: ";
+        }
+        ReadMode "noecho";
+        chomp(my $password = decode 'utf-8', ReadLine 0);
+        ReadMode 0;
+        print "\n";
 
-    $cv->send($self->{password}->{defined $user ? $user : ''} = $password);
+        $done->();
+        $cv->send($self->{password}->{defined $user ? $user : ''} = $password);
+    });
     return $cv;
 }
 

@@ -5,10 +5,14 @@ use Cinnamon::CommandExecutor;
 push our @ISA, qw(Cinnamon::CommandExecutor Cinnamon::Remote);
 use Net::OpenSSH;
 use AnyEvent;
+use AnyEvent::Util;
 use AnyEvent::Handle;
 use POSIX;
 use Cinnamon::CommandResult;
 use Cinnamon::OutputChannel::LinedStream;
+use Cinnamon::Config::User;
+
+my $ConnectedSomewhere;
 
 sub connection {
     my $self = shift;
@@ -22,33 +26,58 @@ sub host { $_[0]->{host} || die "Host is not set" }
 
 sub execute_as_cv {
     my ($self, $local_context, $commands, $opts) = @_;
-    my $conn = $self->connection;
     my $cv = AE::cv;
+
+    my $cv_pre = AE::cv;
+    my $pre_command = get_user_config 'ssh.pre_command';
+    if (defined $pre_command) {
+        unless ($ConnectedSomewhere) {
+            $self->ui->push_action(sub {
+                my $done = $_[0];
+                (run_cmd $pre_command)->cb(sub {
+                     $done->();
+                     $cv_pre->send;
+                 });
+            });
+            $ConnectedSomewhere = 1;
+        } else {
+            $self->ui->push_action(sub {
+                $_[0]->();
+                $cv_pre->send;
+            });
+        }
+    } else {
+        $cv_pre->send();
+    }
 
     my $start_time = time;
     my $conn_cv = AE::cv;
-    my $timer; $timer = AE::timer 0, 0.0010, sub {
-        if ($conn->wait_for_master(1)) {
-            $conn_cv->send;
-            undef $timer;
-        } else {
-            if ($conn->error) {
-                $local_context->global->error(sprintf "[%s] %s", $self->host, $conn->error);
-                $cv->send(Cinnamon::CommandResult->new(
-                    host => $self->host,
-                    has_error => 1,
-                    error => -1,
-                    error_msg => $conn->error,
-                    start_time => $start_time,
-                    end_time => time,
-                    opts => $opts,
-                ));
+    $cv_pre->cb(sub{
+        my $conn = $self->connection;
+        my $timer; $timer = AE::timer 0, 0.0010, sub {
+            if ($conn->wait_for_master(1)) {
+                $conn_cv->send($conn);
                 undef $timer;
+            } else {
+                if ($conn->error) {
+                    $local_context->global->error(sprintf "[%s] %s", $self->host, $conn->error);
+                    $cv->send(Cinnamon::CommandResult->new(
+                        host => $self->host,
+                        has_error => 1,
+                        error => -1,
+                        error_msg => $conn->error,
+                        start_time => $start_time,
+                        end_time => time,
+                        opts => $opts,
+                    ));
+                    undef $timer;
+                }
             }
-        }
-    };
+        };
+    });
 
     $conn_cv->cb(sub {
+        my $conn = $_[0]->recv;
         my $host = $self->host;
         my $user = $self->user;
         $user = defined $user ? $user . '@' : '';

@@ -1,0 +1,8 @@
+Commands at remote hosts are invoked through OpenSSH.  A local command
+can be injected before the first invocation of OpenSSH, by setting the
+"ssh.pre_command" configuration option to your user configuration file
+(~/.cinnamon/config.json), e.g.:
+
+  {
+    "ssh.pre_command": "keychain --timeout 30 ~/.ssh/id_rsa"
+  }

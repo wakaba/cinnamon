@@ -14,6 +14,13 @@ sub new {
     return bless {@_, roles => {}, tasks => {}}, $class;
 }
 
+sub ui {
+    if (@_ > 1) {
+        $_[0]->{ui} = $_[1];
+    }
+    return $_[0]->{ui};
+}
+
 sub info {
     $_[0]->output_channel->print($_[1], newline => 1, class => 'info');
 }
@@ -145,12 +152,14 @@ sub get_command_executor {
                 host => $host,
                 user => $user,
                 output_channel => $self->output_channel,
+                ui => $self->ui,
             );
         };
     } elsif ($args{local}) {
         return $self->{local} ||= do {
             return Cinnamon::CommandExecutor::Local->new(
                 output_channel => $self->output_channel,
+                ui => $self->ui,
             );
         };
     } else {

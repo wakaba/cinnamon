@@ -170,7 +170,7 @@ sub fork_eval_as_cv {
     };
     $child->push_read (line => $process_line);
 
-    # XXX control forked process number
+    # XXX concur=only|serial|auto|all
     # XXX signal handling
     fork_call {
         close $fh_child;

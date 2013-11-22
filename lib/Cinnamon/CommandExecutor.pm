@@ -11,6 +11,13 @@ sub host { die "|host| not implemented" }
 sub user { $_[0]->{user} } # or undef
 sub output_channel { $_[0]->{output_channel} }
 
+sub ui {
+    if (@_ > 1) {
+        $_[0]->{ui} = $_[1];
+    }
+    return $_[0]->{ui};
+}
+
 sub construct_command {
     my ($self, $commands, $opts) = @_;
     if ($opts->{sudo}) {

@@ -10,12 +10,17 @@ use Cinnamon::Task;
 use Cinnamon::Context;
 use Cinnamon::LocalContext;
 use Cinnamon::DSL::TaskCalls;
+use Cinnamon::CLI::UIManager;
 
 use constant { SUCCESS => 0, ERROR => 1 };
 
 sub new {
     my $class = shift;
     bless { }, $class;
+}
+
+sub ui {
+    return $_[0]->{ui} ||= Cinnamon::CLI::UIManager->new;
 }
 
 sub run {
@@ -85,7 +90,7 @@ sub run {
         $keychain = Cinnamon::KeyChain::Pipe->new_from_fds($1, $2);
     } else {
         require Cinnamon::KeyChain::CLI;
-        $keychain = Cinnamon::KeyChain::CLI->new;
+        $keychain = Cinnamon::KeyChain::CLI->new_from_ui($self->ui);
     }
 
     $hosts = [grep { length } split /\s*,\s*/, $hosts] if defined $hosts;
@@ -97,6 +102,7 @@ sub run {
         keychain => $keychain,
         output_channel => $out,
         operator_name => $user,
+        ui => $self->ui,
     );
     my $lc = Cinnamon::LocalContext->new_from_global_context($context);
     $lc->set_param(user => $user_name) if defined $user_name;
