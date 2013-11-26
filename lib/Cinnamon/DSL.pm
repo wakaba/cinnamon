@@ -139,7 +139,7 @@ sub sudo (@) {
 }
 
 sub get_operator_name {
-    return $Cinnamon::LocalContext->operator_name;
+    return $Cinnamon::LocalContext->global->operator_name;
 }
 
 sub log ($$) {

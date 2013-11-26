@@ -22,7 +22,7 @@ sub set ($$) {
 
 push @EXPORT, qw(getuname);
 sub getuname () {
-    return $Cinnamon::LocalContext->operator_name;
+    return $Cinnamon::LocalContext->global->operator_name;
 }
 
 push @EXPORT, qw(load);
