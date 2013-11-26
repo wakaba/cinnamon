@@ -91,7 +91,7 @@ sub taskdef (&$) {
 sub call ($$@) {
     my ($task_path, $host, @args) = @_;
     croak "Host is not specified" unless defined $host;
-    my $task = $Cinnamon::LocalContext->get_task($task_path)
+    my $task = $Cinnamon::LocalContext->global->get_task($task_path)
         or croak "Task |$task_path| not found";
     my $result = $task->run(
         $Cinnamon::LocalContext->clone_for_task([$host], \@args),
