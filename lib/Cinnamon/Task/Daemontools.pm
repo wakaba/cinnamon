@@ -37,7 +37,7 @@ sub define_daemontools_tasks ($;%) {
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
-                sudo 'svc -u ' . $dir . '/' . $service->($name);
+                sudo 'svc', '-u', $dir . '/' . $service->($name);
                 $onnotice->('svc -u');
 
                 my $status1 = get_svstat $dir . '/' . $service->($name);
@@ -54,7 +54,7 @@ sub define_daemontools_tasks ($;%) {
                     }
 
                     last if $i++ > 5;
-                    sudo 'svc -u ' . $dir . '/' . $service->($name);
+                    sudo 'svc', '-u', $dir . '/' . $service->($name);
                     $onnotice->("svc -u ($i)");
                     $status1 = $status2;
                     redo;
@@ -180,7 +180,7 @@ sub define_daemontools_tasks ($;%) {
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
-                sudo 'svstat ' . $dir . '/' . $service->($name);
+                sudo 'svstat', $dir . '/' . $service->($name);
             } $host, user => $user;
         },
         process => {
@@ -219,7 +219,7 @@ sub define_daemontools_tasks ($;%) {
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
-                    sudo 'svc -t ' . $dir . '/' . $service->($name) . '/log';
+                    sudo 'svc', '-t', $dir . '/' . $service->($name) . '/log';
                 } $host, user => $user;
             },
             start => sub {
@@ -227,7 +227,7 @@ sub define_daemontools_tasks ($;%) {
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
-                    sudo 'svc -u ' . $dir . '/' . $service->($name) . '/log';
+                    sudo 'svc', '-u', $dir . '/' . $service->($name) . '/log';
                 } $host;
             },
             stop => sub {
@@ -235,7 +235,7 @@ sub define_daemontools_tasks ($;%) {
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
-                    sudo 'svc -d ' . $dir . '/' . $service->($name) . '/log';
+                    sudo 'svc', '-d', $dir . '/' . $service->($name) . '/log';
                 } $host;
             },
             status => sub {
@@ -244,7 +244,7 @@ sub define_daemontools_tasks ($;%) {
                 remote {
                     my $dir = get 'daemontools_service_dir';
                     my $service = get 'get_daemontools_service_name';
-                    sudo 'svstat ' . $dir . '/' . $service->($name) . '/log';
+                    sudo 'svstat', $dir . '/' . $service->($name) . '/log';
                 } $host, user => $user;
             },
             tail => (taskdef {
@@ -269,9 +269,9 @@ sub define_daemontools_tasks ($;%) {
             remote {
                 my $dir = get 'daemontools_service_dir';
                 my $service = get 'get_daemontools_service_name';
-                sudo 'mv ' . $dir . '/' . $service->($name) . ' ' . $dir . '/.' . $service->($name);
-                sudo 'svc -dx ' . $dir . '/.' . $service->($name);
-                sudo 'svc -dx ' . $dir . '/.' . $service->($name) . '/log';
+                sudo 'mv', $dir . '/' . $service->($name), $dir . '/.' . $service->($name);
+                sudo 'svc', '-dx', $dir . '/.' . $service->($name);
+                sudo 'svc', '-dx', $dir . '/.' . $service->($name) . '/log';
                 sudo 'rm', '-fr', $dir . '/.' . $service->($name);
                 $onnotice->('svc -x');
             } $host, user => $user;
