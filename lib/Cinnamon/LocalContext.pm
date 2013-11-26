@@ -299,12 +299,12 @@ sub destroy {
 sub remote {
     my ($self, %args) = @_;
     my $executor = $self->global->get_command_executor(%args, remote => 1);
-    return $self->clone_with_command_executor($executor);
+    return $self->clone_with_new_command_executor($executor);
 }
 sub local {
     my ($self, %args) = @_;
     my $executor = $self->global->get_command_executor(%args, local => 1);
-    return $self->clone_with_command_executor($executor);
+    return $self->clone_with_new_command_executor($executor);
 }
 
 1;
