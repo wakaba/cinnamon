@@ -8,8 +8,8 @@ available.
 
 cron:install
 
-  Copy cron schedule files in the |config/cron.d/| directory of the
-  remote repository to the system's cron directory.
+  Copy cron schedule files in the |local/config/cron.d/| directory of
+  the remote repository to the system's cron directory.
 
 cron:reload
 

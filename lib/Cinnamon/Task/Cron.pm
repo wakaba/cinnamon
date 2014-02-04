@@ -46,8 +46,14 @@ task ['cron', 'config', 'create_file'] => sub {
     my $state = shift;
     my $name = $state->args->[0];
     $name = 'cron' unless defined $name and length $name;
-    run 'mkdir', '-p', 'config/cron.d';
-    run 'touch', 'config/cron.d/' . $name;
+    run 'mkdir', '-p', 'config/cron.d.in';
+    run 'touch', 'config/cron.d.in/' . $name;
+    log info => q{Add following lines to your Makefile:
+batch-server:
+	mkdir -p local/config/cron.d
+	cd config/cron.d.in && find -type f | \
+            xargs -l1 -i% -- sh -c "cat % | sed 's/@@ROOT@@/$(subst /,\\/,$(abspath .))/g' > ../../local/config/cron.d/%"
+};
     return $state->create_result;
 }, {desc => '(local) Create schedule file placeholder', hosts => 'none'};
 
