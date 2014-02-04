@@ -43,10 +43,12 @@ task ['cron', 'log', 'tail'] => sub {
 task ['cron', 'config'] => undef, {desc => 'Cron configurations'};
 
 task ['cron', 'config', 'create_file'] => sub {
-    my ($host, $name, @args) = @_;
+    my $state = shift;
+    my $name = $state->args->[0];
     $name = 'cron' unless defined $name and length $name;
     run 'mkdir', '-p', 'config/cron.d';
     run 'touch', 'config/cron.d/' . $name;
-}, {desc => '(local) Create schedule file placeholder'};
+    return $state->create_result;
+}, {desc => '(local) Create schedule file placeholder', hosts => 'none'};
 
 !!1;
