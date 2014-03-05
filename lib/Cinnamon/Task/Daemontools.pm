@@ -323,6 +323,9 @@ task daemontools => {
             run sprintf $command, "$repo/bin.sh", $service_type, "$dir/bin.sh";
             run sprintf $command, "$repo/log-run", $service_type, "$dir/log/run";
         },
+        create_installer => sub {
+            run "curl https://raw.github.com/wakaba/gitworks/master/Makefile.service > Makefile.service";
+        },
     },
 };
 
