@@ -1,0 +1,12 @@
+Cinnamon::Task::Daemontools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tasks for daemontools servers.
+
+* Service template
+
+  $ ./cin @ROLE daemontools:service_template:create\ SOURCE\ DEST
+
+... will create a directory |./config/service.in/DEST/| and put
+templates for daemontools service scripts by copying files from
+<https://github.com/wakaba/perl-setupenv/tree/master/templates/daemontools/SOURCE/>.

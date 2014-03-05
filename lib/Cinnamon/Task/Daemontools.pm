@@ -307,6 +307,23 @@ task daemontools => {
             call 'daemontools:svscan:start', $host, @args;
         },
     },
+    service_template => {
+        create => sub {
+            my ($host, $template_name, $service_type, @args) = @_;
+            die "Template name is not specified" unless defined $template_name;
+            $service_type = $template_name unless defined $service_type;
+
+            run 'mkdir', '-p', "config/service.in/$service_type/log";
+            my $repo = qq<https://raw.github.com/wakaba/perl-setupenv/master/templates/daemontools/$template_name>;
+            my $dir = qq<config/service.in/$service_type>;
+
+            my $command = q{curl %s | sed 's/@@SERVICETYPE@@/%s/g' > %s};
+            $service_type =~ s{/}{\\/}g;
+            run sprintf $command, "$repo/run", $service_type, "$dir/run";
+            run sprintf $command, "$repo/bin.sh", $service_type, "$dir/bin.sh";
+            run sprintf $command, "$repo/log-run", $service_type, "$dir/log/run";
+        },
+    },
 };
 
 1;
