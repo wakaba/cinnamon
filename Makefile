@@ -1,10 +1,16 @@
-
 all:
 
-# ------ Setup ------
-
 WGET = wget
+CURL = curl
 GIT = git
+
+updatenightly: local/bin/pmbp.pl
+	$(CURL) https://gist.githubusercontent.com/motemen/667573/raw/git-submodule-track | sh
+	$(GIT) add modules
+	perl local/bin/pmbp.pl --update
+	$(GIT) add config
+
+# ------ Setup ------
 
 local/bin/pmbp.pl:
 	mkdir -p local/bin
