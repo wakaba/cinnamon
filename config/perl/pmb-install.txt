@@ -43,7 +43,7 @@ Test::NoWarnings~1.04
 YAML::XS~0.41
 File::Listing~6.04
 List::Util~1.38
-Crypt::SSLeay~0.64
+Crypt::SSLeay~0.72
 Term::ReadKey~2.31
 Try::Tiny~0.21
 Test::Exception~0.32
@@ -69,7 +69,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.04
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.981
+IO::Socket::SSL~1.982
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27203
