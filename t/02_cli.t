@@ -18,6 +18,7 @@ sub _help : Tests {
 }
 
 sub _no_config : Tests {
+local $TODO = '???';
     my $app = Test::Cinnamon::CLI::cli();
     is $app->run('role', 'task'), CLI_ERROR;
     is $app->system_error, "cannot find config file for deploy : config/deploy.pl\n";
@@ -67,6 +68,7 @@ CONFIG
 }
 
 sub _more_tasks : Tests {
+local $TODO = '???';
     my $app = Test::Cinnamon::CLI::cli();
     $app->dir->touch("config/deploy.pl", <<CONFIG);
 use Cinnamon::DSL;

@@ -1,9 +1,12 @@
 [submodule "modules/perl-web-useragent-functions"]
 	path = modules/perl-web-useragent-functions
 	url = git://github.com/wakaba/perl-web-useragent-functions
+	track = master
 [submodule "modules/perl-json-functions-xs"]
 	path = modules/perl-json-functions-xs
 	url = git://github.com/wakaba/perl-json-functions-xs
+	track = master
 [submodule "modules/karasuma-config"]
 	path = modules/karasuma-config
 	url = git://github.com/wakaba/karasuma-config
+	track = master
