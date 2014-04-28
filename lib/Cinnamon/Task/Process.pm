@@ -43,10 +43,12 @@ sub kill_process_descendant ($$;$) {
         my $processes = ps;
         $processes = {map { $_->{pid} => 1 } values %$processes};
         @pid = grep { $processes->{$_} } @pid;
-        if ($opt->{ignore_error}) {
-            log error => "Can't kill processes @pid";
-        } else {
-            die "Can't kill processes @pid";
+        if (@pid) {
+            if ($opt->{ignore_error}) {
+                log error => "Can't kill processes @pid";
+            } else {
+                die "Can't kill processes @pid";
+            }
         }
     }
 }
