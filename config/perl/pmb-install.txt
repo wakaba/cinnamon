@@ -69,7 +69,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.04
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.982
+IO::Socket::SSL~1.983
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27203
