@@ -49,7 +49,7 @@ Test::Exception~0.32
 AnyEvent~7.07
 parent~0.228
 Term::ANSIColor~4.03
-Test::Class~0.41
+Test::Class~0.42
 Exporter::Lite~0.04
 AnyEvent::HTTP~2.15
 HTTP::Cookies~6.01
