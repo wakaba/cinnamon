@@ -1,4 +1,4 @@
-Net::SSLeay~1.58
+Net::SSLeay~1.61
 YAML~0.90
 Capture::Tiny~0.24
 IPC::Run~0.92
@@ -43,7 +43,7 @@ YAML::XS~0.41
 Test::NoWarnings~1.04
 File::Listing~6.04
 Crypt::SSLeay~0.72
-Term::ReadKey~2.31
+Term::ReadKey~2.32
 Try::Tiny~0.22
 Test::Exception~0.32
 AnyEvent~7.07
@@ -69,7 +69,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.04
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.983
+IO::Socket::SSL~1.984
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27203
