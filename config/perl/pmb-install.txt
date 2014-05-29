@@ -1,5 +1,5 @@
 Net::SSLeay~1.63
-YAML~0.90
+YAML~0.91
 Capture::Tiny~0.24
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -69,7 +69,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.04
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.989
+IO::Socket::SSL~1.991
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27203
