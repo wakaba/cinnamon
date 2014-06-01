@@ -6,7 +6,7 @@ Cwd::Guard~0.04
 JSON::XS~3.01
 HTTP::Status~6.03
 IO::HTML~1.00
-Encode~2.60
+Encode~2.62
 Data::Dump~1.22
 CPAN::Meta~2.141170
 HTTP::Daemon~6.01
@@ -18,7 +18,7 @@ ExtUtils::MakeMaker~6.98
 Compress::Raw::Bzip2~2.064
 DBD::mysql~4.027
 Path::Class~0.33
-common::sense~3.72
+common::sense~3.73
 IO::Socket::Socks~0.63
 Filter::Simple~0.91
 URI::Escape~3.31
