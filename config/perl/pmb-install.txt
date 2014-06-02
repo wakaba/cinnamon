@@ -8,7 +8,7 @@ HTTP::Status~6.03
 IO::HTML~1.00
 Encode~2.62
 Data::Dump~1.22
-CPAN::Meta~2.141170
+CPAN::Meta~2.141520
 HTTP::Daemon~6.01
 Module::Build~0.4205
 Test::Deep~0.112
@@ -61,7 +61,7 @@ File::Temp~0.2304
 IO::Compress::Bzip2~2.064
 WWW::RobotRules~6.02
 Test::Requires~0.07
-Module::Metadata~1.000022
+Module::Metadata~1.000023
 Scalar::Util~1.38
 Net::OpenSSH~0.60
 Encode::Locale~1.03
@@ -69,7 +69,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.04
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.991
+IO::Socket::SSL~1.992
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27203
