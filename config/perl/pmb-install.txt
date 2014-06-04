@@ -61,7 +61,7 @@ File::Temp~0.2304
 IO::Compress::Bzip2~2.064
 WWW::RobotRules~6.02
 Test::Requires~0.07
-Module::Metadata~1.000023
+Module::Metadata~1.000024
 Scalar::Util~1.38
 Net::OpenSSH~0.60
 Encode::Locale~1.03
