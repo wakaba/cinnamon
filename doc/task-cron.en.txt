@@ -1,0 +1,30 @@
+Cinnamon::Task::Cron
+~~~~~~~~~~~~~~~~~~~~
+
+By using this module, tasks in the "cron" namespace are made
+available.
+
+* Tasks
+
+cron:install
+
+  Copy cron schedule files in the |local/config/cron.d/| directory of
+  the remote repository to the system's cron directory.
+
+cron:reload
+
+  Run |/etc/init.d/crond reload| at the remote host.
+
+cron:list
+
+  Show cron schedules at the remote host.
+
+cron:log:tail
+
+  Tail the cron log file on the remote host.
+
+cron:config:create_config
+
+  Create a placeholder (or empty) cron schedule file in the local
+  repository.  If an argument is specified, it is usedd as the file
+  name.  Otherwise, "cron" is used.

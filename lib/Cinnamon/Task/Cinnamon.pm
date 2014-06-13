@@ -14,7 +14,7 @@ task ['cinnamon', 'role', 'list'] => sub {
     return $state->create_result;
 }, {hosts => 'none'};
 
-task ['cinnamon', 'role', 'hosts'] => my $host_list = sub {
+task ['cinnamon', 'role', 'hosts'] => sub {
     my $state = shift;
     my $file_name = $state->args->[0];
     if (defined $file_name) {
@@ -47,7 +47,7 @@ task ['cinnamon', 'task', 'default'] => sub {
     my $state = shift;
     $task_list->($state);
     log info => 'Hosts:';
-    $host_list->($state);
+    log info => join ',', @{$state->hosts};
     return $state->create_result;
 }, {hosts => 'all'};
 

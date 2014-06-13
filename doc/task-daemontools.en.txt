@@ -1,0 +1,22 @@
+Cinnamon::Task::Daemontools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tasks for daemontools servers.
+
+* Service templates
+
+These tasks are not intended as part of the deployment process or to
+be used to control remote server proesses, but might be useful to
+prepare the initial revision of daemontools service scripts.
+
+  $ ./cin @ROLE daemontools:service_template:create\ SOURCE\ DEST
+
+... will create a directory |./config/service.in/DEST/| and put
+templates for daemontools service scripts by copying files from
+<https://github.com/wakaba/perl-setupenv/tree/master/templates/daemontools/SOURCE/>.
+
+  $ ./cin @ROLE daemontools:service_template:create_installer
+
+... will create |./Makefile.service|, which can be used to generate
+daemontools service scripts from templates in |./config/service.in|.
+See comments in the |Makefile.service| for how it can be used.
