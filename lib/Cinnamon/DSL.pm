@@ -148,6 +148,16 @@ sub log ($$) {
     return;
 }
 
+push @EXPORT, qw(get_keychain);
+sub get_keychain () {
+    return $Cinnamon::LocalContext->global->keychain;
+}
+
+push @EXPORT, qw(set_keychain);
+sub set_keychain ($) {
+    return $Cinnamon::LocalContext->global->keychain ($_[0]);
+}
+
 # For backward compatibility
 *run_stream = \&run;
 *sudo_stream = \&sudo;

@@ -134,6 +134,9 @@ sub get_task {
 }
 
 sub keychain {
+    if (@_ > 1) {
+        $_[0]->{keychain} = $_[1];
+    }
     return $_[0]->{keychain};
 }
 
