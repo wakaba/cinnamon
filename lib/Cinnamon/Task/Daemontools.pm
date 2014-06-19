@@ -317,14 +317,14 @@ task daemontools => {
             my $repo = qq<https://raw.github.com/wakaba/perl-setupenv/master/templates/daemontools/$template_name>;
             my $dir = qq<config/service.in/$service_type>;
 
-            my $command = q{curl %s | sed 's/@@SERVICETYPE@@/%s/g' > %s};
+            my $command = q{curl -L -f %s | sed 's/@@SERVICETYPE@@/%s/g' > %s};
             $service_type =~ s{/}{\\/}g;
             run sprintf $command, "$repo/run", $service_type, "$dir/run";
             run sprintf $command, "$repo/bin.sh", $service_type, "$dir/bin.sh";
             run sprintf $command, "$repo/log-run", $service_type, "$dir/log/run";
         },
         create_installer => sub {
-            run "curl https://raw.github.com/wakaba/gitworks/master/Makefile.service > Makefile.service";
+            run "curl -L -f https://raw.github.com/wakaba/gitworks/master/Makefile.service > Makefile.service";
         },
     },
 };
