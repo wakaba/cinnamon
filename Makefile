@@ -30,7 +30,8 @@ pmbp-update: pmbp-upgrade
 pmbp-install: pmbp-upgrade
 	perl local/bin/pmbp.pl --install \
 	    --create-perl-command-shortcut perl \
-	    --create-perl-command-shortcut prove
+	    --create-perl-command-shortcut prove \
+	    --create-perl-command-shortcut cin=bin/cinnamon
 
 git-submodules:
 	$(GIT) submodule update --init
