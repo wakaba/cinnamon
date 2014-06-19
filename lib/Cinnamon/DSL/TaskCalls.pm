@@ -7,7 +7,7 @@ sub get_code {
     return sub {
         my $lc = $Cinnamon::LocalContext;
         for my $op (@$ops) {
-            $lc->global->set_param(task => $op->{task}->name);
+            $lc->set_param(task => $op->{task}->name);
             my $result = $op->{task}->run(
                 $lc->clone_for_task($lc->hosts, $op->{args}),
                 #role => ...,
