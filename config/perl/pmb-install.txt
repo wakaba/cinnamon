@@ -7,7 +7,6 @@ JSON::XS~3.01
 HTTP::Status~6.03
 IO::HTML~1.001
 Encode~2.62
-Data::Dump~1.22
 CPAN::Meta~2.141520
 HTTP::Daemon~6.01
 Module::Build~0.4205
@@ -23,8 +22,8 @@ IO::Socket::Socks~0.63
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
-Types::Serialiser~1.0
 LWP::MediaTypes~6.02
+Types::Serialiser~1.0
 HTML::Entities~3.69
 Perl::OSType~1.007
 ExtUtils::CBuilder~0.280216
