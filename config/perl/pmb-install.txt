@@ -29,7 +29,7 @@ Perl::OSType~1.007
 ExtUtils::CBuilder~0.280216
 Net::HTTP~6.07
 Parse::CPAN::Meta~1.4414
-Spiffy~0.35
+Spiffy~0.36
 version~0.9908
 Test::Tester~0.109
 CPAN::Meta::YAML~0.012
