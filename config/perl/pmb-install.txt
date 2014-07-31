@@ -1,5 +1,5 @@
 Net::SSLeay~1.65
-YAML~0.97
+YAML~0.98
 Capture::Tiny~0.24
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -18,7 +18,7 @@ Compress::Raw::Bzip2~2.064
 DBD::mysql~4.027
 Path::Class~0.33
 common::sense~3.73
-IO::Socket::Socks~0.63
+IO::Socket::Socks~0.64
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
@@ -29,7 +29,6 @@ Perl::OSType~1.007
 ExtUtils::CBuilder~0.280216
 Net::HTTP~6.07
 Parse::CPAN::Meta~1.4414
-Spiffy~0.36
 version~0.9908
 Test::Tester~0.109
 CPAN::Meta::YAML~0.012
@@ -54,7 +53,7 @@ HTTP::Cookies~6.01
 Compress::Raw::Zlib~2.065
 Test::More~1.001003
 AnyEvent::HTTP::Socks~0.04
-CPAN::Meta::Requirements~2.125
+CPAN::Meta::Requirements~2.126
 File::Temp~0.2304
 IO::Compress::Bzip2~2.064
 WWW::RobotRules~6.02
