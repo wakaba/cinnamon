@@ -37,7 +37,7 @@ LWP::UserAgent~6.06
 MIME::Base64~3.14
 HTML::Tagset~3.20
 Directory::Scratch~0.15
-YAML::XS~0.45
+YAML::XS~0.46
 Test::NoWarnings~1.04
 File::Listing~6.04
 Crypt::SSLeay~0.72
