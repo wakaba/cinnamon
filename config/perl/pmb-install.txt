@@ -1,5 +1,5 @@
 Net::SSLeay~1.65
-YAML~0.99
+YAML~1.01
 Capture::Tiny~0.24
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -19,7 +19,7 @@ DBD::mysql~4.028
 Path::Class~0.33
 common::sense~3.73
 IO::Socket::Socks~0.64
-Test::Base~0.74
+Test::Base~0.76
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
@@ -32,7 +32,7 @@ ExtUtils::CBuilder~0.280216
 Parse::CPAN::Meta~1.4414
 Net::HTTP~6.07
 version~0.9908
-Spiffy~0.40
+Spiffy~0.41
 Test::Tester~0.109
 CPAN::Meta::YAML~0.012
 Carp~1.3301
@@ -64,7 +64,7 @@ WWW::RobotRules~6.02
 Test::Requires~0.08
 Module::Metadata~1.000024
 Scalar::Util~1.39
-Test::YAML~0.99
+Test::YAML~1.01
 Net::OpenSSH~0.62
 Encode::Locale~1.03
 HTTP::Negotiate~6.01
