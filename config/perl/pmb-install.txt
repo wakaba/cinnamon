@@ -19,7 +19,7 @@ DBD::mysql~4.028
 Path::Class~0.33
 common::sense~3.73
 IO::Socket::Socks~0.64
-Test::Base~0.77
+Test::Base~0.79
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
@@ -32,7 +32,7 @@ ExtUtils::CBuilder~0.280216
 Parse::CPAN::Meta~1.4414
 Net::HTTP~6.07
 version~0.9908
-Spiffy~0.41
+Spiffy~0.42
 Test::Tester~0.109
 CPAN::Meta::YAML~0.012
 Carp~1.3301
@@ -41,7 +41,7 @@ MIME::Base64~3.14
 HTML::Tagset~3.20
 Directory::Scratch~0.15
 Test::NoWarnings~1.04
-YAML::XS~0.46
+YAML::XS~0.47
 File::Listing~6.04
 Crypt::SSLeay~0.72
 Term::ReadKey~2.32
