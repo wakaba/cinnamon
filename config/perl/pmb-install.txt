@@ -68,7 +68,7 @@ Test::YAML~1.01
 Net::OpenSSH~0.62
 Encode::Locale~1.03
 HTTP::Negotiate~6.01
-LWP::Protocol::https~6.04
+LWP::Protocol::https~6.06
 MRO::Compat~0.12
 File::Slurp~9999.19
 IO::Socket::SSL~1.997
