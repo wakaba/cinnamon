@@ -1,5 +1,5 @@
 Net::SSLeay~1.65
-YAML~1.06
+YAML~1.09
 Capture::Tiny~0.25
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -9,7 +9,7 @@ IO::HTML~1.001
 Encode~2.62
 CPAN::Meta~2.142060
 HTTP::Daemon~6.01
-Module::Build~0.4207
+Module::Build~0.4208
 Test::Deep~0.112
 DBI~1.631
 ExtUtils::MakeMaker~6.98
@@ -19,7 +19,7 @@ DBD::mysql~4.028
 Path::Class~0.33
 common::sense~3.73
 IO::Socket::Socks~0.65
-Test::Base~0.84
+Test::Base~0.87
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
@@ -64,7 +64,7 @@ WWW::RobotRules~6.02
 Test::Requires~0.08
 Module::Metadata~1.000024
 Scalar::Util~1.39
-Test::YAML~1.04
+Test::YAML~1.05
 Net::OpenSSH~0.62
 Encode::Locale~1.03
 HTTP::Negotiate~6.01
