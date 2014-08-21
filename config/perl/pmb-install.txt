@@ -1,4 +1,4 @@
-Net::SSLeay~1.65
+Net::SSLeay~1.66
 YAML~1.09
 Capture::Tiny~0.25
 IPC::Run~0.92
