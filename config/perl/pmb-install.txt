@@ -1,5 +1,5 @@
 Net::SSLeay~1.66
-YAML~1.09
+YAML~1.10
 Capture::Tiny~0.25
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -16,7 +16,7 @@ ExtUtils::MakeMaker~6.98
 ExtUtils::ParseXS~3.24
 Compress::Raw::Bzip2~2.064
 DBD::mysql~4.028
-Path::Class~0.33
+Path::Class~0.34
 common::sense~3.73
 IO::Socket::Socks~0.65
 Test::Base~0.88
