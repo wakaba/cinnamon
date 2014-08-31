@@ -1,5 +1,5 @@
 Net::SSLeay~1.66
-YAML~1.10
+YAML~1.11
 Capture::Tiny~0.25
 IPC::Run~0.92
 Cwd::Guard~0.04
@@ -63,7 +63,7 @@ IO::Compress::Bzip2~2.064
 WWW::RobotRules~6.02
 Test::Requires~0.08
 Module::Metadata~1.000024
-Scalar::Util~1.39
+Scalar::Util~1.40
 Test::YAML~1.05
 Net::OpenSSH~0.62
 Encode::Locale~1.03
