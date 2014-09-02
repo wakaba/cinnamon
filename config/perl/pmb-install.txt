@@ -9,7 +9,7 @@ IO::HTML~1.001
 Encode~2.62
 CPAN::Meta~2.142060
 HTTP::Daemon~6.01
-Module::Build~0.4208
+Module::Build~0.4210
 Test::Deep~0.113
 DBI~1.631
 ExtUtils::MakeMaker~6.98
@@ -28,11 +28,11 @@ LWP::MediaTypes~6.02
 HTML::Entities~3.69
 Algorithm::Diff~1.1902
 Perl::OSType~1.007
-ExtUtils::CBuilder~0.280217
+ExtUtils::CBuilder~0.280219
 Parse::CPAN::Meta~1.4414
 Net::HTTP~6.07
-version~0.9909
 Spiffy~0.46
+version~0.9909
 Test::Tester~0.109
 CPAN::Meta::YAML~0.012
 Carp~1.3301
