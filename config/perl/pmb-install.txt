@@ -15,7 +15,7 @@ DBI~1.631
 ExtUtils::ParseXS~3.24
 Compress::Raw::Bzip2~2.064
 DBD::mysql~4.028
-Path::Class~0.34
+Path::Class~0.35
 common::sense~3.73
 IO::Socket::Socks~0.65
 Filter::Simple~0.91
