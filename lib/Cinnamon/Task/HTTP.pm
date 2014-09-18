@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Exporter::Lite;
 use Web::UserAgent::Functions ();
+use Web::UserAgent::Functions::Proxy qw(choose_socks_proxy_url);
 use JSON::Functions::XS qw(perl2json_bytes);
 use Cinnamon::DSL;
 use Cinnamon::Config::User;
@@ -16,28 +17,13 @@ our $DEBUG = $ENV{CINNAMON_HTTP_DEBUG};
 sub _with_proxy ($$) {
     my ($url, $code) = @_;
     
-    my $socks_url;
     my $conf = get_user_config 'http.socks';
     if (defined $conf and not ref $conf eq 'ARRAY') {
         log error => 'Config |http.socks| is not an array';
         $conf = [];
     }
-    for (@{$conf or []}) {
-        my $pattern = join '\.',
-            map { $_ eq '*' ? '.+' : quotemeta }
-            split /\./,
-                defined $_->{target_hostname} ? $_->{target_hostname} : '*';
-        if ($url =~ m{^https?://$pattern[:/]}i) {
-            warn "<$url> matches /$_->{target_hostname}/ ($pattern)\n" if $DEBUG;
-            $socks_url = 'socks5://' .
-                (defined $_->{hostname} ? $_->{hostname} : 'localhost') . 
-                ':' . ($_->{port} || 0);
-            last;
-        } else {
-            warn "<$url> does not match /$pattern/ ($_->{target_hostname})\n" if $DEBUG;
-        }
-    }
-
+    local $Web::UserAgent::Functions::Proxy::DEBUG = $DEBUG;
+    my $socks_url = choose_socks_proxy_url $conf, $url;
     if ($socks_url) {
         local $Web::UserAgent::Functions::SocksProxyURL = $socks_url;
         return $code->();
