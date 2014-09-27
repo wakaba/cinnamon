@@ -7,7 +7,7 @@ JSON::XS~3.01
 HTTP::Status~6.03
 IO::HTML~1.001
 Encode~2.62
-CPAN::Meta~2.142060
+CPAN::Meta~2.142690
 HTTP::Daemon~6.01
 Module::Build~0.4210
 Test::Deep~0.113
