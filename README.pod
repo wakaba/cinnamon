@@ -273,6 +273,10 @@ Upstream authors are:
 
 =back
 
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to pokutuna.
+
 =head1 SEE ALSO
 
 =over 4
