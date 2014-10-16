@@ -59,7 +59,7 @@ Scalar::Util~1.41
 Test::Requires~0.08
 Module::Metadata~1.000024
 Net::OpenSSH~0.62
-Test::Simple~1.001006
+Test::Simple~1.001007
 Encode::Locale~1.03
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
