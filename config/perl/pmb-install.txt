@@ -59,13 +59,13 @@ Scalar::Util~1.41
 Test::Requires~0.08
 Module::Metadata~1.000024
 Net::OpenSSH~0.62
-Test::Simple~1.001007
+Test::Simple~1.001008
 Encode::Locale~1.03
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 File::Slurp~9999.19
-IO::Socket::SSL~1.999
+IO::Socket::SSL~2.000
 Digest::SHA1~2.13
 HTTP::Date~6.02
 JSON::PP~2.27300
