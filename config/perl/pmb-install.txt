@@ -6,7 +6,7 @@ Cwd::Guard~0.04
 JSON::XS~3.01
 HTTP::Status~6.03
 IO::HTML~1.001
-Encode~2.63
+Encode~2.64
 CPAN::Meta~2.142690
 HTTP::Daemon~6.01
 Module::Build~0.4210
