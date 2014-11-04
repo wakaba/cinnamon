@@ -59,7 +59,7 @@ Module::Metadata~1.000024
 Test::Requires~0.08
 Net::OpenSSH~0.62
 Encode::Locale~1.03
-Test::Simple~1.001008
+Test::Simple~1.001009
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
