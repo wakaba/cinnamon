@@ -1,6 +1,6 @@
 Net::SSLeay~1.66
 YAML~1.13
-Capture::Tiny~0.25
+Capture::Tiny~0.26
 IPC::Run~0.92
 Cwd::Guard~0.04
 JSON::XS~3.01
