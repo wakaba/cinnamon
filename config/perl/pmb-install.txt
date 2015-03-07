@@ -13,7 +13,7 @@ Test::Deep~0.115
 DBI~1.633
 ExtUtils::ParseXS~3.24
 Compress::Raw::Bzip2~2.068
-DBD::mysql~4.029
+DBD::mysql~4.031
 Path::Class~0.35
 common::sense~3.73
 IO::Socket::Socks~0.66
@@ -27,7 +27,7 @@ HTML::Entities~3.69
 Perl::OSType~1.008
 Socket~2.018
 ExtUtils::CBuilder~0.280220
-Path::Tiny~0.061
+Path::Tiny~0.065
 Net::HTTP~6.07
 Carp~1.3301
 LWP::UserAgent~6.13
