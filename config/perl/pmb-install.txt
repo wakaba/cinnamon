@@ -41,7 +41,7 @@ Crypt::SSLeay~0.72
 Term::ReadKey~2.32
 Try::Tiny~0.22
 AnyEvent~7.08
-parent~0.228
+parent~0.229
 Term::ANSIColor~4.03
 Test::Class~0.48
 Exporter::Lite~0.06
