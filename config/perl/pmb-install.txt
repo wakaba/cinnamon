@@ -6,7 +6,7 @@ Cwd::Guard~0.04
 JSON::XS~3.01
 HTTP::Status~6.03
 IO::HTML~1.001
-Encode~2.70
+Encode~2.71
 HTTP::Daemon~6.01
 Module::Build~0.4211
 Test::Deep~0.115
