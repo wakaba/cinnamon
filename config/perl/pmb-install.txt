@@ -16,7 +16,7 @@ Compress::Raw::Bzip2~2.068
 DBD::mysql~4.031
 Path::Class~0.35
 common::sense~3.73
-IO::Socket::Socks~0.66
+IO::Socket::Socks~0.67
 Filter::Simple~0.91
 URI::Escape~3.31
 IO::Handle~1.28
