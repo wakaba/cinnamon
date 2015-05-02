@@ -12,6 +12,7 @@ Module::Build~0.4211
 Test::Deep~0.115
 DBI~1.633
 ExtUtils::ParseXS~3.24
+ExtUtils::MakeMaker~7.04
 Compress::Raw::Bzip2~2.068
 DBD::mysql~4.031
 Path::Class~0.35
@@ -62,7 +63,7 @@ Encode::Locale~1.04
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
-IO::Socket::SSL~2.012
+IO::Socket::SSL~2.013
 Digest::SHA1~2.13
 HTTP::Date~6.02
 Mozilla::CA~20141217
