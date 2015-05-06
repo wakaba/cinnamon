@@ -63,7 +63,7 @@ Encode::Locale~1.04
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
-IO::Socket::SSL~2.013
+IO::Socket::SSL~2.014
 Digest::SHA1~2.13
 HTTP::Date~6.02
 Mozilla::CA~20141217
