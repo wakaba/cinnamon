@@ -46,7 +46,7 @@ parent~0.232
 Term::ANSIColor~4.03
 Test::Class~0.48
 Exporter::Lite~0.06
-AnyEvent::HTTP~2.21
+AnyEvent::HTTP~2.22
 HTTP::Cookies~6.01
 Compress::Raw::Zlib~2.068
 AnyEvent::HTTP::Socks~0.05
@@ -63,7 +63,7 @@ Encode::Locale~1.04
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
-IO::Socket::SSL~2.014
+IO::Socket::SSL~2.015
 Digest::SHA1~2.13
 HTTP::Date~6.02
 Mozilla::CA~20141217
