@@ -8,7 +8,7 @@ HTTP::Status~6.03
 IO::HTML~1.001
 Encode~2.73
 HTTP::Daemon~6.01
-Module::Build~0.4211
+Module::Build~0.4212
 Test::Deep~0.115
 DBI~1.633
 ExtUtils::ParseXS~3.24
