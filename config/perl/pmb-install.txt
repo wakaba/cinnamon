@@ -29,7 +29,7 @@ Perl::OSType~1.008
 Socket~2.019
 ExtUtils::CBuilder~0.280220
 Path::Tiny~0.068
-Net::HTTP~6.07
+Net::HTTP~6.09
 Carp~1.36
 LWP::UserAgent~6.13
 MIME::Base64~3.15
