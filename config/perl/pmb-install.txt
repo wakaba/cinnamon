@@ -1,4 +1,4 @@
-Net::SSLeay~1.68
+Net::SSLeay~1.69
 YAML~1.15
 Directory::Scratch~0.18
 Capture::Tiny~0.30
@@ -13,7 +13,7 @@ Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4212
 Test::Deep~0.115
-Term::ReadKey~2.32
+Term::ReadKey~2.33
 DBI~1.633
 Try::Tiny~0.22
 Term::ANSIColor~4.03
