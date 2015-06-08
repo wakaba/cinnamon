@@ -5,6 +5,7 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
+HTTP::Status~6.03
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
@@ -20,9 +21,9 @@ Term::ANSIColor~4.03
 AnyEvent~7.09
 Exporter::Lite~0.06
 Test::Class~0.50
+HTML::HeadParser~3.71
 HTTP::Cookies~6.01
 AnyEvent::HTTP~2.22
-HTTP::Request::Common~6.04
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.031
@@ -35,14 +36,13 @@ Scalar::Util~1.42
 Test::Requires~0.08
 Filter::Simple~0.91
 IO::Handle~1.28
-Types::Serialiser~1.0
 LWP::MediaTypes~6.02
+Types::Serialiser~1.0
 Net::OpenSSH~0.64
 Encode::Locale~1.04
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
-HTML::Entities~3.69
 MRO::Compat~0.12
 Path::Tiny~0.068
 Net::HTTP~6.09
