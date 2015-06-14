@@ -9,10 +9,9 @@ YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.73
-HTTP::Headers~6.05
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
-Module::Build~0.4212
+Module::Build~0.4214
 Test::Deep~0.115
 Term::ReadKey~2.33
 DBI~1.633
@@ -21,9 +20,10 @@ Term::ANSIColor~4.03
 AnyEvent~7.09
 Exporter::Lite~0.06
 Test::Class~0.50
-HTML::HeadParser~3.71
+Net::HTTPS~6.09
 HTTP::Cookies~6.01
 AnyEvent::HTTP~2.22
+HTTP::Request::Common~6.04
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.031
@@ -42,10 +42,10 @@ Net::OpenSSH~0.64
 Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
+HTML::Entities~3.69
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.068
-Net::HTTP~6.09
 URI~1.67
 IO::Socket::SSL~2.016
 Digest::SHA1~2.13
