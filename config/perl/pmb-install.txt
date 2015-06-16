@@ -51,8 +51,8 @@ IO::Socket::SSL~2.016
 Digest::SHA1~2.13
 Carp~1.36
 HTTP::Date~6.02
-LWP::UserAgent~6.13
 Mozilla::CA~20141217
+LWP::UserAgent~6.13
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.47
