@@ -5,6 +5,7 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
+HTTP::Status~6.03
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
@@ -45,10 +46,9 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.070
-IO::Socket::SSL~2.016
 URI~1.68
+IO::Socket::SSL~2.016
 Digest::SHA1~2.13
-HTTP::Headers::Util~6.03
 Carp~1.36
 HTTP::Date~6.02
 LWP::UserAgent~6.13
