@@ -9,6 +9,7 @@ YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.75
+HTTP::Headers~6.09
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4214
@@ -20,7 +21,7 @@ Term::ANSIColor~4.03
 AnyEvent~7.11
 Exporter::Lite~0.06
 Test::Class~0.50
-Net::HTTPS~6.09
+HTML::HeadParser~3.71
 HTTP::Cookies~6.01
 Canary::Stability~2006
 AnyEvent::HTTP~2.22
@@ -43,13 +44,12 @@ Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
-HTML::Entities~3.69
 MRO::Compat~0.12
 Path::Tiny~0.070
-IO::Socket::SSL~2.016
+Net::HTTP~6.09
 URI~1.68
+IO::Socket::SSL~2.016
 Digest::SHA1~2.13
-HTTP::Headers::Util~6.08
 Carp~1.36
 HTTP::Date~6.02
 LWP::UserAgent~6.13
