@@ -25,6 +25,7 @@ Canary::Stability~2006
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
+HTTP::Response~6.10
 DBD::mysql~4.032
 File::Temp~0.2304
 Path::Class~0.35
@@ -35,8 +36,8 @@ Scalar::Util~1.42
 Test::Requires~0.10
 Filter::Simple~0.91
 IO::Handle~1.28
-Types::Serialiser~1.0
 LWP::MediaTypes~6.02
+Types::Serialiser~1.0
 Net::OpenSSH~0.64
 Encode::Locale~1.05
 Module::Runtime~0.014
@@ -46,10 +47,9 @@ HTML::Entities~3.69
 MRO::Compat~0.12
 Path::Tiny~0.072
 Net::HTTP~6.09
-IO::Socket::SSL~2.016
 URI~1.68
+IO::Socket::SSL~2.016
 Digest::SHA1~2.13
-HTTP::Headers::Util~6.10
 Carp~1.36
 HTTP::Date~6.02
 Mozilla::CA~20141217
