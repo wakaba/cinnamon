@@ -5,7 +5,6 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
-HTTP::Status~6.10
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
@@ -27,6 +26,7 @@ Canary::Stability~2006
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
+HTTP::Response~6.10
 DBD::mysql~4.032
 File::Temp~0.2304
 Path::Class~0.35
