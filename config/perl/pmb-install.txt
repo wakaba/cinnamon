@@ -5,11 +5,11 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
+HTTP::Status~6.10
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.76
-HTTP::Headers~6.10
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4214
@@ -21,8 +21,6 @@ Term::ANSIColor~4.03
 AnyEvent~7.11
 Exporter::Lite~0.06
 Test::Class~0.50
-HTML::HeadParser~3.71
-Net::HTTPS~6.09
 HTTP::Cookies~6.01
 Canary::Stability~2006
 AnyEvent::HTTP~2.22
@@ -45,8 +43,10 @@ Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
+HTML::Entities~3.69
 MRO::Compat~0.12
 Path::Tiny~0.072
+Net::HTTP~6.09
 URI~1.69
 IO::Socket::SSL~2.016
 Digest::SHA1~2.13
