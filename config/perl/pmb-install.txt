@@ -21,6 +21,7 @@ Term::ANSIColor~4.03
 AnyEvent~7.11
 Exporter::Lite~0.06
 Test::Class~0.50
+HTML::HeadParser~3.71
 Net::HTTPS~6.09
 HTTP::Cookies~6.01
 Canary::Stability~2006
@@ -43,7 +44,6 @@ Net::OpenSSH~0.64
 Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
-HTML::Entities~3.69
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.072
