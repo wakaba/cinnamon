@@ -1,15 +1,15 @@
-Net::SSLeay~1.71
+Net::SSLeay~1.72
 YAML~1.15
 Directory::Scratch~0.18
 Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
+HTTP::Status~6.11
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.77
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4214
