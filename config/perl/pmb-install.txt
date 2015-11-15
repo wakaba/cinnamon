@@ -9,7 +9,6 @@ YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.78
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4214
@@ -22,10 +21,10 @@ AnyEvent~7.11
 Exporter::Lite~0.07
 Test::Class~0.50
 HTML::HeadParser~3.71
-Net::HTTPS~6.09
 HTTP::Cookies~6.01
 Canary::Stability~2006
 AnyEvent::HTTP~2.22
+HTTP::Request::Common~6.11
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.033
@@ -47,6 +46,7 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.072
+Net::HTTP~6.09
 URI~1.69
 IO::Socket::SSL~2.020
 Digest::SHA1~2.13
@@ -56,4 +56,4 @@ Mozilla::CA~20150826
 LWP::UserAgent~6.13
 MIME::Base64~3.15
 HTML::Tagset~3.20
-Cwd~3.47
+Cwd~3.59
