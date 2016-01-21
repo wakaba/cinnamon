@@ -5,13 +5,14 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
+HTTP::Status~6.11
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.78
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
-Module::Build~0.4214
+Module::Build~0.4216
 Test::Deep~1.120
 Term::ReadKey~2.33
 DBI~1.634
@@ -27,7 +28,6 @@ Canary::Stability~2006
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
-HTTP::Response~6.11
 DBD::mysql~4.033
 File::Temp~0.2304
 Path::Class~0.35
@@ -40,7 +40,7 @@ Filter::Simple~0.91
 IO::Handle~1.28
 LWP::MediaTypes~6.02
 Types::Serialiser~1.0
-Net::OpenSSH~0.68
+Net::OpenSSH~0.70
 Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
@@ -52,8 +52,8 @@ IO::Socket::SSL~2.022
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-LWP::UserAgent~6.15
 Mozilla::CA~20160104
+LWP::UserAgent~6.15
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
