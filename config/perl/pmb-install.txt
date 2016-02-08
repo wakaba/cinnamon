@@ -9,7 +9,7 @@ HTTP::Status~6.11
 YAML::XS~0.59
 File::Listing~6.04
 IO::HTML~1.001
-Encode~2.80
+Encode~2.82
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4216
@@ -48,7 +48,7 @@ LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.076
 URI~1.71
-IO::Socket::SSL~2.023
+IO::Socket::SSL~2.024
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
