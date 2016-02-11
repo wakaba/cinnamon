@@ -5,7 +5,7 @@ Capture::Tiny~0.30
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.01
-YAML::XS~0.59
+YAML::XS~0.60
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.82
@@ -25,11 +25,11 @@ Canary::Stability~2006
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
-HTTP::Response~6.11
 DBD::mysql~4.033
 File::Temp~0.2304
 Path::Class~0.35
 common::sense~3.74
+HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.67
 Scalar::Util~1.43
@@ -52,8 +52,8 @@ IO::Socket::SSL~2.024
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-LWP::UserAgent~6.15
 Mozilla::CA~20160104
+LWP::UserAgent~6.15
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
