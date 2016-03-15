@@ -9,6 +9,7 @@ YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.82
+HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4216
@@ -25,7 +26,6 @@ Canary::Stability~2011
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
-HTTP::Response~6.11
 DBD::mysql~4.033
 File::Temp~0.2304
 Path::Class~0.36
