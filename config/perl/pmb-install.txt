@@ -5,11 +5,11 @@ Capture::Tiny~0.36
 IPC::Run~0.94
 Cwd::Guard~0.04
 JSON::XS~3.02
+HTTP::Status~6.11
 YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.83
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4216
