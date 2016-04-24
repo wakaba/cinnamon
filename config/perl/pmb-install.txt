@@ -27,11 +27,11 @@ Canary::Stability~2011
 AnyEvent::HTTP~2.22
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
-HTTP::Response~6.11
 DBD::mysql~4.033
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
+HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.68
 Scalar::Util~1.45
