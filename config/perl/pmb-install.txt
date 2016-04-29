@@ -20,11 +20,9 @@ Term::ANSIColor~4.05
 AnyEvent~7.12
 Exporter::Lite~0.08
 Test::Class~0.50
-Net::HTTPS~6.09
 HTTP::Cookies~6.01
 Canary::Stability~2011
 AnyEvent::HTTP~2.22
-HTTP::Request::Common~6.11
 Test::More~1.001014
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.033
@@ -47,9 +45,11 @@ HTML::Entities~3.69
 LWP::Protocol::https~6.06
 MRO::Compat~0.12
 Path::Tiny~0.088
-IO::Socket::SSL~2.027
+Net::HTTP~6.09
 URI~1.71
+IO::Socket::SSL~2.027
 Digest::SHA1~2.13
+HTTP::Headers::Util~6.11
 Carp~1.38
 HTTP::Date~6.02
 LWP::UserAgent~6.15
