@@ -5,6 +5,7 @@ Capture::Tiny~0.36
 IPC::Run~0.94
 Cwd::Guard~0.05
 JSON::XS~3.02
+HTTP::Status~6.11
 YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
@@ -30,7 +31,6 @@ DBD::mysql~4.033
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
-HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.68
 Scalar::Util~1.45
@@ -43,8 +43,8 @@ Net::OpenSSH~0.70
 Encode::Locale~1.05
 Module::Runtime~0.014
 HTTP::Negotiate~6.01
-HTML::Entities~3.69
 LWP::Protocol::https~6.06
+HTML::Entities~3.69
 MRO::Compat~0.12
 Path::Tiny~0.090
 IO::Socket::SSL~2.027
@@ -52,8 +52,8 @@ URI~1.71
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-LWP::UserAgent~6.15
 Mozilla::CA~20160104
+LWP::UserAgent~6.15
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
