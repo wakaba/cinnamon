@@ -1,7 +1,7 @@
 Net::SSLeay~1.74
 YAML~1.15
 Directory::Scratch~0.18
-Capture::Tiny~0.36
+Capture::Tiny~0.40
 IPC::Run~0.94
 Cwd::Guard~0.05
 JSON::XS~3.02
@@ -9,6 +9,7 @@ YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.84
+HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4218
@@ -23,7 +24,6 @@ Test::Class~0.50
 HTTP::Cookies~6.01
 Canary::Stability~2011
 AnyEvent::HTTP~2.22
-HTTP::Request::Common~6.11
 Test::More~1.302019
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.033
@@ -45,15 +45,15 @@ HTTP::Negotiate~6.01
 LWP::Protocol::https~6.06
 HTML::Entities~3.69
 MRO::Compat~0.12
-Path::Tiny~0.090
+Path::Tiny~0.094
 Net::HTTP~6.09
 IO::Socket::SSL~2.027
 URI~1.71
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-LWP::UserAgent~6.15
 Mozilla::CA~20160104
+LWP::UserAgent~6.15
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
