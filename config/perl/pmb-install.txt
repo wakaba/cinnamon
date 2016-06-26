@@ -9,7 +9,6 @@ YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.84
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4218
@@ -25,7 +24,8 @@ HTML::HeadParser~3.71
 HTTP::Cookies~6.01
 Canary::Stability~2011
 AnyEvent::HTTP~2.22
-Test::More~1.302031
+HTTP::Request::Common~6.11
+Test::More~1.302033
 AnyEvent::HTTP::Socks~0.05
 DBD::mysql~4.033
 File::Temp~0.2304
@@ -52,8 +52,8 @@ URI~1.71
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-Mozilla::CA~20160104
 LWP::UserAgent~6.15
+Mozilla::CA~20160104
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
