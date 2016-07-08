@@ -5,15 +5,14 @@ Capture::Tiny~0.42
 IPC::Run~0.94
 Cwd::Guard~0.05
 JSON::XS~3.02
+HTTP::Status~6.11
 YAML::XS~0.62
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.84
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4218
-Test::Deep~1.120
 Term::ReadKey~2.33
 DBI~1.636
 Try::Tiny~0.24
@@ -26,7 +25,7 @@ Canary::Stability~2011
 AnyEvent::HTTP~2.22
 Test::More~1.302037
 AnyEvent::HTTP::Socks~0.05
-DBD::mysql~4.033
+DBD::mysql~4.034
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
