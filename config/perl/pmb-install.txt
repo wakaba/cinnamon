@@ -9,7 +9,6 @@ YAML::XS~0.63
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.84
-HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4218
@@ -30,15 +29,15 @@ DBD::mysql~4.035
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
+HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.68
 Scalar::Util~1.45
 Test::Requires~0.10
 Filter::Simple~0.91
-URI::Escape~3.31
 IO::Handle~1.28
-Types::Serialiser~1.0
 LWP::MediaTypes~6.02
+Types::Serialiser~1.0
 Net::OpenSSH~0.73
 Encode::Locale~1.05
 Module::Runtime~0.014
@@ -48,6 +47,7 @@ MRO::Compat~0.12
 Path::Tiny~0.096
 Net::HTTP~6.09
 IO::Socket::SSL~2.031
+URI~1.71
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
