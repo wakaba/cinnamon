@@ -5,6 +5,7 @@ Capture::Tiny~0.42
 IPC::Run~0.94
 Cwd::Guard~0.05
 JSON::XS~3.02
+HTTP::Status~6.11
 YAML::XS~0.63
 File::Listing~6.04
 IO::HTML~1.001
@@ -30,7 +31,6 @@ DBD::mysql~4.035
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
-HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.68
 Scalar::Util~1.45
