@@ -9,6 +9,7 @@ YAML::XS~0.63
 File::Listing~6.04
 IO::HTML~1.001
 Encode~2.84
+HTTP::Headers~6.11
 Crypt::SSLeay~0.72
 HTTP::Daemon~6.01
 Module::Build~0.4218
@@ -28,7 +29,6 @@ DBD::mysql~4.035
 File::Temp~0.2304
 Path::Class~0.36
 common::sense~3.74
-HTTP::Request~6.11
 WWW::RobotRules~6.02
 IO::Socket::Socks~0.68
 Scalar::Util~1.45
@@ -51,8 +51,8 @@ URI~1.71
 Digest::SHA1~2.13
 Carp~1.38
 HTTP::Date~6.02
-LWP::UserAgent~6.15
 Mozilla::CA~20160104
+LWP::UserAgent~6.15
 MIME::Base64~3.15
 HTML::Tagset~3.20
 Cwd~3.62
