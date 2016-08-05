@@ -11,7 +11,7 @@ DBD::mysql~4.035
 DBI~1.636
 Digest::SHA1~2.13
 Directory::Scratch~0.18
-Encode~2.84
+Encode~2.85
 Encode::Locale~1.05
 Exporter::Lite~0.08
 File::Listing~6.04
@@ -22,8 +22,8 @@ HTML::Tagset~3.20
 HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
-HTTP::Headers::Util~6.11
 HTTP::Negotiate~6.01
+HTTP::Request~6.11
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.033
