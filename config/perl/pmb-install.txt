@@ -23,10 +23,10 @@ HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
 HTTP::Negotiate~6.01
-HTTP::Request~6.11
+HTTP::Request::Common~6.11
 IO::HTML~1.001
 IO::Handle~1.28
-IO::Socket::SSL~2.036
+IO::Socket::SSL~2.037
 IO::Socket::Socks~0.68
 IPC::Run~0.94
 JSON::XS~3.02
