@@ -38,7 +38,7 @@ MRO::Compat~0.12
 Module::Build~0.4220
 Module::Runtime~0.014
 Mozilla::CA~20160104
-Net::HTTPS~6.09
+Net::HTTP~6.09
 Net::OpenSSH~0.73
 Net::SSLeay~1.78
 Path::Class~0.37
