@@ -7,7 +7,7 @@ Carp~1.38
 Crypt::SSLeay~0.72
 Cwd~3.62
 Cwd::Guard~0.05
-DBD::mysql~4.036
+DBD::mysql~4.037
 DBI~1.636
 Digest::SHA1~2.13
 Directory::Scratch~0.18
@@ -23,7 +23,7 @@ HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
 HTTP::Negotiate~6.01
-HTTP::Request::Common~6.11
+HTTP::Request~6.11
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.038
@@ -42,10 +42,10 @@ Net::HTTP~6.09
 Net::OpenSSH~0.73
 Net::SSLeay~1.78
 Path::Class~0.37
-Path::Tiny~0.096
+Path::Tiny~0.098
 Scalar::Util~1.46
 Term::ANSIColor~4.05
-Term::ReadKey~2.33
+Term::ReadKey~2.37
 Test::Class~0.50
 Test::More~1.302059
 Test::Requires~0.10
