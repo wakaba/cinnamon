@@ -26,7 +26,6 @@ HTTP::Date~6.02
 HTTP::Negotiate~6.01
 HTTP::Request~6.11
 HTTP::Response~6.11
-HTTP::Status~6.11
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.038
@@ -42,7 +41,6 @@ Module::Build~0.4220
 Module::Runtime~0.014
 Mozilla::CA~20160104
 Net::HTTP~6.09
-Net::HTTPS~6.09
 Net::OpenSSH~0.73
 Net::SSLeay~1.78
 Path::Class~0.37
