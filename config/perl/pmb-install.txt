@@ -7,7 +7,7 @@ Carp~1.38
 Crypt::SSLeay~0.72
 Cwd~3.62
 Cwd::Guard~0.05
-DBD::mysql~4.039
+DBD::mysql~4.040
 DBI~1.636
 Digest::SHA1~2.13
 Directory::Scratch~0.18
@@ -23,6 +23,7 @@ HTML::Tagset~3.20
 HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
+HTTP::Headers::Util~6.11
 HTTP::Negotiate~6.01
 HTTP::Request~6.11
 IO::HTML~1.001
