@@ -7,7 +7,7 @@ Carp~1.38
 Crypt::SSLeay~0.72
 Cwd~3.62
 Cwd::Guard~0.05
-DBD::mysql~4.040
+DBD::mysql~4.041
 DBI~1.636
 Digest::SHA1~2.13
 Directory::Scratch~0.18
@@ -17,11 +17,12 @@ Exporter::Lite~0.08
 File::Listing~6.04
 File::Temp~0.2304
 Filter::Simple~0.91
-HTML::HeadParser~3.71
+HTML::Entities~3.69
 HTML::Tagset~3.20
 HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
+HTTP::Headers::Util~6.11
 HTTP::Negotiate~6.01
 HTTP::Status~6.11
 IO::HTML~1.001
@@ -39,6 +40,7 @@ Module::Build~0.4220
 Module::Runtime~0.014
 Mozilla::CA~20160104
 Net::HTTP~6.09
+Net::HTTPS~6.09
 Net::OpenSSH~0.73
 Net::SSLeay~1.78
 Path::Class~0.37
