@@ -26,7 +26,6 @@ HTTP::Date~6.02
 HTTP::Headers~6.11
 HTTP::Negotiate~6.01
 HTTP::Request~6.11
-HTTP::Request::Common~6.11
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.040
