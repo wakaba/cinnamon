@@ -1,6 +1,7 @@
 AnyEvent~7.13
 AnyEvent::HTTP~2.23
 AnyEvent::HTTP::Socks~0.05
+AnyEvent::Handle
 Canary::Stability~2012
 Capture::Tiny~0.44
 Carp~1.38
@@ -25,11 +26,10 @@ HTTP::Daemon~6.01
 HTTP::Date~6.02
 HTTP::Headers::Util~6.11
 HTTP::Negotiate~6.01
-HTTP::Request~6.11
 HTTP::Response~6.11
 IO::HTML~1.001
 IO::Handle~1.28
-IO::Socket::SSL~2.043
+IO::Socket::SSL~2.044
 IO::Socket::Socks~0.73
 IPC::Run~0.94
 JSON::XS~3.03
