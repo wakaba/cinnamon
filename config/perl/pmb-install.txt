@@ -23,6 +23,7 @@ HTML::Tagset~3.20
 HTTP::Cookies~6.01
 HTTP::Daemon~6.01
 HTTP::Date~6.02
+HTTP::Headers~6.11
 HTTP::Headers::Util~6.11
 HTTP::Negotiate~6.01
 HTTP::Request::Common~6.11
@@ -55,6 +56,7 @@ Test::Requires~0.10
 Try::Tiny~0.28
 Types::Serialiser~1.0
 URI~1.71
+URI::Escape~3.31
 WWW::RobotRules~6.02
 YAML~1.21
 YAML::XS~0.63
