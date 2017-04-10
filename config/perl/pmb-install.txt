@@ -18,7 +18,6 @@ File::Listing~6.04
 File::Temp~0.2304
 Filter::Simple~0.91
 HTML::Entities~3.69
-HTML::HeadParser~3.71
 HTML::Tagset~3.20
 HTTP::Cookies~6.03
 HTTP::Daemon~6.01
