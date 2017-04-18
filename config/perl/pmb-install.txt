@@ -18,11 +18,14 @@ File::Listing~6.04
 File::Temp~0.2304
 Filter::Simple~0.91
 HTML::Entities~3.69
+HTML::HeadParser~3.71
 HTML::Tagset~3.20
 HTTP::Cookies~6.03
 HTTP::Daemon~6.01
 HTTP::Date~6.02
+HTTP::Headers~6.11
 HTTP::Negotiate~6.01
+HTTP::Request::Common~6.11
 HTTP::Response~6.11
 IO::HTML~1.001
 IO::Handle~1.28
@@ -39,6 +42,7 @@ Module::Build~0.4222
 Module::Runtime~0.014
 Mozilla::CA~20160104
 Net::HTTP~6.13
+Net::HTTPS~6.13
 Net::OpenSSH~0.74
 Net::SSLeay~1.81
 Path::Class~0.37
