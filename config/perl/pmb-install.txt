@@ -11,13 +11,12 @@ DBD::mysql~4.042
 DBI~1.636
 Digest::SHA1~2.13
 Directory::Scratch~0.18
-Encode~2.88
+Encode~2.89
 Encode::Locale~1.05
 Exporter::Lite~0.08
 File::Listing~6.04
 File::Temp~0.2304
 Filter::Simple~0.91
-HTML::Entities~3.69
 HTML::HeadParser~3.71
 HTML::Tagset~3.20
 HTTP::Cookies~6.03
