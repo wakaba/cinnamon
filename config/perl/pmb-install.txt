@@ -24,6 +24,7 @@ HTTP::Daemon~6.01
 HTTP::Date~6.02
 HTTP::Negotiate~6.01
 HTTP::Request~6.11
+HTTP::Status~6.11
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.048
@@ -35,10 +36,10 @@ LWP::Protocol::https~6.07
 LWP::UserAgent~6.26
 MIME::Base64~3.15
 MRO::Compat~0.13
-Module::Build~0.4222
+Module::Build~0.4224
 Module::Runtime~0.014
 Mozilla::CA~20160104
-Net::HTTP~6.15
+Net::HTTP~6.16
 Net::OpenSSH~0.74
 Net::SSLeay~1.81
 Path::Class~0.37
