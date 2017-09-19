@@ -17,7 +17,6 @@ Exporter::Lite~0.08
 File::Listing~6.04
 File::Temp~0.2304
 Filter::Simple~0.94
-HTML::Entities~3.69
 HTML::HeadParser~3.71
 HTML::Tagset~3.20
 HTTP::Cookies~6.04
@@ -25,7 +24,7 @@ HTTP::Daemon~6.01
 HTTP::Date~6.02
 HTTP::Headers~6.13
 HTTP::Negotiate~6.01
-HTTP::Request~6.13
+HTTP::Response~6.13
 IO::HTML~1.001
 IO::Handle~1.28
 IO::Socket::SSL~2.051
