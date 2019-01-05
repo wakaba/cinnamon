@@ -71,6 +71,7 @@ sub run {
         $out->print("cannot find config file for deploy : $config_file_name", newline => 1, class => 'error');
         return ERROR;
     }
+    $config_file_name = file ($config_file_name)->absolute;
 
     my $role_name = shift @ARGV;
     my $tasks = [map { [split /\s+/, $_] } map { decode 'utf-8', $_ } @ARGV];
